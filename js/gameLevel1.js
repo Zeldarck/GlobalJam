@@ -118,9 +118,9 @@ gameLevel1.prototype = {
 		var moving = false;
 		var walkAnimationSpeed = 6;
 		
+		game.physics.arcade.collide(this.characterSprite, this.mechant);
 		game.physics.arcade.collide(this.characterSprite, this.wallLayer);
-		 game.physics.arcade.collide(this.mechant, this.wallLayer);
-		  game.physics.arcade.collide(this.characterSprite, this.mechant);
+		game.physics.arcade.collide(this.mechant, this.wallLayer);
 		  
 		this.characterSprite.body.velocity.x = 0;
 
