@@ -1,8 +1,9 @@
 var gameLevel1 = function(){
 	this.monsters = null;
 	this.hero = null;
+	this.sb = null;
+	this.sbThrown=0;
 	this.monstersTab = null;
-
 };
 
 //***Heros***
@@ -10,6 +11,7 @@ function Character(life,sprite){
 	this.sprite = sprite;
 	this.life = life;
 	this.facing = 'right';
+	this.gloves=true;
 	this.jump = true;
 	this.sprite.life = 10;
 	}
@@ -34,7 +36,11 @@ function setMonster(monster, x, y) {
     monster.sprite.body.immovable = true;
 }
 
+
 gameLevel1.prototype = { 
+
+
+
     // Assets loading - do not use asssets here
 		 preload: function () {
         // Load this images, available with the associated keys later
@@ -45,7 +51,10 @@ gameLevel1.prototype = {
         //  0 is the margin of the file, 10 the spacing between each sprites
         //game.load.spritesheet('characterFrames', 'assets/SaraFullSheet7.png', 54, 55, -1, 0 ,10);
         //game.load.spritesheet('ballFrames', 'assets/ball_animation.png', 45, 45);
+        game.load.image('mechant', 'assets/mechant.png');
+		game.load.image('snowball', 'assets/snowball.png');
         game.load.image('monster', 'assets/mechant.png');
+
 
         //Tilemap
         //Created with Tiled software, with needed format: Orthogonal / CSV / .json files
@@ -78,6 +87,8 @@ gameLevel1.prototype = {
         // Observers
         this.cursorKeys = game.input.keyboard.createCursorKeys();
         this.spacebarKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+		this.wKey=game.input.keyboard.addKey(Phaser.Keyboard.W);
+
 
         // Physics engine initialisation (optional for arcade engine, need for other ones)
         game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -151,11 +162,10 @@ gameLevel1.prototype = {
     update: function (){
 		var moving = false;
 		var walkAnimationSpeed = 6;
+
 		game.physics.arcade.collide(this.hero.sprite, this.monsters,this.collideHeroMonster);
-		game.physics.arcade.collide(this.monsters,this.collideHeroMonster);
-	
-		game.physics.arcade.collide(this.monsters, this.monsters,this.collideHeroMonster);
-        var test = game.physics.arcade.collide(this.monsters, this.wallLayer);
+        game.physics.arcade.collide(this.monsters, this.wallLayer);
+		game.physics.arcade.collide(this.sb, this.wallLayer);
 		game.physics.arcade.collide(this.hero.sprite, this.wallLayer);
 		  
 		game.physics.arcade.overlap(this.hero.sprite, this.monsters,this.overlapHeroMonster);
@@ -193,6 +203,11 @@ gameLevel1.prototype = {
 			moving =false;
 			this.hero.sprite.body.velocity.y = -500;
 		}
+		//sbThrown = false
+		if(this.wKey.isDown && (game.time.now-this.sbThrown)>1000)
+		{
+			this.snowball();
+		}
 		
 		if(!moving){
 			this.hero.sprite.animations.stop();
@@ -221,6 +236,7 @@ gameLevel1.prototype = {
         {
             this.monstersTab[i].sprite.body.maxVelocity.set(maxCharacterVelocity,maxCharacterVelocity);
         }
+
 
 
     
@@ -268,9 +284,29 @@ gameLevel1.prototype = {
 		
 		
 	},
+
+	//How to throw a snowball
+	snowball: function(){
+		if(this.hero.gloves){
+			this.sb = game.add.sprite(this.hero.sprite.body.x, this.hero.sprite.body.y, 'snowball');
+
+			game.physics.enable(this.sb, Phaser.Physics.ARCADE);
+			this.sb.body.collideWorldBounds = false;
+			this.sb.body.drag.y = 500;
+			
+			if(this.hero.facing=='right'){
+				this.sb.body.velocity.x = 500;
+				this.sb.body.velocity.y = -200;
+			}else{
+				this.sb.body.velocity.x = -500;
+				this.sb.body.velocity.y = -200;
+			}
+			this.sbThrown = game.time.now;
+		}
+	},
+
 	
 	collideHeroMonster: function (heroSprite,monsterSprite) {
-		console.log('hey');
 		i = game.state.callbackContext.monsters.children.indexOf(monsterSprite);
 		//game.state.callbackContext.monstersTab[i]; donne le monstre touché
 		var x= heroSprite.body.x - monsterSprite.body.x;
