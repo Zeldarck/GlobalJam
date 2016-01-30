@@ -1,12 +1,14 @@
 var gameLevel1 = function(){
+	this.mechant = null;
 };
+
 
 gameLevel1.prototype = { 
     // Assets loading - do not use asssets here
 		 preload: function () {
         // Load this images, available with the associated keys later
         game.load.image('background', 'assets/background.jpg');
-        game.load.image('character', 'assets/snowboy2.gif');
+        game.load.image('character', 'assets/snowboy_sky1.png');
         // Each sprite is 54x55 . -1 means we don't limit to a number of sprites,
         //  0 is the margin of the file, 10 the spacing between each sprites
         //game.load.spritesheet('characterFrames', 'assets/SaraFullSheet7.png', 54, 55, -1, 0 ,10);
@@ -50,7 +52,7 @@ gameLevel1.prototype = {
         // The sprite will collide with the borders
         this.characterSprite.body.collideWorldBounds = true;
         // We limit the physic body to a smaller part of the sprite (it contains white spaces)
-        this.characterSprite.body.setSize(15, 35, 25, 20);
+        this.characterSprite.body.setSize(10, 35, 30, 20);
 		
 		game.physics.enable(this.mechant, Phaser.Physics.ARCADE);
         // The sprite will collide with the borders
@@ -95,10 +97,14 @@ gameLevel1.prototype = {
         this.startDate = new Date();
 		
 		game.physics.arcade.gravity.y = 800;
-		this.characterSprite.body.bounce.y = 0.2;
 		this.characterSprite.body.mass = 10;
-
 		
+		this.mechantMove = 0;
+		this.mechantMaxMove = 150;
+		this.mechantDirection = -1;
+		this.mechantView =100;
+		this.mechantChase = 0;
+		this.characterSprite.body.mass = 50;
     },
     // Called for each refresh
     update: function (){
@@ -118,21 +124,23 @@ gameLevel1.prototype = {
 			this.characterSprite.body.velocity.x = 150;
 
 		}
-		else
-		{
-			
-		}
+		
+
 		
 		if (this.cursorKeys.up.isDown && this.characterSprite.body.onFloor())
 		{
 			this.characterSprite.body.velocity.y = -500;
 		}
 		
+		this.moveRangeDefense();
+
+		
 		 game.physics.arcade.collide(this.characterSprite, this.wallLayer);
 		 game.physics.arcade.collide(this.mechant, this.wallLayer);
 
 		 var maxCharacterVelocity = 600;
         this.characterSprite.body.maxVelocity.set(maxCharacterVelocity,maxCharacterVelocity);    
+		this.mechant.body.maxVelocity.set(maxCharacterVelocity,maxCharacterVelocity);    
        // var characterSpeed = 40;
         // var moving = false;
         // var walkAnimationSpeed = 100;
@@ -155,5 +163,38 @@ gameLevel1.prototype = {
         }else{
             game.debug.reset();
         }
-    }
+    },
+	
+	
+	moveRangeDefense: function () {
+		this.mechant.body.velocity.x = 0;
+		if( (Math.abs(this.mechant.body.y - this.characterSprite.body.y) < 10 && Math.abs(this.mechant.body.x - this.characterSprite.body.x) < this.mechantView )|| this.mechantChase >0){
+			if((Math.abs(this.mechant.body.y - this.characterSprite.body.y) < 10 && Math.abs(this.mechant.body.x - this.characterSprite.body.x) < this.mechantView ) ){
+				this.mechantChase = 35;
+			}else{
+				this.mechantChase--;
+			}
+			if(this.mechant.body.x - this.characterSprite.body.x < 0){
+				this.mechant.body.velocity.x = 130;
+			}else{
+				this.mechant.body.velocity.x = -130;
+			}
+			
+			if(this.mechant.body.onFloor()){
+				this.mechant.body.velocity.y = -250;
+			}
+			
+		}
+		else 
+		{
+			this.mechant.body.velocity.x = this.mechantDirection * 150;
+			this.mechantMove++;
+			if(this.mechantMove > this.mechantMaxMove){
+				this.mechantMove = 0;
+				this.mechantDirection *= -1;
+			}
+		}
+		
+		
+	}
 };
