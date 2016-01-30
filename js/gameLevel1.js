@@ -14,7 +14,33 @@ function Character(life,sprite){
 	this.gloves=true;
 	this.jump = true;
 	this.sprite.life = 10;
+	this.sword = null; 
+}
+	
+Character.prototype.makeSword = function() {
+	 if (this.facing == 'left')
+    {
+		this.sword = game.add.sprite(this.sprite.x + 5,this.sprite.y + 10, null);
+		
 	}
+    else
+    {
+		this.sword = game.add.sprite(this.sprite.x + 50,this.sprite.y + 10, null);
+    }
+	
+		game.physics.enable(this.sword, Phaser.Physics.ARCADE);
+		this.sword.body.setSize(30, 45, 0, 0);   
+}
+
+Character.prototype.destroySword = function() {
+	 this.sword.kill();
+	 	 this.sword.destroy();
+
+}
+
+	
+	
+	
 
 //    Monstre      \\
 
@@ -100,7 +126,6 @@ gameLevel1.prototype = {
         this.hero.sprite.body.collideWorldBounds = true;
         this.hero.sprite.body.setSize(10, 35, 35, 20);
 
-
         // The sprite will collide with the borders
         // We limit the physic body to a smaller part of the sprite (it contains white spaces)
 
@@ -160,6 +185,7 @@ gameLevel1.prototype = {
     },
     // Called for each refresh
     update: function (){
+
 		var moving = false;
 		var walkAnimationSpeed = 6;
 
@@ -167,7 +193,7 @@ gameLevel1.prototype = {
         game.physics.arcade.collide(this.monsters, this.wallLayer);
 		game.physics.arcade.collide(this.sb, this.wallLayer);
 		game.physics.arcade.collide(this.hero.sprite, this.wallLayer);
-		  
+
 		game.physics.arcade.overlap(this.hero.sprite, this.monsters,this.overlapHeroMonster);
  	  
 
@@ -206,8 +232,19 @@ gameLevel1.prototype = {
 		//sbThrown = false
 		if(this.wKey.isDown && (game.time.now-this.sbThrown)>1000)
 		{
+			
 			this.snowball();
 		}
+		
+		
+		
+		if(this.spacebarKey.isDown)
+		{
+			this.hero.makeSword();
+			game.physics.arcade.collide(this.hero.sword, this.monsters);
+			this.hero.destroySword();
+		}
+		
 		
 		if(!moving){
 			this.hero.sprite.animations.stop();
@@ -244,12 +281,8 @@ gameLevel1.prototype = {
     },
     // Called after the renderer rendered - usefull for debug rendering, ...
     render: function  () {
-        if(this.debug){
-            game.debug.body(this.hero.sprite);
-            game.debug.body(this.ballSprite);
-        }else{
-            game.debug.reset();
-        }
+		if(game.state.callbackContext.hero.sword != null)
+		game.debug.body(game.state.callbackContext.hero.sword);
     },
 	
 	
