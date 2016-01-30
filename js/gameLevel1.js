@@ -324,7 +324,7 @@ gameLevel1.prototype = {
             }
 			
 			
-			game.physics.arcade.collide(this.hero.sword, this.monsters,this.test);
+			game.physics.arcade.collide(this.hero.sword, this.monsters, this.swordDamage);
 			this.hero.destroySword();
 			moving = true;
 		}
@@ -539,7 +539,6 @@ gameLevel1.prototype = {
 	snowballDamage : function (snowBallSprite, monsterSprite) {
         var i = game.state.callbackContext.monsters.children.indexOf(monsterSprite);
         game.state.callbackContext.monstersTab[i].health = game.state.callbackContext.monstersTab[i].health - 50;
-        console.log(game.state.callbackContext.monstersTab[i].health);
         game.state.callbackContext.sb = null;
         if (game.state.callbackContext.monstersTab[i].health == 0) {
             game.state.callbackContext.monsters.remove(monsterSprite);
@@ -549,7 +548,15 @@ gameLevel1.prototype = {
 	
 	
 	swordDamage : function (swordSprite, monsterSprite) {
-
+        console.log("SWORD");
+        var i = game.state.callbackContext.monsters.children.indexOf(monsterSprite);
+        game.state.callbackContext.monstersTab[i].health = game.state.callbackContext.monstersTab[i].health - 50;
+        console.log(game.state.callbackContext.monstersTab[i].health);
+        game.state.callbackContext.sb = null;
+        if (game.state.callbackContext.monstersTab[i].health == 0) {
+            game.state.callbackContext.monsters.remove(monsterSprite);
+            monsterSprite.visible = false;
+        }
     }
 	
 };
