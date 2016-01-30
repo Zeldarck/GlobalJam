@@ -1,5 +1,5 @@
 var gameLevel1 = function(){
-	this.monster = null;
+	this.monsters = null;
 	this.hero = null;
 };
 
@@ -56,7 +56,14 @@ gameLevel1.prototype = {
         this.backgroundSprite = game.add.sprite(0, 0, 'background');
 
         var sprite = game.add.sprite(375, 300, 'characterFrames');
+        this.monsters = [];
+        //this.monsters = this.add.physicsGroup();
+
         this.monster = new Monster(0, 150, -1, 100, 0, game.add.sprite(350, 450, 'monster'));
+        this.monster2 = new Monster(0, 100, -1, 100, 0, game.add.sprite(350, 450, 'monster'));
+
+        this.monsters.push(this.monster);
+        this.monsters.push(this.monster2);
 
 		//create hero
 		this.hero = new Character(10,sprite); 
@@ -77,21 +84,12 @@ gameLevel1.prototype = {
         // Init hero
         this.hero.sprite.body.collideWorldBounds = true;
         this.hero.sprite.body.setSize(10, 35, 30, 20);
-		
-		game.physics.enable(this.monster.sprite, Phaser.Physics.ARCADE);
+
+        // Init monsters sprite
+        game.physics.enable(this.monster.sprite, Phaser.Physics.ARCADE);
+        game.physics.enable(this.monster2.sprite, Phaser.Physics.ARCADE);
         // The sprite will collide with the borders
         // We limit the physic body to a smaller part of the sprite (it contains white spaces)
-        //Ball body
-        //game.physics.enable(this.ballSprite, Phaser.Physics.ARCADE);
-        //this.ballSprite.body.collideWorldBounds = true;
-        // A ball is very bouncy, we set its bounce to the max
-        //this.ballSprite.body.bounce.set(0.8, 0.8);
-        // We decrease the default mass (1) to have a more reactive ball during collision (it is not as heavy as the player !)
-        //this.ballSprite.body.mass = 0.5;
-        // Drag will progressively decrease ball velocity
-        //this.ballSprite.body.drag.x = 50;
-        //this.ballSprite.body.drag.y = 50;
-
 
         var map = game.add.tilemap('map');
         // The tileset name must match the one defined in Tiled
@@ -111,7 +109,15 @@ gameLevel1.prototype = {
         // Sprites are z-ordered by creation. As we added tiles later,
         //  we move back other sprites to top
         this.hero.sprite.bringToTop();
-        this.monster.sprite.bringToTop();
+        //this.monster.sprite.bringToTop();
+        //this.monster2.sprite.bringToTop();
+
+        setMonster(this.monster, 50, 50);
+        setMonster(this.monster2, 20, 50);
+        for (var monster in this.monsters)
+        {
+            this.monsters[monster].sprite.bringToTop();
+        }
 
         this.startDate = new Date();
 		
@@ -119,17 +125,21 @@ gameLevel1.prototype = {
 		game.physics.arcade.gravity.y = 800;
 		this.hero.sprite.body.mass = 50;
 		
-        setMonster(this.monster, 50, 50);
     },
     // Called for each refresh
     update: function (){
 		var moving = false;
 		var walkAnimationSpeed = 6;
 
-		game.physics.arcade.collide(this.hero.sprite, this.monster.sprite);
+        for (var monster in this.monsters)
+        {
+            game.physics.arcade.collide(this.hero.sprite, this.monsters[monster].sprite);
+            game.physics.arcade.collide(this.monsters[monster].sprite, this.wallLayer);
+        }
+        //game.physics.arcade.collide(this.hero.sprite, this.monster.sprite);
+        //game.physics.arcade.collide(this.monster.sprite, this.wallLayer);
 		game.physics.arcade.collide(this.hero.sprite, this.wallLayer);
-		game.physics.arcade.collide(this.monster.sprite, this.wallLayer);
-		  
+
 		this.hero.sprite.body.velocity.x = 0;
 
 		if(this.hero.sprite.body.blocked.down || this.hero.sprite.body.touching.down){
@@ -178,15 +188,21 @@ gameLevel1.prototype = {
             }
 		}
 
-		
-		
-		
-		this.moveRangeDefense();
+
+
+
+        for (var monster in this.monsters)
+        {
+            this.moveRangeDefense(this.monsters[monster]);
+        }
 
 		 var maxCharacterVelocity = 600;
-        this.hero.sprite.body.maxVelocity.set(maxCharacterVelocity,maxCharacterVelocity);    
-		this.monster.sprite.body.maxVelocity.set(maxCharacterVelocity,maxCharacterVelocity);
- 
+        this.hero.sprite.body.maxVelocity.set(maxCharacterVelocity,maxCharacterVelocity);
+        for (var monster in this.monsters)
+        {
+            this.monsters[monster].sprite.body.maxVelocity.set(maxCharacterVelocity,maxCharacterVelocity);
+        }
+
 
     
 
@@ -202,32 +218,32 @@ gameLevel1.prototype = {
     },
 	
 	
-	moveRangeDefense: function () {
-		this.monster.sprite.body.velocity.x = 0;
-		if( (Math.abs(this.monster.sprite.body.y - this.hero.sprite.body.y) < 10 && Math.abs(this.monster.sprite.body.x - this.hero.sprite.body.x) < this.monster.view )|| this.monster.chase >0){
-			if((Math.abs(this.monster.sprite.body.y - this.hero.sprite.body.y) < 10 && Math.abs(this.monster.sprite.body.x - this.hero.sprite.body.x) < this.monster.view ) ){
-				this.monster.chase = 50;
+	moveRangeDefense: function (monster) {
+		monster.sprite.body.velocity.x = 0;
+		if( (Math.abs(monster.sprite.body.y - this.hero.sprite.body.y) < 10 && Math.abs(monster.sprite.body.x - this.hero.sprite.body.x) < monster.view )|| monster.chase >0){
+			if((Math.abs(monster.sprite.body.y - this.hero.sprite.body.y) < 10 && Math.abs(monster.sprite.body.x - this.hero.sprite.body.x) < monster.view ) ){
+				monster.chase = 50;
 			}else{
-				this.monster.chase--;
+				monster.chase--;
 			}
-			if(this.monster.sprite.body.x - this.hero.sprite.body.x < 0){
-				this.monster.sprite.body.velocity.x = 130;
+			if(monster.sprite.body.x - this.hero.sprite.body.x < 0){
+				monster.sprite.body.velocity.x = 130;
 			}else{
-				this.monster.sprite.body.velocity.x = -130;
+				monster.sprite.body.velocity.x = -130;
 			}
 			
-			if(this.monster.sprite.body.onFloor()){
-				this.monster.sprite.body.velocity.y = -200;
+			if(monster.sprite.body.onFloor()){
+				monster.sprite.body.velocity.y = -200;
 			}
 			
 		}
 		else 
 		{
-			this.monster.sprite.body.velocity.x = this.monster.direction * 150;
-			this.monster.move++;
-			if(this.monster.move > this.monster.maxMove){
-				this.monster.move = 0;
-				this.monster.direction *= -1;
+			monster.sprite.body.velocity.x = monster.direction * 150;
+			monster.move++;
+			if(monster.move > monster.maxMove){
+				monster.move = 0;
+				monster.direction *= -1;
 			}
 		}
 		
