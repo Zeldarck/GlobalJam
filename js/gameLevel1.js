@@ -1,6 +1,14 @@
 var gameLevel1 = function(){
 	this.mechant = null;
+	this.hero = null;
 };
+
+//***Heros***
+function Character(life,sprite){
+	this.sprite = sprite;
+	this.life = life;
+	this.facing = 'right';
+	}
 
 
 gameLevel1.prototype = { 
@@ -26,34 +34,30 @@ gameLevel1.prototype = {
     create: function () {
         // Create a sprite
         this.backgroundSprite = game.add.sprite(0, 0, 'background');
-        //this.ballSprite = game.add.sprite(120, 325, 'ballFrames');
-        //this.ballSprite.scale.set(0.5,0.5);
+
 		
 		this.mechant = game.add.sprite(350, 450, 'mechant');
-        this.characterSprite = game.add.sprite(375, 300, 'characterFrames');
-
-        // Add animations
+        sprite = game.add.sprite(375, 300, 'characterFrames');
+		
+		//create hero
+		this.hero = new Character(10,sprite); 
+        // Add animations     
+        this.hero.sprite.animations.add("left",[6,7,8,9,10,11]);
+        this.hero.sprite.animations.add("right",[0,1,2,3,4,5]);
         
-		//this.characterSprite.animations.add("up",[0,1,2,3,4,5,6,7,8]);
-        this.characterSprite.animations.add("left",[6,7,8,9,10,11]);
-        //this.characterSprite.animations.add("down",[26,27,28,29,30,31,32,33,34]);
-        this.characterSprite.animations.add("right",[0,1,2,3,4,5]);
-        
-		//this.ballSprite.animations.add("rolling");
-
-        // Shortcut method to create 4 inputs for the arrow keys
+        // Observers
         this.cursorKeys = game.input.keyboard.createCursorKeys();
-        // Creation of a specific key observer
         this.spacebarKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 
         // Physics engine initialisation (optional for arcade engine, need for other ones)
         game.physics.startSystem(Phaser.Physics.ARCADE);
-        // Add a physical body to the sprite
-        game.physics.enable(this.characterSprite, Phaser.Physics.ARCADE);
-        // The sprite will collide with the borders
-        this.characterSprite.body.collideWorldBounds = true;
-        // We limit the physic body to a smaller part of the sprite (it contains white spaces)
-        this.characterSprite.body.setSize(10, 35, 30, 20);
+		
+        // Init hero sprite
+        game.physics.enable(this.hero.sprite, Phaser.Physics.ARCADE);
+				
+        // Init hero
+        this.hero.sprite.body.collideWorldBounds = true;
+        this.hero.sprite.body.setSize(10, 35, 30, 20);
 		
 		game.physics.enable(this.mechant, Phaser.Physics.ARCADE);
         // The sprite will collide with the borders
@@ -85,23 +89,23 @@ gameLevel1.prototype = {
         //The world will have the map size
         backgroundLayer.resizeWorld();
         //The camera will follow the player, as the world is bigger than the screen
-        game.camera.follow(this.characterSprite);
+        game.camera.follow(this.hero.sprite);
         // Every tiles in the walls layer will be able to colide in this layer
         map.setCollisionByExclusion([],true,'walls');
         map.setCollisionByExclusion([],true,'goals');
 
         // Sprites are z-ordered by creation. As we added tiles later,
         //  we move back other sprites to top
-        //this.ballSprite.bringToTop();
-        this.characterSprite.bringToTop();
+        this.hero.sprite.bringToTop();
         this.mechant.bringToTop();
 		this.mechant.body.bounce.setTo(0.5,0.2);
 		
         this.startDate = new Date();
 		
+		//Physic héros
 		game.physics.arcade.gravity.y = 800;
-		this.characterSprite.body.bounce.setTo(0.5,0.2);
-		this.characterSprite.body.mass = 50;
+		this.hero.sprite.body.bounce.setTo(0.5,0.2);
+		this.hero.sprite.body.mass = 50;
 		
 		this.mechant.body.drag.x = 50;
 		this.mechant.body.drag.y = 50;
@@ -118,47 +122,53 @@ gameLevel1.prototype = {
 		var moving = false;
 		var walkAnimationSpeed = 6;
 		
-		game.physics.arcade.collide(this.characterSprite, this.mechant);
-		game.physics.arcade.collide(this.characterSprite, this.wallLayer);
+		game.physics.arcade.collide(this.hero.sprite, this.mechant);
+		game.physics.arcade.collide(this.hero.sprite, this.wallLayer);
 		game.physics.arcade.collide(this.mechant, this.wallLayer);
 		  
-		this.characterSprite.body.velocity.x = 0;
+		this.hero.sprite.body.velocity.x = 0;
 
 		if (this.cursorKeys.left.isDown)
 		{
-			this.characterSprite.body.velocity.x = -150;
-			if(!moving)this.characterSprite.animations.play("left",walkAnimationSpeed,true);
+			this.hero.sprite.body.velocity.x = -150;
+			if(!moving){
+				this.hero.sprite.animations.play("left",walkAnimationSpeed,true)
+			    facing = 'left';
+			};
 			moving = true;
 
 		}
 		else if (this.cursorKeys.right.isDown)
 		{
-			this.characterSprite.body.velocity.x = 150;
-			if(!moving)this.characterSprite.animations.play("right",walkAnimationSpeed,true);
+			this.hero.sprite.body.velocity.x = 150;
+			if(!moving){
+				this.hero.sprite.animations.play("right",walkAnimationSpeed,true)
+			    facing = 'right';
+			};			
 			moving = true;
 
 		}
 		if(!moving){
-			this.characterSprite.frame = 0;
+			this.hero.sprite.frame = 0;
 		}
 
 		
-		if (this.cursorKeys.up.isDown && this.characterSprite.body.onFloor())
+		if (this.cursorKeys.up.isDown && this.hero.sprite.body.onFloor())
 		{
-			this.characterSprite.body.velocity.y = -500;
+			this.hero.sprite.body.velocity.y = -500;
 		}
 		
 		this.moveRangeDefense();
 
 	
 		 
-		// game.physics.arcade.collide(this.characterSprite, this.mechant);// (function(mechant){
+		// game.physics.arcade.collide(this.hero.sprite, this.mechant);// (function(mechant){
 		    // mechant.body.velocity.x -= 100;
 		    // this.mechantChase = 0;
         // })(this.mechant));
 
 		 var maxCharacterVelocity = 600;
-        this.characterSprite.body.maxVelocity.set(maxCharacterVelocity,maxCharacterVelocity);    
+        this.hero.sprite.body.maxVelocity.set(maxCharacterVelocity,maxCharacterVelocity);    
 		this.mechant.body.maxVelocity.set(maxCharacterVelocity,maxCharacterVelocity);    
        // var characterSpeed = 40;
         // var moving = false;
@@ -166,8 +176,8 @@ gameLevel1.prototype = {
         // var walkAnimationLooping = true;//true means that the animation will loop once finished
 
         // if(this.cursorKeys.up.isDown){
-			// this.characterSprite.body.velocity.y -= 250;
-			// if(!moving) this.characterSprite.animations.play("up",walkAnimationSpeed,walkAnimationLooping);
+			// this.hero.sprite.body.velocity.y -= 250;
+			// if(!moving) this.hero.sprite.animations.play("up",walkAnimationSpeed,walkAnimationLooping);
             // moving = true;
         // }
 
@@ -177,7 +187,7 @@ gameLevel1.prototype = {
     // Called after the renderer rendered - usefull for debug rendering, ...
     render: function  () {
         if(this.debug){
-            game.debug.body(this.characterSprite);
+            game.debug.body(this.hero.sprite);
             game.debug.body(this.ballSprite);
         }else{
             game.debug.reset();
@@ -187,13 +197,13 @@ gameLevel1.prototype = {
 	
 	moveRangeDefense: function () {
 		this.mechant.body.velocity.x = 0;
-		if( (Math.abs(this.mechant.body.y - this.characterSprite.body.y) < 10 && Math.abs(this.mechant.body.x - this.characterSprite.body.x) < this.mechantView )|| this.mechantChase >0){
-			if((Math.abs(this.mechant.body.y - this.characterSprite.body.y) < 10 && Math.abs(this.mechant.body.x - this.characterSprite.body.x) < this.mechantView ) ){
+		if( (Math.abs(this.mechant.body.y - this.hero.sprite.body.y) < 10 && Math.abs(this.mechant.body.x - this.hero.sprite.body.x) < this.mechantView )|| this.mechantChase >0){
+			if((Math.abs(this.mechant.body.y - this.hero.sprite.body.y) < 10 && Math.abs(this.mechant.body.x - this.hero.sprite.body.x) < this.mechantView ) ){
 				this.mechantChase = 50;
 			}else{
 				this.mechantChase--;
 			}
-			if(this.mechant.body.x - this.characterSprite.body.x < 0){
+			if(this.mechant.body.x - this.hero.sprite.body.x < 0){
 				this.mechant.body.velocity.x = 130;
 			}else{
 				this.mechant.body.velocity.x = -130;
