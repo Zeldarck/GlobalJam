@@ -100,7 +100,7 @@ gameLevel1.prototype = {
 		
 		game.physics.arcade.gravity.y = 800;
 		this.characterSprite.body.bounce.setTo(0.5,0.2);
-		this.characterSprite.body.mass = 10;
+		this.characterSprite.body.mass = 50;
 		
 		this.mechant.body.drag.x = 50;
 		this.mechant.body.drag.y = 50;
@@ -110,14 +110,15 @@ gameLevel1.prototype = {
 		this.mechantDirection = -1;
 		this.mechantView =100;
 		this.mechantChase = 0;
-		this.characterSprite.body.mass = 50;
+		this.mechant.body.immovable = true;
     },
     // Called for each refresh
     update: function (){
 		
 		game.physics.arcade.collide(this.characterSprite, this.wallLayer);
 		 game.physics.arcade.collide(this.mechant, this.wallLayer);
-
+		  game.physics.arcade.collide(this.characterSprite, this.mechant);
+		  
 		this.characterSprite.body.velocity.x = 0;
 
 		if (this.cursorKeys.left.isDown)
@@ -140,9 +141,12 @@ gameLevel1.prototype = {
 		
 		this.moveRangeDefense();
 
-		
-		 game.physics.arcade.collide(this.characterSprite, this.wallLayer);
-		 game.physics.arcade.collide(this.mechant, this.wallLayer);
+	
+		 
+		// game.physics.arcade.collide(this.characterSprite, this.mechant);// (function(mechant){
+		    // mechant.body.velocity.x -= 100;
+		    // this.mechantChase = 0;
+        // })(this.mechant));
 
 		 var maxCharacterVelocity = 600;
         this.characterSprite.body.maxVelocity.set(maxCharacterVelocity,maxCharacterVelocity);    
@@ -157,10 +161,7 @@ gameLevel1.prototype = {
 			// if(!moving) this.characterSprite.animations.play("up",walkAnimationSpeed,walkAnimationLooping);
             // moving = true;
         // }
-		   game.physics.arcade.collide(this.characterSprite, this.mechant, function(){
-           console.log("Ennemy was touched by player");
-           return true;
-        });
+
     
 
     },
