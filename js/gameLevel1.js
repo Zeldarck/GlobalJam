@@ -22,16 +22,16 @@ gameLevel1.prototype = {
     create: function () {
         // Create a sprite
         this.backgroundSprite = game.add.sprite(0, 0, 'background');
-        this.ballSprite = game.add.sprite(120, 325, 'ballFrames');
-        this.ballSprite.scale.set(0.5,0.5);
-        this.characterSprite = game.add.sprite(50, 300, 'characterFrames');
+        //this.ballSprite = game.add.sprite(120, 325, 'ballFrames');
+        //this.ballSprite.scale.set(0.5,0.5);
+        this.characterSprite = game.add.sprite(375, 300, 'characterFrames');
 
         // Add animations
         this.characterSprite.animations.add("up",[0,1,2,3,4,5,6,7,8]);
         this.characterSprite.animations.add("left",[13,14,15,16,17,18,19,20,21]);
         this.characterSprite.animations.add("down",[26,27,28,29,30,31,32,33,34]);
         this.characterSprite.animations.add("right",[39,40,41,42,43,44,45,46,47]);
-        this.ballSprite.animations.add("rolling");
+        //this.ballSprite.animations.add("rolling");
 
         // Shortcut method to create 4 inputs for the arrow keys
         this.cursorKeys = game.input.keyboard.createCursorKeys();
@@ -47,15 +47,15 @@ gameLevel1.prototype = {
         // We limit the physic body to a smaller part of the sprite (it contains white spaces)
         this.characterSprite.body.setSize(15, 35, 25, 20);
         //Ball body
-        game.physics.enable(this.ballSprite, Phaser.Physics.ARCADE);
-        this.ballSprite.body.collideWorldBounds = true;
+        //game.physics.enable(this.ballSprite, Phaser.Physics.ARCADE);
+        //this.ballSprite.body.collideWorldBounds = true;
         // A ball is very bouncy, we set its bounce to the max
-        this.ballSprite.body.bounce.set(0.8, 0.8);
+        //this.ballSprite.body.bounce.set(0.8, 0.8);
         // We decrease the default mass (1) to have a more reactive ball during collision (it is not as heavy as the player !)
-        this.ballSprite.body.mass = 0.5;
+        //this.ballSprite.body.mass = 0.5;
         // Drag will progressively decrease ball velocity
-        this.ballSprite.body.drag.x = 50;
-        this.ballSprite.body.drag.y = 50;
+        //this.ballSprite.body.drag.x = 50;
+        //this.ballSprite.body.drag.y = 50;
 
 
         var map = game.add.tilemap('map');
@@ -75,12 +75,12 @@ gameLevel1.prototype = {
 
         // Sprites are z-ordered by creation. As we added tiles later,
         //  we move back other sprites to top
-        this.ballSprite.bringToTop();
+        //this.ballSprite.bringToTop();
         this.characterSprite.bringToTop();
 
         this.startDate = new Date();
 		
-		game.physics.arcade.gravity.y = 100;
+		game.physics.arcade.gravity.y = 800;
 		this.characterSprite.body.bounce.y = 0.2;
 		this.characterSprite.body.mass = 10;
 
@@ -108,13 +108,15 @@ gameLevel1.prototype = {
 			
 		}
 		
-		if (this.cursorKeys.up.isDown)
+		if (this.cursorKeys.up.isDown && this.characterSprite.body.onFloor())
 		{
-			this.characterSprite.body.velocity.y = - 70;
+			this.characterSprite.body.velocity.y = -500;
 		}
 		
 		 game.physics.arcade.collide(this.characterSprite, this.wallLayer);
 
+		 var maxCharacterVelocity = 600;
+        this.characterSprite.body.maxVelocity.set(maxCharacterVelocity,maxCharacterVelocity);    
        // var characterSpeed = 40;
         // var moving = false;
         // var walkAnimationSpeed = 100;
