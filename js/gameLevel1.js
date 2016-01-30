@@ -126,6 +126,7 @@ function Monster(Move, MaxMove, Direction, View, Chase, sprite){
     this.direction = Direction;
     this.view = View;
     this.chase = Chase;
+    this.health = 100;
 }
 function setMonster(monster, x, y) {
     monster.sprite.body.drag.x = x;
@@ -267,7 +268,8 @@ gameLevel1.prototype = {
 
 		game.physics.arcade.collide(this.hero.sprite, this.monsters,this.collideHeroMonster);
         game.physics.arcade.collide(this.monsters, this.wallLayer);
-		game.physics.arcade.collide(this.sb, this.wallLayer);
+        game.physics.arcade.collide(this.sb, this.wallLayer);
+        game.physics.arcade.collide(this.sb, this.monsters, this.snowballDamage);
 		game.physics.arcade.collide(this.hero.sprite, this.wallLayer);
 		  
 		game.physics.arcade.overlap(this.hero.sprite, this.monsters,this.overlapHeroMonster);
@@ -305,15 +307,24 @@ gameLevel1.prototype = {
 			moving =false;
 			this.hero.sprite.body.velocity.y = -500;
 		}
+
 		//Snowball
 		if(this.wKey.isDown && (game.time.now-this.sbThrown)>1000)
 		{
 			this.snowball();
 		}
+		if ((game.time.now-this.sbThrown) > 1000 )
+        {
+            this.sb = null;
+        }
+		
 		//Change outfit
 		if(this.qKey.isDown){
 			this.hero.looseMask();
 		}
+		//sbThrown = false
+
+
 		
 		if(!moving){
 			this.hero.sprite.animations.stop();
@@ -446,8 +457,8 @@ gameLevel1.prototype = {
 
 	
 	collideHeroMonster: function (heroSprite,monsterSprite) {
-		i = game.state.callbackContext.monsters.children.indexOf(monsterSprite);
-		//game.state.callbackContext.monstersTab[i]; donne le monstre touché
+        i = game.state.callbackContext.monsters.children.indexOf(monsterSprite);
+        //game.state.callbackContext.monstersTab[i]; donne le monstre touché
 		var x= heroSprite.body.x - monsterSprite.body.x;
 		var y= heroSprite.body.y - monsterSprite.body.y;
 		heroSprite.body.velocity.y += y*3 ;
@@ -460,8 +471,8 @@ gameLevel1.prototype = {
 	
 	overlapHeroMonster: function (heroSprite,monsterSprite) {
 		i = game.state.callbackContext.monsters.children.indexOf(monsterSprite);
-		game.state.callbackContext.monstersTab[i].chase = 0;
-		
+        game.state.callbackContext.monstersTab[i].chase = 0;
+
 		
 		var x= heroSprite.body.x - monsterSprite.body.x;
 		var y= heroSprite.body.y - monsterSprite.body.y;
@@ -473,7 +484,16 @@ gameLevel1.prototype = {
 		monsterSprite.body.velocity.x *= -1;
 
 		return true;
-	}
+	},
 	
-	
+	snowballDamage : function (snowBallSprite, monsterSprite) {
+        var i = game.state.callbackContext.monsters.children.indexOf(monsterSprite);
+        game.state.callbackContext.monstersTab[i].health = game.state.callbackContext.monstersTab[i].health - 50;
+        console.log(game.state.callbackContext.monstersTab[i].health);
+        game.state.callbackContext.sb = null;
+        if (game.state.callbackContext.monstersTab[i].health == 0) {
+            game.state.callbackContext.monsters.remove(monsterSprite);
+            monsterSprite.visible = false;
+        }
+    }
 };
