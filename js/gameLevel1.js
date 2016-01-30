@@ -87,7 +87,7 @@ gameLevel1.prototype = {
 				
         // Init hero
         this.hero.sprite.body.collideWorldBounds = true;
-        this.hero.sprite.body.setSize(15, 35, 35, 20);
+        this.hero.sprite.body.setSize(10, 35, 35, 20);
 
 
         // The sprite will collide with the borders
@@ -120,7 +120,7 @@ gameLevel1.prototype = {
         var monster = new Monster(0, 150, -1, 100, 0, sprite2);
 		this.monstersTab.push(monster);
 		game.physics.enable(monster.sprite, Phaser.Physics.ARCADE);
-		sprite2 = this.monsters.create(350, 450, 'monster');
+		sprite2 = this.monsters.create(300, 450, 'monster');
         monster = new Monster(0, 150, -1, 100, 0, sprite2);
 		this.monstersTab.push(monster);
 		game.physics.enable(monster.sprite, Phaser.Physics.ARCADE);
@@ -152,10 +152,13 @@ gameLevel1.prototype = {
 		var moving = false;
 		var walkAnimationSpeed = 6;
 		game.physics.arcade.collide(this.hero.sprite, this.monsters,this.collideHeroMonster);
-        game.physics.arcade.collide(this.monsters, this.wallLayer);
+		game.physics.arcade.collide(this.monsters,this.collideHeroMonster);
+	
+		game.physics.arcade.collide(this.monsters, this.monsters,this.collideHeroMonster);
+        var test = game.physics.arcade.collide(this.monsters, this.wallLayer);
 		game.physics.arcade.collide(this.hero.sprite, this.wallLayer);
 		  
-		//game.physics.arcade.overlap(this.hero.sprite, this.monster.sprite,this.overlapHeroMonster);
+		game.physics.arcade.overlap(this.hero.sprite, this.monsters,this.overlapHeroMonster);
  	  
 
 		if(this.hero.sprite.body.blocked.down || this.hero.sprite.body.touching.down){
@@ -267,7 +270,7 @@ gameLevel1.prototype = {
 	},
 	
 	collideHeroMonster: function (heroSprite,monsterSprite) {
-		
+		console.log('hey');
 		i = game.state.callbackContext.monsters.children.indexOf(monsterSprite);
 		//game.state.callbackContext.monstersTab[i]; donne le monstre touché
 		var x= heroSprite.body.x - monsterSprite.body.x;
@@ -281,14 +284,19 @@ gameLevel1.prototype = {
 	},
 	
 	overlapHeroMonster: function (heroSprite,monsterSprite) {
+		i = game.state.callbackContext.monsters.children.indexOf(monsterSprite);
+		game.state.callbackContext.monstersTab[i].chase = 0;
+		
 		
 		var x= heroSprite.body.x - monsterSprite.body.x;
 		var y= heroSprite.body.y - monsterSprite.body.y;
 		heroSprite.body.velocity.y += y ;
-		monsterSprite.body.velocity.y -= y;
+		monsterSprite.body.velocity.y = -150;
 		
 		heroSprite.body.velocity.x += x ;
-		monsterSprite.body.velocity.x -= x;
+		monsterSprite.body.x -= x/5;
+		monsterSprite.body.velocity.x *= -1;
+
 		return true;
 	}
 	
