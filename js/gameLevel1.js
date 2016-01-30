@@ -128,7 +128,7 @@ gameLevel1.prototype = {
 		  
 		this.hero.sprite.body.velocity.x = 0;
 
-		if(this.hero.sprite.body.onFloor()){
+		if(this.hero.sprite.body.blocked.down || this.hero.sprite.body.touching.down){
 			this.hero.jump = true;
 		}
 		
@@ -231,6 +231,6 @@ gameLevel1.prototype = {
 	},
 	
 	collideHeroMonster: function () {
-
+			
 	}
 };
