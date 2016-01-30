@@ -6,7 +6,7 @@ gameLevel1.prototype = {
 		 preload: function () {
         // Load this images, available with the associated keys later
         game.load.image('background', 'assets/background.jpg');
-        game.load.image('character', 'assets/snowboy2.gif');
+        game.load.image('character', 'assets/snowboy_sky_masque.png');
         // Each sprite is 54x55 . -1 means we don't limit to a number of sprites,
         //  0 is the margin of the file, 10 the spacing between each sprites
         //game.load.spritesheet('characterFrames', 'assets/SaraFullSheet7.png', 54, 55, -1, 0 ,10);
