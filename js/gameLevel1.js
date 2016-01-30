@@ -179,7 +179,7 @@ gameLevel1.prototype = {
 		this.mechant.body.velocity.x = 0;
 		if( (Math.abs(this.mechant.body.y - this.characterSprite.body.y) < 10 && Math.abs(this.mechant.body.x - this.characterSprite.body.x) < this.mechantView )|| this.mechantChase >0){
 			if((Math.abs(this.mechant.body.y - this.characterSprite.body.y) < 10 && Math.abs(this.mechant.body.x - this.characterSprite.body.x) < this.mechantView ) ){
-				this.mechantChase = 35;
+				this.mechantChase = 50;
 			}else{
 				this.mechantChase--;
 			}
@@ -190,7 +190,7 @@ gameLevel1.prototype = {
 			}
 			
 			if(this.mechant.body.onFloor()){
-				this.mechant.body.velocity.y = -250;
+				this.mechant.body.velocity.y = -200;
 			}
 			
 		}
