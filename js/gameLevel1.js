@@ -26,7 +26,7 @@ function setMonster(monster, x, y) {
     monster.sprite.body.drag.y = y;
     monster.sprite.body.collideWorldBounds = true;
     monster.sprite.body.bounce.setTo(0.5,0.2);
-    monster.sprite.body.setSize(40, 40, 0, 0);
+    monster.sprite.body.setSize(44, 40, 0, 0);
     monster.sprite.body.mass = 5;
     monster.sprite.body.immovable = true;
 }
@@ -76,7 +76,7 @@ gameLevel1.prototype = {
 				
         // Init hero
         this.hero.sprite.body.collideWorldBounds = true;
-        this.hero.sprite.body.setSize(10, 35, 30, 20);
+        this.hero.sprite.body.setSize(15, 35, 35, 20);
 		
 		game.physics.enable(this.monster.sprite, Phaser.Physics.ARCADE);
         // The sprite will collide with the borders
@@ -118,19 +118,26 @@ gameLevel1.prototype = {
 		//Physic héros
 		game.physics.arcade.gravity.y = 800;
 		this.hero.sprite.body.mass = 50;
+		this.hero.sprite.body.drag.x = 250;
+		this.hero.sprite.body.drag.y = 250;
 		
-        setMonster(this.monster, 50, 50);
+        setMonster(this.monster, 250, 250);
     },
     // Called for each refresh
     update: function (){
 		var moving = false;
 		var walkAnimationSpeed = 6;
 
-		game.physics.arcade.collide(this.hero.sprite, this.monster.sprite);
+		game.physics.arcade.collide(this.hero.sprite, this.monster.sprite,this.collideHeroMonster);
 		game.physics.arcade.collide(this.hero.sprite, this.wallLayer);
 		game.physics.arcade.collide(this.monster.sprite, this.wallLayer);
 		  
-		this.hero.sprite.body.velocity.x = 0;
+		  
+		game.physics.arcade.overlap(this.hero.sprite, this.monster.sprite,this.overlapHeroMonster);
+  
+		  
+		  
+		//this.hero.sprite.body.velocity.x = 0;
 
 		if(this.hero.sprite.body.blocked.down || this.hero.sprite.body.touching.down){
 			this.hero.jump = true;
@@ -234,7 +241,27 @@ gameLevel1.prototype = {
 		
 	},
 	
-	collideHeroMonster: function () {
-			
+	collideHeroMonster: function (heroSprite,monsterSprite) {
+		var x= heroSprite.body.x - monsterSprite.body.x;
+		var y= heroSprite.body.y - monsterSprite.body.y;
+		heroSprite.body.velocity.y += y*3 ;
+		monsterSprite.body.velocity.y -= y*2;
+		
+		heroSprite.body.velocity.x += x*5 ;
+		monsterSprite.body.velocity.x -= x*5;
+		return true;
+	},
+	
+	overlapHeroMonster: function (heroSprite,monsterSprite) {
+		var x= heroSprite.body.x - monsterSprite.body.x;
+		var y= heroSprite.body.y - monsterSprite.body.y;
+		heroSprite.body.velocity.y += y ;
+		monsterSprite.body.velocity.y -= y;
+		
+		heroSprite.body.velocity.x += x ;
+		monsterSprite.body.velocity.x -= x;
+		return true;
 	}
+	
+	
 };
