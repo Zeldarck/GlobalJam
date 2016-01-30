@@ -6,11 +6,11 @@ gameLevel1.prototype = {
 		 preload: function () {
         // Load this images, available with the associated keys later
         game.load.image('background', 'assets/background.jpg');
-        game.load.image('character', 'assets/Sara.png');
+        game.load.image('character', 'assets/snowboy2.gif');
         // Each sprite is 54x55 . -1 means we don't limit to a number of sprites,
         //  0 is the margin of the file, 10 the spacing between each sprites
-        game.load.spritesheet('characterFrames', 'assets/SaraFullSheet7.png', 54, 55, -1, 0 ,10);
-        game.load.spritesheet('ballFrames', 'assets/ball_animation.png', 45, 45);
+        //game.load.spritesheet('characterFrames', 'assets/SaraFullSheet7.png', 54, 55, -1, 0 ,10);
+        //game.load.spritesheet('ballFrames', 'assets/ball_animation.png', 45, 45);
         game.load.image('mechant', 'assets/mechant.png');
 
         //Tilemap
@@ -27,14 +27,16 @@ gameLevel1.prototype = {
         //this.ballSprite.scale.set(0.5,0.5);
 		
 		this.mechant = game.add.sprite(350, 325, 'mechant');
-        this.characterSprite = game.add.sprite(375, 300, 'characterFrames');
+        this.characterSprite = game.add.sprite(375, 300, 'character');
 
         // Add animations
-        this.characterSprite.animations.add("up",[0,1,2,3,4,5,6,7,8]);
+        /*
+		this.characterSprite.animations.add("up",[0,1,2,3,4,5,6,7,8]);
         this.characterSprite.animations.add("left",[13,14,15,16,17,18,19,20,21]);
         this.characterSprite.animations.add("down",[26,27,28,29,30,31,32,33,34]);
         this.characterSprite.animations.add("right",[39,40,41,42,43,44,45,46,47]);
-        //this.ballSprite.animations.add("rolling");
+        */
+		//this.ballSprite.animations.add("rolling");
 
         // Shortcut method to create 4 inputs for the arrow keys
         this.cursorKeys = game.input.keyboard.createCursorKeys();
