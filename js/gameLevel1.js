@@ -79,99 +79,55 @@ gameLevel1.prototype = {
         this.characterSprite.bringToTop();
 
         this.startDate = new Date();
+		
+		game.physics.arcade.gravity.y = 100;
+		this.characterSprite.body.bounce.y = 0.2;
+		this.characterSprite.body.mass = 10;
+
+		
     },
     // Called for each refresh
     update: function (){
-        var characterSpeed = 4;
-        var moving = false;
-        var walkAnimationSpeed = 10;
-        var walkAnimationLooping = true;//true means that the animation will loop once finished
-        if(this.cursorKeys.left.isDown){
-            this.characterSprite.body.velocity.x -= characterSpeed;
-            if(!moving) this.characterSprite.animations.play("left",walkAnimationSpeed,walkAnimationLooping);
-            moving = true;
-        }else if(this.cursorKeys.right.isDown){
-            this.characterSprite.body.velocity.x += characterSpeed;
-            if(!moving) this.characterSprite.animations.play("right",walkAnimationSpeed,walkAnimationLooping);
-            moving = true;
-        }else{
-            this.characterSprite.body.velocity.x *= 0.8;
-        }
-        if(this.cursorKeys.up.isDown){
-            this.characterSprite.body.velocity.y -= characterSpeed;
-            if(!moving) this.characterSprite.animations.play("up",walkAnimationSpeed,walkAnimationLooping);
-            moving = true;
-        }else if(this.cursorKeys.down.isDown){
-            this.characterSprite.body.velocity.y += characterSpeed;
-            if(!moving) this.characterSprite.animations.play("down",walkAnimationSpeed,walkAnimationLooping);
-            moving = true;
-        }else {
-            this.characterSprite.body.velocity.y *= 0.8;            
-        }
-        if(!moving){
-            this.characterSprite.frame = 26;
-            this.characterSprite.body.velocity.x = 0;
-            this.characterSprite.body.velocity.y = 0;
-        }
-        var maxCharacterVelocity = 300;
-        this.characterSprite.body.maxVelocity.set(maxCharacterVelocity,maxCharacterVelocity);    
+		
+		game.physics.arcade.collide(this.characterSprite, this.wallLayer);
 
-        // Ball/player collision customization
-        game.physics.arcade.collide(this.characterSprite, this.ballSprite, function(){
-            console.log("Ball was touched by player");
-            // We shortcut the natural rebound to have a "dribble" effect (the ball follows a bit the player, randomly)
-            var effect = 0.5+0.5*Math.random();
-            this.ballSprite.body.velocity.x += effect*this.characterSprite.body.velocity.x;
-            var effect = 0.5+0.5*Math.random();
-            this.ballSprite.body.velocity.y += effect*this.characterSprite.body.velocity.y;
-            // We limit the amplification of velocity to avoid unrealistic move, but to a bit
-            //  greater max than character, to have the ball "jump" in front of the character
-            var maxBallVelocity = 400;
-            this.ballSprite.body.maxVelocity.set(maxBallVelocity,maxBallVelocity);    
-            return true;
-        }, null, this);
-        // Ball animation (relative to its velocity)
-        if(this.ballSprite.body.velocity.getMagnitude() > 2){
-            var animationSpeed = Math.floor(15*Math.min(this.ballSprite.body.velocity.getMagnitude(), 100)/100);
-            var rollingBallAnimation = this.ballSprite.animations.getAnimation("rolling");
-            if (rollingBallAnimation.isPlaying) {
-               rollingBallAnimation.speed = animationSpeed;
-            } else {
-                this.ballSprite.animations.play("rolling", animationSpeed, true);
-            }
-        }else{
-            this.ballSprite.animations.stop("rolling");
-        }
-        // Collision checks
-        game.physics.arcade.collide(this.ballSprite, this.wallLayer, function(){
-            console.log("Ball touched wall");
-            return true;
-        });
-        game.physics.arcade.collide(this.characterSprite, this.wallLayer, function(){
-            console.log("Played touched wall");
-            return true;
-        }, null, this);
-        game.physics.arcade.collide(this.ballSprite, this.goalLayer, function(){
-            console.log("Goal !!!!!!");
-            var now = new Date();
-            var deltaTime = now.getTime() - this.startDate.getTime();
-            var text = game.add.text(400,300,"GOAL (in "+Math.floor(deltaTime/1000)+" seconds)!!!!");
-            //Not needed here as we pause the game. But otherwise, the text would stay in position
-            text.fixedToCamera = true;
-            game.paused = true;
-            window.setTimeout(function(){
-                game.state.restart(true);
-                game.paused = false;
-            }, 2000);
-            return true;
-        }, null, this);
+		this.characterSprite.body.velocity.x = 0;
 
-        // Tutorial debug
-        if(this.spacebarKey.isDown){
-            this.debug = true;
-        }else{            
-            this.debug = false;
-        }
+		if (this.cursorKeys.left.isDown)
+		{
+			this.characterSprite.body.velocity.x = -150;
+
+		}
+		else if (this.cursorKeys.right.isDown)
+		{
+			this.characterSprite.body.velocity.x = 150;
+
+		}
+		else
+		{
+			
+		}
+		
+		if (this.cursorKeys.up.isDown)
+		{
+			this.characterSprite.body.velocity.y = - 70;
+		}
+		
+		 game.physics.arcade.collide(this.characterSprite, this.wallLayer);
+
+       // var characterSpeed = 40;
+        // var moving = false;
+        // var walkAnimationSpeed = 100;
+        // var walkAnimationLooping = true;//true means that the animation will loop once finished
+
+        // if(this.cursorKeys.up.isDown){
+			// this.characterSprite.body.velocity.y -= 250;
+			// if(!moving) this.characterSprite.animations.play("up",walkAnimationSpeed,walkAnimationLooping);
+            // moving = true;
+        // }
+		
+
+
     },
     // Called after the renderer rendered - usefull for debug rendering, ...
     render: function  () {
