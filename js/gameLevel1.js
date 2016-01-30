@@ -11,6 +11,7 @@ gameLevel1.prototype = {
         //  0 is the margin of the file, 10 the spacing between each sprites
         game.load.spritesheet('characterFrames', 'assets/SaraFullSheet7.png', 54, 55, -1, 0 ,10);
         game.load.spritesheet('ballFrames', 'assets/ball_animation.png', 45, 45);
+        game.load.image('mechant', 'assets/mechant.png');
 
         //Tilemap
         //Created with Tiled software, with needed format: Orthogonal / CSV / .json files
@@ -24,6 +25,8 @@ gameLevel1.prototype = {
         this.backgroundSprite = game.add.sprite(0, 0, 'background');
         //this.ballSprite = game.add.sprite(120, 325, 'ballFrames');
         //this.ballSprite.scale.set(0.5,0.5);
+		
+		this.mechant = game.add.sprite(350, 325, 'mechant');
         this.characterSprite = game.add.sprite(375, 300, 'characterFrames');
 
         // Add animations
@@ -46,6 +49,14 @@ gameLevel1.prototype = {
         this.characterSprite.body.collideWorldBounds = true;
         // We limit the physic body to a smaller part of the sprite (it contains white spaces)
         this.characterSprite.body.setSize(15, 35, 25, 20);
+		
+		game.physics.enable(this.mechant, Phaser.Physics.ARCADE);
+        // The sprite will collide with the borders
+        this.mechant.body.collideWorldBounds = true;
+        // We limit the physic body to a smaller part of the sprite (it contains white spaces)
+        this.mechant.body.setSize(40, 40, 0, 0);
+
+		
         //Ball body
         //game.physics.enable(this.ballSprite, Phaser.Physics.ARCADE);
         //this.ballSprite.body.collideWorldBounds = true;
@@ -77,6 +88,7 @@ gameLevel1.prototype = {
         //  we move back other sprites to top
         //this.ballSprite.bringToTop();
         this.characterSprite.bringToTop();
+        this.mechant.bringToTop();
 
         this.startDate = new Date();
 		
@@ -90,6 +102,7 @@ gameLevel1.prototype = {
     update: function (){
 		
 		game.physics.arcade.collide(this.characterSprite, this.wallLayer);
+		 game.physics.arcade.collide(this.mechant, this.wallLayer);
 
 		this.characterSprite.body.velocity.x = 0;
 
@@ -114,6 +127,7 @@ gameLevel1.prototype = {
 		}
 		
 		 game.physics.arcade.collide(this.characterSprite, this.wallLayer);
+		 game.physics.arcade.collide(this.mechant, this.wallLayer);
 
 		 var maxCharacterVelocity = 600;
         this.characterSprite.body.maxVelocity.set(maxCharacterVelocity,maxCharacterVelocity);    
