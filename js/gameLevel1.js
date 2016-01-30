@@ -34,7 +34,7 @@ Character.prototype.makeSword = function() {
     }
 	
 		game.physics.enable(this.sword, Phaser.Physics.ARCADE);
-		this.sword.body.setSize(30, 45, 0, 0);   
+		this.sword.body.setSize(35, 40, 0, 0);   
 }
 
 Character.prototype.destroySword = function() {
@@ -212,6 +212,9 @@ gameLevel1.prototype = {
         // Add animations     
         this.hero.sprite.animations.add("left",[54,55,56,57,58,59]);
         this.hero.sprite.animations.add("right",[48,49,50,51,52,53]);
+		this.hero.sprite.animations.add("swordRight",[96,97,98,99,100,100,99,98,97,96]);
+		this.hero.sprite.animations.add("swordLeft",[102,103,104,105,105,104,103,102]);
+
         
         // Observers
         this.cursorKeys = game.input.keyboard.createCursorKeys();
@@ -306,6 +309,28 @@ gameLevel1.prototype = {
 			this.hero.jump = true;
 		}
 		
+		
+		if(this.spacebarKey.isDown)
+		{
+			this.hero.makeSword();
+			
+			 if (this.hero.facing == 'left')
+            {
+				this.hero.sprite.animations.play("swordLeft",40,false)
+            }
+            else
+            {
+				this.hero.sprite.animations.play("swordRight",40,false)
+            }
+			
+			
+			game.physics.arcade.collide(this.hero.sword, this.monsters,this.test);
+			this.hero.destroySword();
+			moving = true;
+		}
+		
+		
+		
 		if (this.cursorKeys.left.isDown)
 		{
 			this.hero.sprite.body.velocity.x = -150;
@@ -355,17 +380,8 @@ gameLevel1.prototype = {
 
 		
 		
-		
-		if(this.spacebarKey.isDown)
-		{
-			this.hero.makeSword();
-			game.physics.arcade.collide(this.hero.sword, this.monsters);
-			this.hero.destroySword();
-		}
-		
-		
 		if(!moving){
-			this.hero.sprite.animations.stop();
+			//this.hero.sprite.animations.stop();
 
             if (this.hero.facing == 'left')
             {
@@ -399,8 +415,8 @@ gameLevel1.prototype = {
     },
     // Called after the renderer rendered - usefull for debug rendering, ...
     render: function  () {
-		if(game.state.callbackContext.hero.sword != null)
-		game.debug.body(game.state.callbackContext.hero.sword);
+		// if(game.state.callbackContext.hero.sword != null)
+		// game.debug.body(game.state.callbackContext.hero.sword);
     },
 	
 	// Movemevement for the PANGOLIN
@@ -529,5 +545,11 @@ gameLevel1.prototype = {
             game.state.callbackContext.monsters.remove(monsterSprite);
             monsterSprite.visible = false;
         }
+    },
+	
+	
+	swordDamage : function (swordSprite, monsterSprite) {
+
     }
+	
 };
