@@ -9,6 +9,7 @@ gameLevel1.prototype = {
         // Load this images, available with the associated keys later
         game.load.image('background', 'assets/background.jpg');
         game.load.image('character', 'assets/snowboy_sky_masque.png');
+		game.load.spritesheet('characterFrames', 'assets/sprites_sheet-snowboy.png', 54,54);
         // Each sprite is 54x55 . -1 means we don't limit to a number of sprites,
         //  0 is the margin of the file, 10 the spacing between each sprites
         //game.load.spritesheet('characterFrames', 'assets/SaraFullSheet7.png', 54, 55, -1, 0 ,10);
@@ -29,15 +30,15 @@ gameLevel1.prototype = {
         //this.ballSprite.scale.set(0.5,0.5);
 		
 		this.mechant = game.add.sprite(350, 450, 'mechant');
-        this.characterSprite = game.add.sprite(375, 300, 'character');
+        this.characterSprite = game.add.sprite(375, 300, 'characterFrames');
 
         // Add animations
-        /*
-		this.characterSprite.animations.add("up",[0,1,2,3,4,5,6,7,8]);
-        this.characterSprite.animations.add("left",[13,14,15,16,17,18,19,20,21]);
-        this.characterSprite.animations.add("down",[26,27,28,29,30,31,32,33,34]);
-        this.characterSprite.animations.add("right",[39,40,41,42,43,44,45,46,47]);
-        */
+        
+		//this.characterSprite.animations.add("up",[0,1,2,3,4,5,6,7,8]);
+        this.characterSprite.animations.add("left",[6,7,8,9,10,11]);
+        //this.characterSprite.animations.add("down",[26,27,28,29,30,31,32,33,34]);
+        this.characterSprite.animations.add("right",[0,1,2,3,4,5]);
+        
 		//this.ballSprite.animations.add("rolling");
 
         // Shortcut method to create 4 inputs for the arrow keys
@@ -114,23 +115,31 @@ gameLevel1.prototype = {
     },
     // Called for each refresh
     update: function (){
+		var moving = false;
+		var walkAnimationSpeed = 6;
 		
 		game.physics.arcade.collide(this.characterSprite, this.wallLayer);
-		 game.physics.arcade.collide(this.mechant, this.wallLayer);
+		game.physics.arcade.collide(this.mechant, this.wallLayer);
 
 		this.characterSprite.body.velocity.x = 0;
 
 		if (this.cursorKeys.left.isDown)
 		{
 			this.characterSprite.body.velocity.x = -150;
+			if(!moving)this.characterSprite.animations.play("left",walkAnimationSpeed,true);
+			moving = true;
 
 		}
 		else if (this.cursorKeys.right.isDown)
 		{
 			this.characterSprite.body.velocity.x = 150;
+			if(!moving)this.characterSprite.animations.play("right",walkAnimationSpeed,true);
+			moving = true;
 
 		}
-		
+		if(!moving){
+			this.characterSprite.frame = 0;
+		}
 
 		
 		if (this.cursorKeys.up.isDown && this.characterSprite.body.onFloor())
