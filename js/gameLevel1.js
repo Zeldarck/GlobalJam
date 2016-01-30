@@ -39,7 +39,7 @@ Character.prototype.makeSword = function() {
 
 Character.prototype.destroySword = function() {
 	 this.sword.kill();
-	 	 this.sword.destroy();
+	 this.sword.destroy();
 
 }
 
@@ -175,7 +175,7 @@ gameLevel1.prototype = {
         // Load this images, available with the associated keys later
         game.load.image('background', 'assets/background.jpg');
         game.load.image('character', 'assets/snowboy_sky_masque.png');
-		game.load.spritesheet('characterFrames', 'assets/sprites_sheet-snowboy.png', 90, 54);
+		game.load.spritesheet('characterFrames', 'assets/sprites_sheet_snowboy.png', 90, 54);
         // Each sprite is 54x55 . -1 means we don't limit to a number of sprites,
         //  0 is the margin of the file, 10 the spacing between each sprites
         //game.load.spritesheet('characterFrames', 'assets/SaraFullSheet7.png', 54, 55, -1, 0 ,10);
