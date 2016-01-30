@@ -8,6 +8,7 @@ function Character(life,sprite){
 	this.sprite = sprite;
 	this.life = life;
 	this.facing = 'right';
+	this.jump = true;
 	}
 
 
@@ -37,7 +38,7 @@ gameLevel1.prototype = {
 
 		
 		this.mechant = game.add.sprite(350, 450, 'mechant');
-        sprite = game.add.sprite(375, 300, 'characterFrames');
+        var sprite = game.add.sprite(375, 300, 'characterFrames');
 		
 		//create hero
 		this.hero = new Character(10,sprite); 
@@ -104,7 +105,6 @@ gameLevel1.prototype = {
 		
 		//Physic héros
 		game.physics.arcade.gravity.y = 800;
-		this.hero.sprite.body.bounce.setTo(0.5,0.2);
 		this.hero.sprite.body.mass = 50;
 		
 		this.mechant.body.drag.x = 50;
@@ -121,65 +121,68 @@ gameLevel1.prototype = {
     update: function (){
 		var moving = false;
 		var walkAnimationSpeed = 6;
-		
+
 		game.physics.arcade.collide(this.hero.sprite, this.mechant);
 		game.physics.arcade.collide(this.hero.sprite, this.wallLayer);
 		game.physics.arcade.collide(this.mechant, this.wallLayer);
 		  
 		this.hero.sprite.body.velocity.x = 0;
 
+		if(this.hero.sprite.body.onFloor()){
+			this.hero.jump = true;
+		}
+		
 		if (this.cursorKeys.left.isDown)
 		{
 			this.hero.sprite.body.velocity.x = -150;
-			if(!moving){
+			if(!moving  && this.hero.jump ){
 				this.hero.sprite.animations.play("left",walkAnimationSpeed,true)
-			    facing = 'left';
+				moving = true;
 			};
-			moving = true;
+			 this.hero.facing = 'left';
 
 		}
 		else if (this.cursorKeys.right.isDown)
 		{
 			this.hero.sprite.body.velocity.x = 150;
-			if(!moving){
+			if(!moving && this.hero.jump){
 				this.hero.sprite.animations.play("right",walkAnimationSpeed,true)
-			    facing = 'right';
-			};			
-			moving = true;
+				moving = true;
+			};		
+			 this.hero.facing = 'right';			
 
 		}
-		if(!moving){
-			this.hero.sprite.frame = 0;
-		}
-
 		
-		if (this.cursorKeys.up.isDown && this.hero.sprite.body.onFloor())
+		if (this.cursorKeys.up.isDown && this.hero.jump)
 		{
+			this.hero.sprite.animations.stop();
+			this.hero.jump = false;
+			moving =false;
 			this.hero.sprite.body.velocity.y = -500;
 		}
 		
-		this.moveRangeDefense();
+		if(!moving){
+			this.hero.sprite.animations.stop();
 
-	
-		 
-		// game.physics.arcade.collide(this.hero.sprite, this.mechant);// (function(mechant){
-		    // mechant.body.velocity.x -= 100;
-		    // this.mechantChase = 0;
-        // })(this.mechant));
+            if (this.hero.facing == 'left')
+            {
+                this.hero.sprite.frame = 6;
+            }
+            else
+            {
+                this.hero.sprite.frame = 0;
+            }
+		}
+
+		
+		
+		
+		this.moveRangeDefense();
 
 		 var maxCharacterVelocity = 600;
         this.hero.sprite.body.maxVelocity.set(maxCharacterVelocity,maxCharacterVelocity);    
 		this.mechant.body.maxVelocity.set(maxCharacterVelocity,maxCharacterVelocity);    
-       // var characterSpeed = 40;
-        // var moving = false;
-        // var walkAnimationSpeed = 100;
-        // var walkAnimationLooping = true;//true means that the animation will loop once finished
-
-        // if(this.cursorKeys.up.isDown){
-			// this.hero.sprite.body.velocity.y -= 250;
-			// if(!moving) this.hero.sprite.animations.play("up",walkAnimationSpeed,walkAnimationLooping);
-            // moving = true;
-        // }
+ 
 
     
 
