@@ -1,6 +1,6 @@
 var gameLevel1 = function(){
-	this.monster = null;
 	this.hero = null;
+	this.monsters = null;
 };
 
 //***Heros***
@@ -9,6 +9,7 @@ function Character(life,sprite){
 	this.life = life;
 	this.facing = 'right';
 	this.jump = true;
+	this.sprite.life = 10;
 	}
 
 //    Monstre      \\
@@ -54,10 +55,11 @@ gameLevel1.prototype = {
     create: function () {
         // Create a sprite
         this.backgroundSprite = game.add.sprite(0, 0, 'background');
-
+		this.monsters= 	this.add.physicsGroup();
+console.log(this.monsters);
         var sprite = game.add.sprite(375, 300, 'characterFrames');
-        this.monster = new Monster(0, 150, -1, 100, 0, game.add.sprite(350, 450, 'monster'));
-
+		      var  sprite2 = this.monsters.create(350, 450, 'monster');
+        this.monster = new Monster(0, 150, -1, 100, 0, sprite2);//game.add.sprite(350, 450, 'monster'));
 		//create hero
 		this.hero = new Character(10,sprite); 
         // Add animations     
@@ -128,7 +130,7 @@ gameLevel1.prototype = {
 		var moving = false;
 		var walkAnimationSpeed = 6;
 
-		game.physics.arcade.collide(this.hero.sprite, this.monster.sprite,this.collideHeroMonster);
+		game.physics.arcade.collide(this.hero.sprite, this.monsters,this.collideHeroMonster);
 		game.physics.arcade.collide(this.hero.sprite, this.wallLayer);
 		game.physics.arcade.collide(this.monster.sprite, this.wallLayer);
 		  
@@ -253,6 +255,7 @@ gameLevel1.prototype = {
 	},
 	
 	overlapHeroMonster: function (heroSprite,monsterSprite) {
+		
 		var x= heroSprite.body.x - monsterSprite.body.x;
 		var y= heroSprite.body.y - monsterSprite.body.y;
 		heroSprite.body.velocity.y += y ;
