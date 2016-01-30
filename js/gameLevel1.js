@@ -1,5 +1,5 @@
 var gameLevel1 = function(){
-	this.mechant = null;
+	this.monster = null;
 	this.hero = null;
 };
 
@@ -11,6 +11,25 @@ function Character(life,sprite){
 	this.jump = true;
 	}
 
+//    Monstre      \\
+
+function Monster(Move, MaxMove, Direction, View, Chase, sprite){
+    this.sprite = sprite;
+    this.move = Move;
+    this.maxMove = MaxMove;
+    this.direction = Direction;
+    this.view = View;
+    this.chase = Chase;
+}
+function setMonster(monster, x, y) {
+    monster.sprite.body.drag.x = x;
+    monster.sprite.body.drag.y = y;
+    monster.sprite.body.collideWorldBounds = true;
+    monster.sprite.body.bounce.setTo(0.5,0.2);
+    monster.sprite.body.setSize(40, 40, 0, 0);
+    monster.sprite.body.mass = 5;
+    monster.sprite.body.immovable = true;
+}
 
 gameLevel1.prototype = { 
     // Assets loading - do not use asssets here
@@ -18,12 +37,12 @@ gameLevel1.prototype = {
         // Load this images, available with the associated keys later
         game.load.image('background', 'assets/background.jpg');
         game.load.image('character', 'assets/snowboy_sky_masque.png');
-		game.load.spritesheet('characterFrames', 'assets/sprites_sheet-snowboy.png', 90,54);
+		game.load.spritesheet('characterFrames', 'assets/sprites_sheet-snowboy.png', 90, 54);
         // Each sprite is 54x55 . -1 means we don't limit to a number of sprites,
         //  0 is the margin of the file, 10 the spacing between each sprites
         //game.load.spritesheet('characterFrames', 'assets/SaraFullSheet7.png', 54, 55, -1, 0 ,10);
         //game.load.spritesheet('ballFrames', 'assets/ball_animation.png', 45, 45);
-        game.load.image('mechant', 'assets/mechant.png');
+        game.load.image('monster', 'assets/mechant.png');
 
         //Tilemap
         //Created with Tiled software, with needed format: Orthogonal / CSV / .json files
@@ -36,10 +55,9 @@ gameLevel1.prototype = {
         // Create a sprite
         this.backgroundSprite = game.add.sprite(0, 0, 'background');
 
-		
-		this.mechant = game.add.sprite(350, 450, 'mechant');
         var sprite = game.add.sprite(375, 300, 'characterFrames');
-		
+        this.monster = new Monster(0, 150, -1, 100, 0, game.add.sprite(350, 450, 'monster'));
+
 		//create hero
 		this.hero = new Character(10,sprite); 
         // Add animations     
@@ -60,14 +78,9 @@ gameLevel1.prototype = {
         this.hero.sprite.body.collideWorldBounds = true;
         this.hero.sprite.body.setSize(10, 35, 30, 20);
 		
-		game.physics.enable(this.mechant, Phaser.Physics.ARCADE);
+		game.physics.enable(this.monster.sprite, Phaser.Physics.ARCADE);
         // The sprite will collide with the borders
-        this.mechant.body.collideWorldBounds = true;
         // We limit the physic body to a smaller part of the sprite (it contains white spaces)
-        this.mechant.body.setSize(40, 40, 0, 0);
-		
-		this.mechant.body.mass = 5;
-		this.mechant.body.collideWorldBounds = true;
         //Ball body
         //game.physics.enable(this.ballSprite, Phaser.Physics.ARCADE);
         //this.ballSprite.body.collideWorldBounds = true;
@@ -98,33 +111,24 @@ gameLevel1.prototype = {
         // Sprites are z-ordered by creation. As we added tiles later,
         //  we move back other sprites to top
         this.hero.sprite.bringToTop();
-        this.mechant.bringToTop();
-		this.mechant.body.bounce.setTo(0.5,0.2);
-		
+        this.monster.sprite.bringToTop();
+
         this.startDate = new Date();
 		
 		//Physic héros
 		game.physics.arcade.gravity.y = 800;
 		this.hero.sprite.body.mass = 50;
 		
-		this.mechant.body.drag.x = 50;
-		this.mechant.body.drag.y = 50;
-
-		this.mechantMove = 0;
-		this.mechantMaxMove = 150;
-		this.mechantDirection = -1;
-		this.mechantView =100;
-		this.mechantChase = 0;
-		this.mechant.body.immovable = true;
+        setMonster(this.monster, 50, 50);
     },
     // Called for each refresh
     update: function (){
 		var moving = false;
 		var walkAnimationSpeed = 6;
 
-		game.physics.arcade.collide(this.hero.sprite, this.mechant);
+		game.physics.arcade.collide(this.hero.sprite, this.monster.sprite);
 		game.physics.arcade.collide(this.hero.sprite, this.wallLayer);
-		game.physics.arcade.collide(this.mechant, this.wallLayer);
+		game.physics.arcade.collide(this.monster.sprite, this.wallLayer);
 		  
 		this.hero.sprite.body.velocity.x = 0;
 
@@ -181,7 +185,7 @@ gameLevel1.prototype = {
 
 		 var maxCharacterVelocity = 600;
         this.hero.sprite.body.maxVelocity.set(maxCharacterVelocity,maxCharacterVelocity);    
-		this.mechant.body.maxVelocity.set(maxCharacterVelocity,maxCharacterVelocity);    
+		this.monster.sprite.body.maxVelocity.set(maxCharacterVelocity,maxCharacterVelocity);
  
 
     
@@ -199,31 +203,31 @@ gameLevel1.prototype = {
 	
 	
 	moveRangeDefense: function () {
-		this.mechant.body.velocity.x = 0;
-		if( (Math.abs(this.mechant.body.y - this.hero.sprite.body.y) < 10 && Math.abs(this.mechant.body.x - this.hero.sprite.body.x) < this.mechantView )|| this.mechantChase >0){
-			if((Math.abs(this.mechant.body.y - this.hero.sprite.body.y) < 10 && Math.abs(this.mechant.body.x - this.hero.sprite.body.x) < this.mechantView ) ){
-				this.mechantChase = 50;
+		this.monster.sprite.body.velocity.x = 0;
+		if( (Math.abs(this.monster.sprite.body.y - this.hero.sprite.body.y) < 10 && Math.abs(this.monster.sprite.body.x - this.hero.sprite.body.x) < this.monster.view )|| this.monster.chase >0){
+			if((Math.abs(this.monster.sprite.body.y - this.hero.sprite.body.y) < 10 && Math.abs(this.monster.sprite.body.x - this.hero.sprite.body.x) < this.monster.view ) ){
+				this.monster.chase = 50;
 			}else{
-				this.mechantChase--;
+				this.monster.chase--;
 			}
-			if(this.mechant.body.x - this.hero.sprite.body.x < 0){
-				this.mechant.body.velocity.x = 130;
+			if(this.monster.sprite.body.x - this.hero.sprite.body.x < 0){
+				this.monster.sprite.body.velocity.x = 130;
 			}else{
-				this.mechant.body.velocity.x = -130;
+				this.monster.sprite.body.velocity.x = -130;
 			}
 			
-			if(this.mechant.body.onFloor()){
-				this.mechant.body.velocity.y = -200;
+			if(this.monster.sprite.body.onFloor()){
+				this.monster.sprite.body.velocity.y = -200;
 			}
 			
 		}
 		else 
 		{
-			this.mechant.body.velocity.x = this.mechantDirection * 150;
-			this.mechantMove++;
-			if(this.mechantMove > this.mechantMaxMove){
-				this.mechantMove = 0;
-				this.mechantDirection *= -1;
+			this.monster.sprite.body.velocity.x = this.monster.direction * 150;
+			this.monster.move++;
+			if(this.monster.move > this.monster.maxMove){
+				this.monster.move = 0;
+				this.monster.direction *= -1;
 			}
 		}
 		
