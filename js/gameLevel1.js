@@ -12,9 +12,110 @@ function Character(life,sprite){
 	this.life = life;
 	this.facing = 'right';
 	this.gloves=true;
+	this.ski=true;
+	this.mask=true;
 	this.jump = true;
 	this.sprite.life = 10;
+	this.frameRight=48;
+	this.frameLeft=54;
+	
 	}
+Character.prototype.looseMask = function(){
+	this.mask = false;
+	if(this.ski){
+		if(this.gloves){
+			//Ski + Gloves
+			this.frameRight=24;
+			this.frameLeft=30;
+			this.sprite.animations.add("right",[24,25,26,27,28,29]);
+			this.sprite.animations.add("left",[30,31,32,33,34,35]);			
+		}else{
+			//Ski
+			this.frameRight=36;
+			this.frameLeft=42;
+			this.sprite.animations.add("right",[36,37,38,39,40,41]);
+			this.sprite.animations.add("left",[42,43,44,45,46,47]);
+		}
+	}else{
+		if(this.hero.gloves){
+			//Gloves
+			this.frameRight=12;
+			this.frameLeft=18;
+			this.sprite.animations.add("right",[12,13,14,15,16,17]);
+			this.sprite.animations.add("left",[18,19,20,21,22,23]);			
+		}else{
+			//X
+			this.frameRight=0;
+			this.frameLeft=6;
+			this.sprite.animations.add("right",[0,1,2,3,4,5]);
+			this.sprite.animations.add("left",[6,7,8,9,10,11]);			
+		}		
+	}
+}
+Character.prototype.looseSki = function(){
+	this.ski = false;
+	if(this.mask){
+		if(this.gloves){
+			//Mask + Gloves
+			this.frameRight=72;
+			this.frameLeft=78;
+			this.sprite.animations.add("right",[72,73,74,75,76,77]);
+			this.sprite.animations.add("left",[78,79,80,81,82,83]);			
+		}else{
+			//Mask
+			this.frameRight=60;
+			this.frameLeft=66;
+			this.sprite.animations.add("right",[60,61,62,63,64,65]);
+			this.sprite.animations.add("left",[66,67,68,69,70,71]);
+		}
+	}else{
+		if(this.hero.gloves){
+			//Gloves
+			this.frameRight=12;
+			this.frameLeft=18;
+			this.sprite.animations.add("right",[12,13,14,15,16,17]);
+			this.sprite.animations.add("left",[18,19,20,21,22,23]);				
+		}else{
+			//X
+			this.frameRight=0;
+			this.frameLeft=6;
+			this.sprite.animations.add("right",[0,1,2,3,4,5]);
+			this.sprite.animations.add("left",[6,7,8,9,10,11]);			
+		}		
+	}
+}
+Character.prototype.looseGloves = function(){
+	this.gloves = false;
+	if(this.ski){
+		if(this.mask){
+			//Ski + Mask
+			this.frameRight=84;
+			this.frameLeft=90;
+			this.sprite.animations.add("right",[84,85,86,87,88,89]);
+			this.sprite.animations.add("left",[90,91,92,93,94,95]);			
+		}else{
+			//Ski
+			this.frameRight=36;
+			this.frameLeft=42;
+			this.sprite.animations.add("right",[36,37,38,39,40,41]);
+			this.sprite.animations.add("left",[42,43,44,45,46,47]);
+		}
+	}else{
+		if(this.mask){
+			//Mask
+			this.frameRight=60;
+			this.frameLeft=66;
+			this.sprite.animations.add("right",[60,61,62,63,64,65]);
+			this.sprite.animations.add("left",[66,67,68,69,70,71]);			
+		}else{
+			//X
+			this.frameRight=0;
+			this.frameLeft=6;
+			this.sprite.animations.add("right",[0,1,2,3,4,5]);
+			this.sprite.animations.add("left",[6,7,8,9,10,11]);			
+		}		
+	}
+}
 
 //    Monstre      \\
 
@@ -81,14 +182,15 @@ gameLevel1.prototype = {
 		//create hero
 		this.hero = new Character(10,sprite); 
         // Add animations     
-        this.hero.sprite.animations.add("left",[6,7,8,9,10,11]);
-        this.hero.sprite.animations.add("right",[0,1,2,3,4,5]);
+        this.hero.sprite.animations.add("left",[54,55,56,57,58,59]);
+        this.hero.sprite.animations.add("right",[48,49,50,51,52,53]);
         
         // Observers
         this.cursorKeys = game.input.keyboard.createCursorKeys();
         this.spacebarKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 		this.wKey=game.input.keyboard.addKey(Phaser.Keyboard.W);
-
+		//A super Q key to test methods !
+		this.qKey=game.input.keyboard.addKey(Phaser.Keyboard.Q);
 
         // Physics engine initialisation (optional for arcade engine, need for other ones)
         game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -203,10 +305,14 @@ gameLevel1.prototype = {
 			moving =false;
 			this.hero.sprite.body.velocity.y = -500;
 		}
-		//sbThrown = false
+		//Snowball
 		if(this.wKey.isDown && (game.time.now-this.sbThrown)>1000)
 		{
 			this.snowball();
+		}
+		//Change outfit
+		if(this.qKey.isDown){
+			this.hero.looseMask();
 		}
 		
 		if(!moving){
@@ -214,11 +320,11 @@ gameLevel1.prototype = {
 
             if (this.hero.facing == 'left')
             {
-                this.hero.sprite.frame = 6;
+                this.hero.sprite.frame = this.hero.frameLeft;
             }
             else
             {
-                this.hero.sprite.frame = 0;
+                this.hero.sprite.frame = this.hero.frameRight;
             }
 		}
 
@@ -252,8 +358,41 @@ gameLevel1.prototype = {
         }
     },
 	
-	
+	// Movemevement for the PANGOLIN
 	moveRangeDefense: function (monster) {
+		monster.sprite.body.velocity.x = 0;
+		if( (Math.abs(monster.sprite.body.y - this.hero.sprite.body.y) < 10 && Math.abs(monster.sprite.body.x - this.hero.sprite.body.x) < monster.view )|| monster.chase >0){
+			if((Math.abs(monster.sprite.body.y - this.hero.sprite.body.y) < 10 && Math.abs(monster.sprite.body.x - this.hero.sprite.body.x) < monster.view ) ){
+				monster.chase = 50;
+			}else{
+				monster.chase--;
+			}
+			if(monster.sprite.body.x - this.hero.sprite.body.x < 0){
+				monster.sprite.body.velocity.x = 130;
+			}else{
+				monster.sprite.body.velocity.x = -130;
+			}
+			
+			if(monster.sprite.body.onFloor()){
+				monster.sprite.body.velocity.y = -200;
+			}
+			
+		}
+		else 
+		{
+			monster.sprite.body.velocity.x = monster.direction * 150;
+			monster.move++;
+			if(monster.move > monster.maxMove){
+				monster.move = 0;
+				monster.direction *= -1;
+			}
+		}
+		
+		
+	},
+	
+	// Movemevement for the RHINO
+	moveCharger: function (monster) {
 		monster.sprite.body.velocity.x = 0;
 		if( (Math.abs(monster.sprite.body.y - this.hero.sprite.body.y) < 10 && Math.abs(monster.sprite.body.x - this.hero.sprite.body.x) < monster.view )|| monster.chase >0){
 			if((Math.abs(monster.sprite.body.y - this.hero.sprite.body.y) < 10 && Math.abs(monster.sprite.body.x - this.hero.sprite.body.x) < monster.view ) ){
