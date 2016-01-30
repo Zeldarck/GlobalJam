@@ -49,7 +49,7 @@ gameLevel1.prototype = {
 
         //Tilemap
         //Created with Tiled software, with needed format: Orthogonal / CSV / .json files
-        game.load.tilemap('map', 'assets/map.json', null, Phaser.Tilemap.TILED_JSON);
+        game.load.tilemap('map', 'assets/tiled.json', null, Phaser.Tilemap.TILED_JSON);
         game.load.image('RPGpack_sheet', 'assets/RPGpack_sheet.png');
 
     },
