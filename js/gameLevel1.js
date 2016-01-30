@@ -6,7 +6,7 @@ gameLevel1.prototype = {
 		 preload: function () {
         // Load this images, available with the associated keys later
         game.load.image('background', 'assets/background.jpg');
-        game.load.image('character', 'assets/snowboy2.gif');
+        game.load.image('character', 'assets/snowboy2.png');
         // Each sprite is 54x55 . -1 means we don't limit to a number of sprites,
         //  0 is the margin of the file, 10 the spacing between each sprites
         //game.load.spritesheet('characterFrames', 'assets/SaraFullSheet7.png', 54, 55, -1, 0 ,10);
@@ -26,7 +26,7 @@ gameLevel1.prototype = {
         //this.ballSprite = game.add.sprite(120, 325, 'ballFrames');
         //this.ballSprite.scale.set(0.5,0.5);
 		
-		this.mechant = game.add.sprite(350, 325, 'mechant');
+		this.mechant = game.add.sprite(350, 450, 'mechant');
         this.characterSprite = game.add.sprite(375, 300, 'character');
 
         // Add animations
@@ -50,15 +50,16 @@ gameLevel1.prototype = {
         // The sprite will collide with the borders
         this.characterSprite.body.collideWorldBounds = true;
         // We limit the physic body to a smaller part of the sprite (it contains white spaces)
-        this.characterSprite.body.setSize(15, 35, 25, 20);
+        this.characterSprite.body.setSize(10, 35, 30, 20);
 		
 		game.physics.enable(this.mechant, Phaser.Physics.ARCADE);
         // The sprite will collide with the borders
         this.mechant.body.collideWorldBounds = true;
         // We limit the physic body to a smaller part of the sprite (it contains white spaces)
         this.mechant.body.setSize(40, 40, 0, 0);
-
 		
+		this.mechant.body.mass = 5;
+		this.mechant.body.collideWorldBounds = true;
         //Ball body
         //game.physics.enable(this.ballSprite, Phaser.Physics.ARCADE);
         //this.ballSprite.body.collideWorldBounds = true;
@@ -91,12 +92,16 @@ gameLevel1.prototype = {
         //this.ballSprite.bringToTop();
         this.characterSprite.bringToTop();
         this.mechant.bringToTop();
-
+		this.mechant.body.bounce.setTo(0.5,0.2);
+		
         this.startDate = new Date();
 		
 		game.physics.arcade.gravity.y = 800;
-		this.characterSprite.body.bounce.y = 0.2;
-		this.characterSprite.body.mass = 10;
+		this.characterSprite.body.bounce.setTo(0.5,0.2);
+		this.characterSprite.body.mass = 1;
+		
+		this.mechant.body.drag.x = 50;
+		this.mechant.body.drag.y = 50;
 
 		
     },
@@ -143,8 +148,11 @@ gameLevel1.prototype = {
 			// if(!moving) this.characterSprite.animations.play("up",walkAnimationSpeed,walkAnimationLooping);
             // moving = true;
         // }
-		
-
+		   game.physics.arcade.collide(this.characterSprite, this.mechant, function(){
+           console.log("Ennemy was touched by player");
+           return true;
+        });
+    
 
     },
     // Called after the renderer rendered - usefull for debug rendering, ...
