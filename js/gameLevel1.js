@@ -157,12 +157,13 @@ function Monster(Move, MaxMove, Direction, View, Chase, sprite){
     this.chase = Chase;
     this.health = 100;
 }
-function setMonster(monster, x, y) {
-    monster.sprite.body.drag.x = x;
-    monster.sprite.body.drag.y = y;
+function setMonster(monster, dragX, dragY, sizeX, sizeY, offsetX, offsetY) {
+    monster.sprite.body.drag.x = dragX;
+    monster.sprite.body.drag.y = dragY;
     monster.sprite.body.collideWorldBounds = true;
    // monster.sprite.body.bounce.setTo(0.5,0.2);
-    monster.sprite.body.setSize(44, 40, 0, 0);
+    //monster.sprite.body.setSize(44, 40, 0, 0);
+	monster.sprite.body.setSize(sizeX, sizeY, offsetX, offsetY);
     monster.sprite.body.mass = 50;
     monster.sprite.body.immovable = true;
 }
@@ -185,6 +186,7 @@ gameLevel1.prototype = {
         game.load.image('mechant', 'assets/mechant.png');
 		game.load.image('snowball', 'assets/snowball.png');
         game.load.image('monster', 'assets/mechant.png');
+        game.load.spritesheet('rhino', 'assets/sprites_sheet_rino.png',100,54);
 
 
         //Tilemap
@@ -267,6 +269,8 @@ gameLevel1.prototype = {
 
 		this.monstersTab.push(monster);
 		game.physics.enable(monster.sprite, Phaser.Physics.ARCADE);
+		
+		
 		sprite2 = this.monsters.create(350, 100, 'monster');
         monster = new Monster(0, 150, -1, 100, 0, sprite2);
 		monster.sprite.body.drag.x = 250;
@@ -275,15 +279,28 @@ gameLevel1.prototype = {
 		this.monstersTab.push(monster);
 		game.physics.enable(monster.sprite, Phaser.Physics.ARCADE);
 		
+		sprite2 = this.monsters.create(350, 100, 'rhino');
+        monster = new Monster(0, 150, -1, 250, 0, sprite2);
+		monster.sprite.body.drag.x = 250;
+		monster.sprite.body.drag.y = 250;
+		monster.sprite.animations.add("rhinoRight",[0,1]);
+		monster.sprite.animations.add("rhinoLeft",[2,3]);
+
+		this.monstersTab.push(monster);
+		game.physics.enable(monster.sprite, Phaser.Physics.ARCADE);
 		
 
         // Sprites are z-ordered by creation. As we added tiles later,
         //  we move back other sprites to top
         this.hero.sprite.bringToTop();
 
-        for (var i in this.monstersTab)
+
+		setMonster(this.monstersTab[0], 250, 250,44,40,0,0);
+		setMonster(this.monstersTab[1], 250, 250,44,40,0,0);
+		setMonster(this.monstersTab[2], 250, 250,100,54,0,0);
+
+		 for (var i in this.monstersTab)
         {
-			setMonster(this.monstersTab[i], 250, 250)
             this.monstersTab[i].sprite.bringToTop();
         }
 
@@ -296,6 +313,9 @@ gameLevel1.prototype = {
 		this.hero.sprite.body.drag.x = 250;
 		this.hero.sprite.body.drag.y = 250;
 		this.hero.sprite.body.maxVelocity.set(200,700);
+		
+		
+		
 
     },
     // Called for each refresh
@@ -328,7 +348,6 @@ gameLevel1.prototype = {
             }
             else
             {
-				this.hero.sprite.animations.play("swordRight",40,false)
             }
 			
 			if(game.time.now - this.swordTimer > 250){
@@ -370,15 +389,13 @@ gameLevel1.prototype = {
 				moving =false;
 				this.hero.sprite.body.velocity.y = -400;
 				this.hero.jumpTimer = 0;
-				console.log(this.hero.sprite.body.velocity.y);
 			}else if(this.hero.jump){
 				this.hero.sprite.animations.stop();
 				this.hero.jump = false;
 				moving =false;
-				this.hero.sprite.body.velocity.y -= 75;
+				this.hero.sprite.body.velocity.y -= 50;
 				this.hero.jumpTimer = game.time.now;
-			}else if(game.time.now - this.hero.jumpTimer < 400 && this.hero.sprite.body.velocity.y > -300){
-				console.log(this.hero.sprite.body.velocity.y);
+			}else if(game.time.now - this.hero.jumpTimer < 400 && this.hero.sprite.body.velocity.y > -250){
 				this.hero.sprite.body.velocity.y -= 50;
 			}
 		}
@@ -418,11 +435,14 @@ gameLevel1.prototype = {
 
 
 
+            this.moveRangeDefense(this.monstersTab[0]);
+			 this.moveRangeDefense(this.monstersTab[1]);
+            this.moveCharger(this.monstersTab[2]);
 
-        for (var i in this.monstersTab)
-        {
-            this.moveRangeDefense(this.monstersTab[i]);
-        }
+        // for (var i in this.monstersTab)
+        // {
+            // this.moveRangeDefense(this.monstersTab[i]);
+        // }
 
         for (var i in this.monstersTab)
         {
@@ -442,7 +462,7 @@ gameLevel1.prototype = {
 	
 	// Movemevement for the PANGOLIN
 	moveRangeDefense: function (monster) {
-		monster.sprite.body.velocity.x = 0;
+		this.hero.sprite.body.velocity.x *=   0.9 ;
 		if( (Math.abs(monster.sprite.body.y - this.hero.sprite.body.y) < 10 && Math.abs(monster.sprite.body.x - this.hero.sprite.body.x) < monster.view )|| monster.chase >0){
 			if((Math.abs(monster.sprite.body.y - this.hero.sprite.body.y) < 10 && Math.abs(monster.sprite.body.x - this.hero.sprite.body.x) < monster.view ) ){
 				monster.chase = 50;
@@ -475,32 +495,56 @@ gameLevel1.prototype = {
 	
 	// Movemevement for the RHINO
 	moveCharger: function (monster) {
-		monster.sprite.body.velocity.x = 0;
-		if( (Math.abs(monster.sprite.body.y - this.hero.sprite.body.y) < 10 && Math.abs(monster.sprite.body.x - this.hero.sprite.body.x) < monster.view )|| monster.chase >0){
-			if((Math.abs(monster.sprite.body.y - this.hero.sprite.body.y) < 10 && Math.abs(monster.sprite.body.x - this.hero.sprite.body.x) < monster.view ) ){
-				monster.chase = 50;
+		this.hero.sprite.body.velocity.x *=   0.9 ;
+		var test = false;
+		var facteur = 1;
+		if( (Math.abs(monster.sprite.body.y - this.hero.sprite.body.y) < 30 && Math.abs(monster.sprite.body.x - this.hero.sprite.body.x) < monster.view )|| monster.chase >0){
+			if((Math.abs(monster.sprite.body.y - this.hero.sprite.body.y) < 30 && Math.abs(monster.sprite.body.x - this.hero.sprite.body.x) < monster.view ) ){
+				monster.chase = 150;
 			}else{
+				test = true;
 				monster.chase--;
 			}
+						
+			
 			if(monster.sprite.body.x - this.hero.sprite.body.x < 0){
-				monster.sprite.body.velocity.x = 130;
+				
+				if(monster.prev && test){
+					monster.sprite.animations.play("rhinoRight",6,true)
+					facteur = -1;
+				}else{
+					monster.sprite.animations.play("rhinoLeft",6,true)
+					monster.prev = false;
+				}
+				
+				monster.sprite.body.velocity.x = facteur * 250;
 			}else{
-				monster.sprite.body.velocity.x = -130;
+				
+				if(!monster.prev && test){
+					monster.sprite.animations.play("rhinoLeft",6,true)
+					facteur = -1;
+				}else{
+					monster.sprite.animations.play("rhinoRight",6,true)
+					monster.prev = true;
+				}
+				
+				monster.sprite.body.velocity.x = facteur * -250;
 			}
 			
-			if(monster.sprite.body.onFloor()){
-				monster.sprite.body.velocity.y = -200;
+			if( monster.sprite.body.blocked.left || monster.sprite.body.blocked.right || monster.sprite.body.touching.left || monster.sprite.body.touching.right){
+				monster.sprite.body.velocity.y = -150;
 			}
 			
 		}
 		else 
 		{
-			monster.sprite.body.velocity.x = monster.direction * 150;
-			monster.move++;
-			if(monster.move > monster.maxMove){
-				monster.move = 0;
-				monster.direction *= -1;
-			}
+			monster.sprite.animations.stop();
+			// monster.sprite.body.velocity.x = monster.direction * 150;
+			// monster.move++;
+			// if(monster.move > monster.maxMove){
+				// monster.move = 0;
+				// monster.direction *= -1;
+			// }
 		}
 		
 		
@@ -534,20 +578,20 @@ gameLevel1.prototype = {
 		var y= heroSprite.body.y - monsterSprite.body.y;
 		if(x < 0){
 			heroSprite.body.velocity.y += y*3 ;
-			monsterSprite.body.velocity.y -= y*3;
+			monsterSprite.body.velocity.y -= y*2;
 		
 			heroSprite.body.velocity.x += x*15 ;
-			monsterSprite.body.velocity.x -= x*100;
+			monsterSprite.body.velocity.x -= x*15;
 			
 			
 		}
 		else
 		{
 			heroSprite.body.velocity.y += y*3 ;
-			monsterSprite.body.velocity.y -= y*3;
+			monsterSprite.body.velocity.y -= y*2;
 			
 			heroSprite.body.velocity.x += x*3 ;
-			monsterSprite.body.velocity.x -= x*100;
+			monsterSprite.body.velocity.x -= x*3;
 		}	
 			
 		return true;
