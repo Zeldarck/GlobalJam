@@ -159,15 +159,15 @@ function Pnj(sprite)
     this.trade = true;
 }
 
-function setPnj(pnj, dragX, dragY, sizeX, sizeY, offsetX, offsetY)
-{
-    pnj.sprite.body.drag.x = dragX;
-    pnj.sprite.body.drag.y = dragY;
-    pnj.sprite.body.collideWorldBounds = true;
-    pnj.sprite.body.setSize(sizeX, sizeY, offsetX, offsetY);
-    pnj.sprite.body.mass = 50;
-    pnj.sprite.body.immovable = true;
-}
+//function setPnj(pnj, dragX, dragY, sizeX, sizeY, offsetX, offsetY)
+//{
+//    pnj.sprite.body.drag.x = dragX;
+//    pnj.sprite.body.drag.y = dragY;
+//    pnj.sprite.body.collideWorldBounds = true;
+//    pnj.sprite.body.setSize(sizeX, sizeY, offsetX, offsetY);
+//    pnj.sprite.body.mass = 50;
+//    pnj.sprite.body.immovable = true;
+//}
 //    Monstre      \\
 
 function Monster(Move, MaxMove, Direction, View, Chase, sprite, rangeArmor, cacArmor, moveFunction){
@@ -269,7 +269,7 @@ gameLevel1.prototype = {
 
         //Init pnj
         game.physics.enable(this.pnj.sprite, Phaser.Physics.ARCADE);
-        setPnj(this.pnj, 350, 250,54,55,0,0);
+        //setPnj(this.pnj, 350, 250,54,55,0,0);
 
         // The sprite will collide with the borders
         // We limit the physic body to a smaller part of the sprite (it contains white spaces)
@@ -669,6 +669,7 @@ gameLevel1.prototype = {
             if(game.state.callbackContext.yKey.isDown) {
                 console.log("Trade ok");
                 game.state.callbackContext.pnj.trade = false;
+                game.state.callbackContext.hero.looseMask();
             }
 
             else if(game.state.callbackContext.nKey.isDown)
