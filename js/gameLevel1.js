@@ -15,6 +15,12 @@ var gameLevel1 = function(){
 	this.esquimo = null;
 	this.text = null;
 	this.textTime = 0;
+	this.indexRhino = 0;
+	this.indexPango = 0;
+	this.indexSuri =0;
+	this.rhinos = null;
+	this.pongos = null;
+	this.suris = null;
 };
 
 
@@ -351,21 +357,24 @@ gameLevel1.prototype = {
         this.monstersTab = [];
 
 		// Create your monsters !!
-		var rhinos = [[1435, 310, 250, 200],
+		this.rhinos = [[1435, 310, 250, 200],
 			[4605, 260, 250, 200],
 			[7105, 260, 250, 200],
 			[11620, 240, 250, 200],
 			[16000, 680, 250, 200],
 			[18630, 340, 250, 200]];
+			
+			
+		
 
-		var pongos = [[255, 340, 250, 110],
+		this.pongos = [[255, 340, 250, 110],
 			[2870, 340, 250, 200],
 			[6120, 340, 250, 200],
 			[17580, 710, 250, 200],
 			[11700, 780, 250, 200],
 			[22640, 460, 250, 200]];
 
-		var suris = [[3850, 90, 350, 200],
+		this.suris = [[3850, 90, 350, 200],
 			[8525, 260, 650, 200],
 			[11650, 640, 650, 200],
 			[14380, 270, 650, 200],
@@ -374,43 +383,43 @@ gameLevel1.prototype = {
 
 
 		//CREATION PANGOLIN
-		for (var c in pongos) {
-			var  sprite2 = this.monsters.create(pongos[c][0], pongos[c][1], 'pango');
-			var monster = new Monster(0, pongos[c][3], -1, pongos[c][2], 0, sprite2, 70 , 20, this.moveRangeDefense, 30);
-			monster.sprite.animations.add("pangoRight",[4,5]);
-			monster.sprite.animations.add("pangoLeft",[0,1]);
-			monster.sprite.animations.add("pangoRollRight",[2,3]);
-			monster.sprite.animations.add("pangoRollLeft",[6,7]);
-			this.monstersTab.push(monster);
-			game.physics.enable(monster.sprite, Phaser.Physics.ARCADE);
-			monster.sprite.body.drag.x = 250;
-			monster.sprite.body.drag.y = 250;
-			setMonster(monster, 250, 250, 50, 24, 0,0);
-		}
+		// for (var c in pongos) {
+			// var  sprite2 = this.monsters.create(pongos[c][0], pongos[c][1], 'pango');
+			// var monster = new Monster(0, pongos[c][3], -1, pongos[c][2], 0, sprite2, 70 , 20, this.moveRangeDefense, 30);
+			// monster.sprite.animations.add("pangoRight",[4,5]);
+			// monster.sprite.animations.add("pangoLeft",[0,1]);
+			// monster.sprite.animations.add("pangoRollRight",[2,3]);
+			// monster.sprite.animations.add("pangoRollLeft",[6,7]);
+			// this.monstersTab.push(monster);
+			// game.physics.enable(monster.sprite, Phaser.Physics.ARCADE);
+			// monster.sprite.body.drag.x = 250;
+			// monster.sprite.body.drag.y = 250;
+			// setMonster(monster, 250, 250, 50, 24, 0,0);
+		// }
 
 		//CREATION SURICATES
-		for (var c in suris) {
-			sprite2 = this.monsters.create(suris[c][0], suris[c][1], 'suri');
-			monster = new Monster(0, suris[c][3], -1, suris[c][2], 0, sprite2, 30, 30, this.rangeAttack , 10);
-			monster.sprite.animations.add("suriRight", [0, 1, 2, 1, 0]);
-			monster.sprite.animations.add("suriLeft", [5, 4, 3, 4, 5]);
-			this.monstersTab.push(monster);
-			game.physics.enable(monster.sprite, Phaser.Physics.ARCADE);
-			setMonster(monster, 250, 250, 24, 40, 0, 0);
-		}
+		// for (var c in suris) {
+			// sprite2 = this.monsters.create(suris[c][0], suris[c][1], 'suri');
+			// monster = new Monster(0, suris[c][3], -1, suris[c][2], 0, sprite2, 30, 30, this.rangeAttack , 10);
+			// monster.sprite.animations.add("suriRight", [0, 1, 2, 1, 0]);
+			// monster.sprite.animations.add("suriLeft", [5, 4, 3, 4, 5]);
+			// this.monstersTab.push(monster);
+			// game.physics.enable(monster.sprite, Phaser.Physics.ARCADE);
+			// setMonster(monster, 250, 250, 24, 40, 0, 0);
+		// }
 		
 		//CREATION RHINO
-		for (var c in rhinos) {
-			sprite2 = this.monsters.create(rhinos[c][0], rhinos[c][1], 'rhino');
-			monster = new Monster(0, rhinos[c][3], -1, rhinos[c][2], 0, sprite2,30,30,this.moveCharger, 40);
-			monster.sprite.body.drag.x = 250;
-			monster.sprite.body.drag.y = 250;
-			monster.sprite.animations.add("rhinoRight",[0,1]);
-			monster.sprite.animations.add("rhinoLeft",[2,3]);
-			this.monstersTab.push(monster);
-			game.physics.enable(monster.sprite, Phaser.Physics.ARCADE);
-			setMonster(monster, 250, 250, 100,54,0,0);
-		}
+		// for (var c in rhinos) {
+			// sprite2 = this.monsters.create(rhinos[c][0], rhinos[c][1], 'rhino');
+			// monster = new Monster(0, rhinos[c][3], -1, rhinos[c][2], 0, sprite2,30,30,this.moveCharger, 40);
+			// monster.sprite.body.drag.x = 250;
+			// monster.sprite.body.drag.y = 250;
+			// monster.sprite.animations.add("rhinoRight",[0,1]);
+			// monster.sprite.animations.add("rhinoLeft",[2,3]);
+			// this.monstersTab.push(monster);
+			// game.physics.enable(monster.sprite, Phaser.Physics.ARCADE);
+			// setMonster(monster, 250, 250, 100,54,0,0);
+		// }
 
         // Sprites are z-ordered by creation. As we added tiles later,
         //  we move back other sprites to top
@@ -427,7 +436,7 @@ gameLevel1.prototype = {
 		this.hero.sprite.body.mass = 50;
 		this.hero.sprite.body.drag.x = 250;
 		this.hero.sprite.body.drag.y = 250;
-		this.hero.sprite.body.maxVelocity.set(500,700);
+		this.hero.sprite.body.maxVelocity.set(200,700);
 		
 		
 		
@@ -435,7 +444,9 @@ gameLevel1.prototype = {
     },
     // Called for each refresh
     update: function (){
-
+		this.createRhino();
+		this.createPango();
+		this.createSuri();
 		var moving = false;
 		var walkAnimationSpeed = 6;
 		
@@ -1022,6 +1033,79 @@ gameLevel1.prototype = {
         }, 2000);
 		
 		
+	},
+	
+	createPango : function(){
+		for(var c = this.indexPango; c < this.pongos.length ; c++){
+			if(this.pongos[c][0] - this.hero.sprite.body.x < 1000 ){
+				var  sprite2 = this.monsters.create(this.pongos[c][0], this.pongos[c][1], 'pango');
+				var monster = new Monster(0, this.pongos[c][3], -1, this.pongos[c][2], 0, sprite2, 70 , 20, this.moveRangeDefense, 30);
+				monster.sprite.animations.add("pangoRight",[4,5]);
+				monster.sprite.animations.add("pangoLeft",[0,1]);
+				monster.sprite.animations.add("pangoRollRight",[2,3]);
+				monster.sprite.animations.add("pangoRollLeft",[6,7]);
+				this.monstersTab.push(monster);
+				game.physics.enable(monster.sprite, Phaser.Physics.ARCADE);
+				monster.sprite.body.drag.x = 250;
+				monster.sprite.body.drag.y = 250;
+				setMonster(monster, 250, 250, 50, 24, 0,0);
+				if(this.monstersTab[0].length > 5){
+					 this.monsters.remove(this.monstersTab[0].sprite);
+					this.monstersTab[0].sprite.kill();
+					this.monstersTab.splice(0,1);
+				}
+				
+			}else{
+				this.indexPango = c;
+				break;
+			}
+		}
+	},
+	
+	createRhino : function(){
+		for(var c = this.indexRhino; c < this.rhinos.length ; c++){
+			if(this.rhinos[c][0] - this.hero.sprite.body.x < 1000 ){
+				sprite2 = this.monsters.create(this.rhinos[c][0], this.rhinos[c][1], 'rhino');
+				monster = new Monster(0, this.rhinos[c][3], -1, this.rhinos[c][2], 0, sprite2,30,30,this.moveCharger, 40);
+				monster.sprite.body.drag.x = 250;
+				monster.sprite.body.drag.y = 250;
+				monster.sprite.animations.add("rhinoRight",[0,1]);
+				monster.sprite.animations.add("rhinoLeft",[2,3]);
+				this.monstersTab.push(monster);
+				game.physics.enable(monster.sprite, Phaser.Physics.ARCADE);
+				setMonster(monster, 250, 250, 100,54,0,0);
+				if(this.monstersTab[0].length > 5){
+					 this.monsters.remove(this.monstersTab[0].sprite);
+					this.monstersTab[0].sprite.kill();
+					this.monstersTab.splice(0,1);
+				}
+			}else{
+				this.indexRhino = c;
+				break;
+			}
+		}
+	},
+	
+	createSuri : function(){
+		for(var c = this.indexSuri; c < this.suris.length ; c++){
+			if(this.suris[c][0] - this.hero.sprite.body.x < 1000 ){
+					sprite2 = this.monsters.create(this.suris[c][0], this.suris[c][1], 'suri');
+					monster = new Monster(0, this.suris[c][3], -1, this.suris[c][2], 0, sprite2, 30, 30, this.rangeAttack , 10);
+					monster.sprite.animations.add("suriRight", [0, 1, 2, 1, 0]);
+					monster.sprite.animations.add("suriLeft", [5, 4, 3, 4, 5]);
+					this.monstersTab.push(monster);
+					game.physics.enable(monster.sprite, Phaser.Physics.ARCADE);
+					setMonster(monster, 250, 250, 24, 40, 0, 0);
+				if(this.monstersTab[0].length > 5){
+					 this.monsters.remove(this.monstersTab[0].sprite);
+					this.monstersTab[0].sprite.kill();
+					this.monstersTab.splice(0,1);
+				}
+			}else{
+				this.indexSuri = c;
+				break;
+			}
+		}
 	}
 	
 };
