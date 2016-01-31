@@ -295,7 +295,7 @@ gameLevel1.prototype = {
 		this.hero.sprite.body.mass = 50;
 		this.hero.sprite.body.drag.x = 250;
 		this.hero.sprite.body.drag.y = 250;
-		this.hero.sprite.body.maxVelocity.set(200,400);
+		this.hero.sprite.body.maxVelocity.set(200,700);
 
     },
     // Called for each refresh
@@ -364,13 +364,20 @@ gameLevel1.prototype = {
 		
 		if (this.cursorKeys.up.isDown)
 		{	
-			if(this.hero.jump){
+			if(this.hero.jump && !(this.hero.sprite.body.blocked.down || this.hero.sprite.body.touching.down)){
 				this.hero.sprite.animations.stop();
 				this.hero.jump = false;
 				moving =false;
-				this.hero.sprite.body.velocity.y -= 50;
+				this.hero.sprite.body.velocity.y = -400;
+				this.hero.jumpTimer = 0;
+				console.log(this.hero.sprite.body.velocity.y);
+			}else if(this.hero.jump){
+				this.hero.sprite.animations.stop();
+				this.hero.jump = false;
+				moving =false;
+				this.hero.sprite.body.velocity.y -= 75;
 				this.hero.jumpTimer = game.time.now;
-			}else if(game.time.now - this.hero.jumpTimer < 400){
+			}else if(game.time.now - this.hero.jumpTimer < 400 && this.hero.sprite.body.velocity.y > -300){
 				console.log(this.hero.sprite.body.velocity.y);
 				this.hero.sprite.body.velocity.y -= 50;
 			}
