@@ -1,25 +1,27 @@
 var gameLevel1 = function(){
 	this.monsters = null;
 	this.hero = null;
-    this.sb = null;
-    this.sbThrown=0;
+	this.sb = null;
+	this.sbThrown=0;
+	this.swordTimer=0;
 	this.monstersTab = null;
     this.mbs = null;
 };
 
 //***Heros***
-function Character(life,sprite){
-	this.sprite = sprite;
-	this.life = life;
-	this.facing = 'right';
-	this.gloves=true;
-	this.ski=true;
-	this.mask=true;
-	this.jump = true;
-	this.sprite.life = 10;
-	this.sword = null; 		
-	this.frameRight=48;
-	this.frameLeft=54;
+function Character(life,sprite) {
+    this.sprite = sprite;
+    this.life = life;
+    this.facing = 'right';
+    this.gloves = true;
+    this.ski = true;
+    this.mask = true;
+    this.jump = true;
+    this.sprite.life = 10;
+    this.sword = null;
+    this.frameRight = 48;
+    this.frameLeft = 54;
+    this.jumpTimer = 0;
 }
 
 function mudball(sprite) {
@@ -37,9 +39,9 @@ Character.prototype.makeSword = function() {
     {
 		this.sword = game.add.sprite(this.sprite.x + 50,this.sprite.y + 10, null);
     }
-	
+
 		game.physics.enable(this.sword, Phaser.Physics.ARCADE);
-		this.sword.body.setSize(35, 40, 0, 0);   
+		this.sword.body.setSize(40, 40, 0, 0);   
 }
 
 Character.prototype.destroySword = function() {
@@ -166,9 +168,9 @@ function setMonster(monster, x, y) {
     monster.sprite.body.drag.x = x;
     monster.sprite.body.drag.y = y;
     monster.sprite.body.collideWorldBounds = true;
-    monster.sprite.body.bounce.setTo(0.5,0.2);
+   // monster.sprite.body.bounce.setTo(0.5,0.2);
     monster.sprite.body.setSize(44, 40, 0, 0);
-    monster.sprite.body.mass = 5;
+    monster.sprite.body.mass = 50;
     monster.sprite.body.immovable = true;
 }
 
@@ -195,17 +197,17 @@ gameLevel1.prototype = {
 
         //Tilemap
         //Created with Tiled software, with needed format: Orthogonal / CSV / .json files
-        game.load.tilemap('map', 'assets/tiled.json', null, Phaser.Tilemap.TILED_JSON);
-        game.load.image('RPGpack_sheet', 'assets/RPGpack_sheet.png');
+        game.load.tilemap('map', 'assets/map.json', null, Phaser.Tilemap.TILED_JSON);
+        game.load.image('sprites_plateforme', 'assets/sprites_plateforme.png');
 
     },
     // Called after preload - create sprites,... using assets here
     create: function () {
         // Create a sprite
-        this.backgroundSprite = game.add.sprite(0, 0, 'background');
+        //this.backgroundSprite = game.add.sprite(0, 0, 'background');
+		game.stage.backgroundColor = '#787878';
 
-
-        var sprite = game.add.sprite(375, 300, 'characterFrames');
+        var sprite = game.add.sprite(20, 250, 'characterFrames');
 
 
 		
@@ -238,7 +240,7 @@ gameLevel1.prototype = {
         game.physics.enable(this.hero.sprite, Phaser.Physics.ARCADE);
 				
         // Init hero
-        this.hero.sprite.body.collideWorldBounds = true;
+        this.hero.sprite.body.collideWorldBounds = false;
         this.hero.sprite.body.setSize(10, 35, 35, 20);
 
         // The sprite will collide with the borders
@@ -246,19 +248,18 @@ gameLevel1.prototype = {
 
         var map = game.add.tilemap('map');
         // The tileset name must match the one defined in Tiled
-        map.addTilesetImage('RPGpack_sheet');
+        map.addTilesetImage('sprites_plateforme');
         // The layer name must match the one defined in Tiled
-        var backgroundLayer = map.createLayer('background');
-        this.wallLayer = map.createLayer('walls');
-        this.goalLayer = map.createLayer('goals');
+        //var backgroundLayer = map.createLayer('background');
+        this.wallLayer = map.createLayer('wallLayer');
+        this.decorationLayer = map.createLayer('decorationLayer');
         //The world will have the map size
-        backgroundLayer.resizeWorld();
+        this.wallLayer.resizeWorld();
         //The camera will follow the player, as the world is bigger than the screen
         game.camera.follow(this.hero.sprite);
         // Every tiles in the walls layer will be able to colide in this layer
-        map.setCollisionByExclusion([],true,'walls');
-        map.setCollisionByExclusion([],true,'goals');
-		
+        map.setCollisionByExclusion([],true,'wallLayer');
+        //map.setCollisionByExclusion([],true,'sprites_plateforme');
 		
 		
 		this.monsters= 	this.add.physicsGroup();
@@ -268,17 +269,18 @@ gameLevel1.prototype = {
 		//PARTIE A RENDRE PROPRE -- bien faire pop le smonstres après le reste, bring to the top fonctionne pas vraiment
         this.monstersTab = [];
 
-        var  sprite2 = this.monsters.create(350, 450, 'monster');
+        var  sprite2 = this.monsters.create(350, 350, 'monster');
         var monster = new Monster(0, 150, -1, 100, 0, sprite2, "cac");
         this.monstersTab.push(monster);
         game.physics.enable(monster.sprite, Phaser.Physics.ARCADE);
 
-        sprite2 = this.monsters.create(300, 450, 'monster');
+        sprite2 = this.monsters.create(300, 350, 'monster');
         monster = new Monster(0, 150, -1, 100, 0, sprite2, "cac");
+
 		this.monstersTab.push(monster);
 		game.physics.enable(monster.sprite, Phaser.Physics.ARCADE);
 
-        sprite2 = this.monsters.create(350, 450, 'monster');
+        sprite2 = this.monsters.create(350, 350, 'monster');
         monster = new Monster(0, 150, -1, 250, 0, sprite2, "dis");
         this.monstersTab.push(monster);
         game.physics.enable(monster.sprite, Phaser.Physics.ARCADE);
@@ -302,7 +304,8 @@ gameLevel1.prototype = {
 		this.hero.sprite.body.mass = 50;
 		this.hero.sprite.body.drag.x = 250;
 		this.hero.sprite.body.drag.y = 250;
-		
+		this.hero.sprite.body.maxVelocity.set(200,700);
+
     },
     // Called for each refresh
     update: function (){
@@ -320,7 +323,7 @@ gameLevel1.prototype = {
 
 		game.physics.arcade.overlap(this.hero.sprite, this.monsters,this.overlapHeroMonster);
  	  
-
+		this.hero.sprite.body.velocity.x *=   0.8 ;
 		if(this.hero.sprite.body.blocked.down || this.hero.sprite.body.touching.down){
 			this.hero.jump = true;
 		}
@@ -340,8 +343,10 @@ gameLevel1.prototype = {
 				this.hero.sprite.animations.play("swordRight",40,false)
             }
 			
-			
-			game.physics.arcade.collide(this.hero.sword, this.monsters, this.swordDamage);
+			if(game.time.now - this.swordTimer > 250){
+				this.swordTimer = game.time.now;
+				game.physics.arcade.overlap(this.hero.sword, this.monsters, this.swordDamage);
+			}
 			this.hero.destroySword();
 			moving = true;
 		}
@@ -350,7 +355,7 @@ gameLevel1.prototype = {
 		
 		if (this.cursorKeys.left.isDown)
 		{
-			this.hero.sprite.body.velocity.x = -150;
+			this.hero.sprite.body.velocity.x -= 150;
 			if(!moving  && this.hero.jump ){
 				this.hero.sprite.animations.play("left",walkAnimationSpeed,true)
 				moving = true;
@@ -360,7 +365,7 @@ gameLevel1.prototype = {
 		}
 		else if (this.cursorKeys.right.isDown)
 		{
-			this.hero.sprite.body.velocity.x = 150;
+			this.hero.sprite.body.velocity.x += 150;
 			if(!moving && this.hero.jump){
 				this.hero.sprite.animations.play("right",walkAnimationSpeed,true)
 				moving = true;
@@ -369,12 +374,25 @@ gameLevel1.prototype = {
 
 		}
 		
-		if (this.cursorKeys.up.isDown && this.hero.jump)
-		{
-			this.hero.sprite.animations.stop();
-			this.hero.jump = false;
-			moving =false;
-			this.hero.sprite.body.velocity.y = -500;
+		if (this.cursorKeys.up.isDown)
+		{	
+			if(this.hero.jump && !(this.hero.sprite.body.blocked.down || this.hero.sprite.body.touching.down)){
+				this.hero.sprite.animations.stop();
+				this.hero.jump = false;
+				moving =false;
+				this.hero.sprite.body.velocity.y = -400;
+				this.hero.jumpTimer = 0;
+				console.log(this.hero.sprite.body.velocity.y);
+			}else if(this.hero.jump){
+				this.hero.sprite.animations.stop();
+				this.hero.jump = false;
+				moving =false;
+				this.hero.sprite.body.velocity.y -= 75;
+				this.hero.jumpTimer = game.time.now;
+			}else if(game.time.now - this.hero.jumpTimer < 400 && this.hero.sprite.body.velocity.y > -300){
+				console.log(this.hero.sprite.body.velocity.y);
+				this.hero.sprite.body.velocity.y -= 50;
+			}
 		}
 
 		//Snowball
@@ -422,11 +440,9 @@ gameLevel1.prototype = {
             }
         }
 
-        var maxCharacterVelocity = 600;
-        this.hero.sprite.body.maxVelocity.set(maxCharacterVelocity,maxCharacterVelocity);
         for (var i in this.monstersTab)
         {
-            this.monstersTab[i].sprite.body.maxVelocity.set(maxCharacterVelocity,maxCharacterVelocity);
+            this.monstersTab[i].sprite.body.maxVelocity.set(600,600);
         }
 
 
@@ -579,16 +595,29 @@ gameLevel1.prototype = {
         //game.state.callbackContext.monstersTab[i]; donne le monstre touché
 		var x= heroSprite.body.x - monsterSprite.body.x;
 		var y= heroSprite.body.y - monsterSprite.body.y;
-		heroSprite.body.velocity.y += y*3 ;
-		monsterSprite.body.velocity.y -= y*2;
-
         game.state.callbackContext.hero.life -= 1;
         if (game.state.callbackContext.hero.life == 0)
         {
             game.state.callbackContext.hero.sprite.kill();
         }
-		heroSprite.body.velocity.x += x*5 ;
-		monsterSprite.body.velocity.x -= x*5;
+		if(x < 0){
+			heroSprite.body.velocity.y += y*3 ;
+			monsterSprite.body.velocity.y -= y*3;
+		
+			heroSprite.body.velocity.x += x*15 ;
+			monsterSprite.body.velocity.x -= x*100;
+			
+			
+		}
+		else
+		{
+			heroSprite.body.velocity.y += y*3 ;
+			monsterSprite.body.velocity.y -= y*3;
+			
+			heroSprite.body.velocity.x += x*3 ;
+			monsterSprite.body.velocity.x -= x*100;
+		}	
+			
 		return true;
 	},
 	
@@ -615,7 +644,7 @@ gameLevel1.prototype = {
         game.state.callbackContext.sb.kill();
         if (game.state.callbackContext.monstersTab[i].health == 0) {
             game.state.callbackContext.monsters.remove(monsterSprite);
-            monsterSprite.visible = false;
+            monsterSprite.kill();
         }
     },
 
@@ -631,11 +660,13 @@ gameLevel1.prototype = {
 	
 	swordDamage : function (swordSprite, monsterSprite) {
         var i = game.state.callbackContext.monsters.children.indexOf(monsterSprite);
-        game.state.callbackContext.monstersTab[i].health = game.state.callbackContext.monstersTab[i].health - 50;
+        game.state.callbackContext.monstersTab[i].health = game.state.callbackContext.monstersTab[i].health - 10;
+        game.state.callbackContext.sb = null;
         if (game.state.callbackContext.monstersTab[i].health == 0) {
             game.state.callbackContext.monsters.remove(monsterSprite);
             monsterSprite.visible = false;
         }
+		game.state.callbackContext.collideHeroMonster(game.state.callbackContext.hero.sprite,monsterSprite);
     }
 	
 };
