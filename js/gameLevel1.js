@@ -153,8 +153,7 @@ Character.prototype.looseGloves = function(){
 
 //    Monstre      \\
 
-function Monster(Move, MaxMove, Direction, View, Chase, sprite, type){
-    this.type = type;
+function Monster(Move, MaxMove, Direction, View, Chase, sprite, rangeArmor, cacArmor, moveFunction){
     this.sprite = sprite;
     this.move = Move;
     this.maxMove = MaxMove;
@@ -163,13 +162,14 @@ function Monster(Move, MaxMove, Direction, View, Chase, sprite, type){
     this.chase = Chase;
     this.health = 100;
     this.mbThrown = 0;
+	this.rangeArmor = rangeArmor;
+	this.cacArmor = cacArmor;
+	this.moveFunction = moveFunction;
 }
 function setMonster(monster, dragX, dragY, sizeX, sizeY, offsetX, offsetY) {
     monster.sprite.body.drag.x = dragX;
     monster.sprite.body.drag.y = dragY;
     monster.sprite.body.collideWorldBounds = true;
-   // monster.sprite.body.bounce.setTo(0.5,0.2);
-    //monster.sprite.body.setSize(44, 40, 0, 0);
 	monster.sprite.body.setSize(sizeX, sizeY, offsetX, offsetY);
     monster.sprite.body.mass = 50;
     monster.sprite.body.immovable = true;
@@ -274,26 +274,30 @@ gameLevel1.prototype = {
 			
 
 
-		
+		//CREATION PANGOLIN
         var  sprite2 = this.monsters.create(350, 350, 'monster');
-        var monster = new Monster(0, 150, -1, 100, 0, sprite2, "cac");
+        var monster = new Monster(0, 150, -1, 100, 0, sprite2, 0 , 0, this.moveRangeDefense);
         this.monstersTab.push(monster);
         game.physics.enable(monster.sprite, Phaser.Physics.ARCADE);
 
 		
         sprite2 = this.monsters.create(300, 350, 'monster');
-        monster = new Monster(0, 150, -1, 100, 0, sprite2, "cac");
+        monster = new Monster(0, 150, -1, 100, 0, sprite2, 0 , 0, this.moveRangeDefense);
 		this.monstersTab.push(monster);
 		game.physics.enable(monster.sprite, Phaser.Physics.ARCADE);
 
+		
+		
+		//CREATION SURICATES
         sprite2 = this.monsters.create(350, 350, 'monster');
-        monster = new Monster(0, 150, -1, 250, 0, sprite2, "dis");
+        monster = new Monster(0, 150, -1, 250, 0, sprite2, 0 , 0, this.rangeAttack);
         this.monstersTab.push(monster);
         game.physics.enable(monster.sprite, Phaser.Physics.ARCADE);
 		
-				
+		
+		//CREATION RHINO
 		sprite2 = this.monsters.create(350, 100, 'rhino');
-        monster = new Monster(0, 150, -1, 250, 0, sprite2);
+        monster = new Monster(0, 150, -1, 250, 0, sprite2,0,0,this.moveCharger);
 		monster.sprite.body.drag.x = 250;
 		monster.sprite.body.drag.y = 250;
 		monster.sprite.animations.add("rhinoRight",[0,1]);
@@ -451,18 +455,19 @@ gameLevel1.prototype = {
 
 
 
-            this.moveRangeDefense(this.monstersTab[0]);
-			 this.moveRangeDefense(this.monstersTab[1]);
-            this.moveCharger(this.monstersTab[3]);
+            // this.moveRangeDefense(this.monstersTab[0]);
+			 // this.moveRangeDefense(this.monstersTab[1]);
+            // this.moveCharger(this.monstersTab[3]);
 
 			
-			if (this.monstersTab[2].health > 0) {
-               this.rangeAttack(this.monstersTab[2]);
-            }
+			// if (this.monstersTab[2].health > 0) {
+               // this.rangeAttack(this.monstersTab[2]);
+            // }
 			
 
         for (var i in this.monstersTab)
         {
+			this.monstersTab[i].moveFunction(this.monstersTab[i],this);
             this.monstersTab[i].sprite.body.maxVelocity.set(600,600);
         }
 
@@ -478,15 +483,15 @@ gameLevel1.prototype = {
     },
 	
 	// Movemevement for the PANGOLIN
-	moveRangeDefense: function (monster) {
-		this.hero.sprite.body.velocity.x *=   0.9 ;
-		if( (Math.abs(monster.sprite.body.y - this.hero.sprite.body.y) < 10 && Math.abs(monster.sprite.body.x - this.hero.sprite.body.x) < monster.view )|| monster.chase >0){
-			if((Math.abs(monster.sprite.body.y - this.hero.sprite.body.y) < 10 && Math.abs(monster.sprite.body.x - this.hero.sprite.body.x) < monster.view ) ){
+	moveRangeDefense: function (monster,level) {
+		level.hero.sprite.body.velocity.x *=   0.9 ;
+		if( (Math.abs(monster.sprite.body.y - level.hero.sprite.body.y) < 10 && Math.abs(monster.sprite.body.x - level.hero.sprite.body.x) < monster.view )|| monster.chase >0){
+			if((Math.abs(monster.sprite.body.y - level.hero.sprite.body.y) < 10 && Math.abs(monster.sprite.body.x - level.hero.sprite.body.x) < monster.view ) ){
 				monster.chase = 50;
 			}else{
 				monster.chase--;
 			}
-			if(monster.sprite.body.x - this.hero.sprite.body.x < 0){
+			if(monster.sprite.body.x - level.hero.sprite.body.x < 0){
 				monster.sprite.body.velocity.x = 130;
 			}else{
 				monster.sprite.body.velocity.x = -130;
@@ -516,34 +521,36 @@ gameLevel1.prototype = {
     },
 
     // Attack for the suricate
-    rangeAttack: function (monster) {
-        monster.sprite.body.velocity.x = 0;
-        if( (Math.abs(monster.sprite.body.y - this.hero.sprite.body.y) < 10 && Math.abs(monster.sprite.body.x - this.hero.sprite.body.x) < monster.view )|| monster.chase >0){
-            if((Math.abs(monster.sprite.body.y - this.hero.sprite.body.y) < 10 && Math.abs(monster.sprite.body.x - this.hero.sprite.body.x) < monster.view ) ){
-                monster.chase = 50;
-            }else{
-                monster.chase--;
-            }
-            if(monster.sprite.body.x - this.hero.sprite.body.x < 0){
-                monster.direction = 1;
-            }else{
-                monster.direction = -1;
-            }
-            if ((game.time.now - monster.mbThrown) > 1000 )
-            {
-                monster.mbThrown = game.time.now;
-                this.mudball(monster);
-            }
-        }
+    rangeAttack: function (monster,level) {
+		if (monster > 0) {
+			monster.sprite.body.velocity.x = 0;
+			if( (Math.abs(monster.sprite.body.y - level.hero.sprite.body.y) < 10 && Math.abs(monster.sprite.body.x - level.hero.sprite.body.x) < monster.view )|| monster.chase >0){
+				if((Math.abs(monster.sprite.body.y - level.hero.sprite.body.y) < 10 && Math.abs(monster.sprite.body.x - level.hero.sprite.body.x) < monster.view ) ){
+					monster.chase = 50;
+				}else{
+					monster.chase--;
+				}
+				if(monster.sprite.body.x - level.hero.sprite.body.x < 0){
+					monster.direction = 1;
+				}else{
+					monster.direction = -1;
+				}
+				if ((game.time.now - monster.mbThrown) > 1000 )
+				{
+					monster.mbThrown = game.time.now;
+					level.mudball(monster);
+				}
+			}
+		}
     },
 
     // Movemevement for the RHINO
-	moveCharger: function (monster) {
-		this.hero.sprite.body.velocity.x *=   0.9 ;
+	moveCharger: function (monster,level) {
+		level.hero.sprite.body.velocity.x *=   0.9 ;
 		var test = false;
 		var facteur = 1;
-		if( (Math.abs(monster.sprite.body.y - this.hero.sprite.body.y) < 30 && Math.abs(monster.sprite.body.x - this.hero.sprite.body.x) < monster.view )|| monster.chase >0){
-			if((Math.abs(monster.sprite.body.y - this.hero.sprite.body.y) < 30 && Math.abs(monster.sprite.body.x - this.hero.sprite.body.x) < monster.view ) ){
+		if( (Math.abs(monster.sprite.body.y - level.hero.sprite.body.y) < 30 && Math.abs(monster.sprite.body.x - level.hero.sprite.body.x) < monster.view )|| monster.chase >0){
+			if((Math.abs(monster.sprite.body.y - level.hero.sprite.body.y) < 30 && Math.abs(monster.sprite.body.x - level.hero.sprite.body.x) < monster.view ) ){
 				monster.chase = 150;
 			}else{
 				test = true;
@@ -551,7 +558,7 @@ gameLevel1.prototype = {
 			}
 						
 			
-			if(monster.sprite.body.x - this.hero.sprite.body.x < 0){
+			if(monster.sprite.body.x - level.hero.sprite.body.x < 0){
 				
 				if(monster.prev && test){
 					monster.sprite.animations.play("rhinoRight",6,true)
