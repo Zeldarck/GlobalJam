@@ -35,16 +35,16 @@ function mudball(sprite) {
 Character.prototype.makeSword = function() {
 	 if (this.facing == 'left')
     {
-		this.sword = game.add.sprite(this.sprite.x + 5,this.sprite.y + 10, null);
+		this.sword = game.add.sprite(this.sprite.x + 5,this.sprite.y + 5, null);
 		
 	}
     else
     {
-		this.sword = game.add.sprite(this.sprite.x + 50,this.sprite.y + 10, null);
+		this.sword = game.add.sprite(this.sprite.x + 50,this.sprite.y + 5, null);
     }
 
 		game.physics.enable(this.sword, Phaser.Physics.ARCADE);
-		this.sword.body.setSize(40, 40, 0, 0);   
+		this.sword.body.setSize(55, 40, 0, 0);   
 }
 
 Character.prototype.destroySword = function() {
@@ -184,6 +184,8 @@ function Monster(Move, MaxMove, Direction, View, Chase, sprite, rangeArmor, cacA
 	this.rangeArmor = rangeArmor;
 	this.cacArmor = cacArmor;
 	this.moveFunction = moveFunction;
+	this.inertiex = 0;
+	this.inertiey = 0;
 }
 
 function setMonster(monster, dragX, dragY, sizeX, sizeY, offsetX, offsetY) {
@@ -546,8 +548,8 @@ gameLevel1.prototype = {
     },
     // Called after the renderer rendered - usefull for debug rendering, ...
     render: function  () {
-		// if(game.state.callbackContext.hero.sword != null)
-		// game.debug.body(game.state.callbackContext.hero.sword);
+		if(game.state.callbackContext.hero.sword != null)
+		game.debug.body(game.state.callbackContext.hero.sword);
     },
 	
 	// Movemevement for the PANGOLIN
@@ -647,7 +649,7 @@ gameLevel1.prototype = {
 					monster.prev = false;
 				}
 				
-				monster.sprite.body.velocity.x = facteur * 250;
+				monster.sprite.body.velocity.x = facteur * 250 + monster.inertiex;
 			}else{
 				
 				if(!monster.prev && test){
@@ -658,7 +660,7 @@ gameLevel1.prototype = {
 					monster.prev = true;
 				}
 				
-				monster.sprite.body.velocity.x = facteur * -250;
+				monster.sprite.body.velocity.x = facteur * -250 + monster.inertiex;
 			}
 			
 			if( monster.sprite.body.blocked.left || monster.sprite.body.blocked.right || monster.sprite.body.touching.left || monster.sprite.body.touching.right){
@@ -670,8 +672,10 @@ gameLevel1.prototype = {
 		{
 			monster.sprite.animations.stop();
 		}
-		
-		
+		monster.sprite.body.velocity.y = monster.inertiey;
+		console.log(monster.inertiex);
+		monster.inertiex *= 0.9;
+		monster.inertiey *= 0.9;
 	},
 
 	//How to throw a snowball
@@ -767,7 +771,7 @@ gameLevel1.prototype = {
 		var x= heroSprite.body.x - monsterSprite.body.x;
 		var y= heroSprite.body.y - monsterSprite.body.y;
 		heroSprite.body.velocity.y += y ;
-		monsterSprite.body.velocity.y = -150;
+		monsterSprite.body.velocity.y = -50;
 		
 		heroSprite.body.velocity.x += x ;
 		monsterSprite.body.x -= x/5;
@@ -797,6 +801,28 @@ gameLevel1.prototype = {
         // }
     },
 	
+	
+    pushBack: function (heroSprite,monsterSprite) {
+		var i = game.state.callbackContext.monsters.children.indexOf(monsterSprite);
+        var monster = game.state.callbackContext.monstersTab[i];// donne le monstre touché
+		var x= heroSprite.body.x - monsterSprite.body.x;
+		var y= heroSprite.body.y - monsterSprite.body.y;
+        game.state.callbackContext.hero.life -= 1;
+		if(x < 0){
+			monster.inertiey -= y*2;
+			monster.inertiex -= x*20;
+			
+		}
+		else
+		{
+
+			monster.inertiey -= y*2;
+			monster.inertiex -= x*20;
+		}	
+
+		return true;
+	},
+	
 	swordDamage : function (swordSprite, monsterSprite) {
         var i = game.state.callbackContext.monsters.children.indexOf(monsterSprite);
         game.state.callbackContext.monstersTab[i].health = game.state.callbackContext.monstersTab[i].health - 10;
@@ -806,8 +832,9 @@ gameLevel1.prototype = {
             // monsterSprite.visible = false;
 			monsterSprite.kill();
 			game.state.callbackContext.monstersTab.splice(i,1);
-        }
-		game.state.callbackContext.collideHeroMonster(game.state.callbackContext.hero.sprite,monsterSprite);
+        }else{
+			game.state.callbackContext.pushBack(game.state.callbackContext.hero.sprite,monsterSprite);
+		}
     }
 	
 };
