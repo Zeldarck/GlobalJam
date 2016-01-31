@@ -6,6 +6,7 @@ var gameLevel1 = function(){
 	this.swordTimer=0;
 	this.monstersTab = null;
     this.mbs = null;
+    this.pnj = null;
 };
 
 //***Heros***
@@ -150,7 +151,23 @@ Character.prototype.looseGloves = function(){
 	}
 }
 
+//    Pnj    \\
 
+function Pnj(sprite)
+{
+    this.sprite = sprite;
+    this.trade = true;
+}
+
+function setPnj(pnj, dragX, dragY, sizeX, sizeY, offsetX, offsetY)
+{
+    pnj.sprite.body.drag.x = dragX;
+    pnj.sprite.body.drag.y = dragY;
+    pnj.sprite.body.collideWorldBounds = true;
+    pnj.sprite.body.setSize(sizeX, sizeY, offsetX, offsetY);
+    pnj.sprite.body.mass = 50;
+    pnj.sprite.body.immovable = true;
+}
 //    Monstre      \\
 
 function Monster(Move, MaxMove, Direction, View, Chase, sprite, type){
@@ -164,13 +181,12 @@ function Monster(Move, MaxMove, Direction, View, Chase, sprite, type){
     this.health = 100;
     this.mbThrown = 0;
 }
+
 function setMonster(monster, dragX, dragY, sizeX, sizeY, offsetX, offsetY) {
     monster.sprite.body.drag.x = dragX;
     monster.sprite.body.drag.y = dragY;
     monster.sprite.body.collideWorldBounds = true;
-   // monster.sprite.body.bounce.setTo(0.5,0.2);
-    //monster.sprite.body.setSize(44, 40, 0, 0);
-	monster.sprite.body.setSize(sizeX, sizeY, offsetX, offsetY);
+    monster.sprite.body.setSize(sizeX, sizeY, offsetX, offsetY);
     monster.sprite.body.mass = 50;
     monster.sprite.body.immovable = true;
 }
@@ -194,6 +210,7 @@ gameLevel1.prototype = {
         game.load.image('snowball', 'assets/snowball.png');
         game.load.image('mudball', 'assets/mudball.png');
         game.load.image('monster', 'assets/mechant.png');
+        game.load.image('pnj', 'assets/Sara.png');
         game.load.spritesheet('rhino', 'assets/sprites_sheet_rino.png',100,54);
 
 
@@ -216,7 +233,8 @@ gameLevel1.prototype = {
 
 
 
-
+        //create pnj
+        this.pnj = new Pnj(game.add.sprite(600, 150, 'pnj'));
 
 
 		//create hero
@@ -231,7 +249,9 @@ gameLevel1.prototype = {
         // Observers
         this.cursorKeys = game.input.keyboard.createCursorKeys();
         this.spacebarKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-		this.wKey=game.input.keyboard.addKey(Phaser.Keyboard.W);
+        this.wKey=game.input.keyboard.addKey(Phaser.Keyboard.W);
+        this.yKey=game.input.keyboard.addKey(Phaser.Keyboard.Y);
+        this.nKey=game.input.keyboard.addKey(Phaser.Keyboard.N);
 		//A super Q key to test methods !
 		this.qKey=game.input.keyboard.addKey(Phaser.Keyboard.Q);
 
@@ -240,10 +260,14 @@ gameLevel1.prototype = {
 		
         // Init hero sprite
         game.physics.enable(this.hero.sprite, Phaser.Physics.ARCADE);
-				
+
         // Init hero
         this.hero.sprite.body.collideWorldBounds = false;
         this.hero.sprite.body.setSize(10, 35, 35, 20);
+
+        //Init pnj
+        game.physics.enable(this.pnj.sprite, Phaser.Physics.ARCADE);
+        setPnj(this.pnj, 350, 250,54,55,0,0);
 
         // The sprite will collide with the borders
         // We limit the physic body to a smaller part of the sprite (it contains white spaces)
@@ -337,6 +361,8 @@ gameLevel1.prototype = {
 		var moving = false;
 		var walkAnimationSpeed = 6;
 
+        game.physics.arcade.collide(this.pnj.sprite, this.wallLayer);
+        game.physics.arcade.overlap(this.pnj.sprite, this.hero.sprite, this.exchange);
 		game.physics.arcade.collide(this.hero.sprite, this.monsters,this.collideHeroMonster);
         game.physics.arcade.collide(this.monsters, this.wallLayer);
         game.physics.arcade.collide(this.sb, this.wallLayer);
@@ -628,8 +654,20 @@ gameLevel1.prototype = {
             tmp.mbThrown = game.time.now;
     },
 
-	
-	collideHeroMonster: function (heroSprite,monsterSprite) {
+    exchange: function (pnjSprite, heroSprite) {
+        if (game.state.callbackContext.pnj.trade == true)
+        {
+            if(game.state.callbackContext.yKey.isDown) {
+                console.log("Trade ok");
+                game.state.callbackContext.pnj.trade = false;
+            }
+
+            else if(game.state.callbackContext.nKey.isDown)
+                console.log("Trade ko");
+        }
+    },
+
+    collideHeroMonster: function (heroSprite,monsterSprite) {
         i = game.state.callbackContext.monsters.children.indexOf(monsterSprite);
         //game.state.callbackContext.monstersTab[i]; donne le monstre touché
 		var x= heroSprite.body.x - monsterSprite.body.x;
