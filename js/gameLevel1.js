@@ -298,37 +298,35 @@ gameLevel1.prototype = {
 		//PARTIE A RENDRE PROPRE -- bien faire pop le smonstres après le reste, bring to the top fonctionne pas vraiment
         this.monstersTab = [];
 
+		// Create your monsters !!
 		var rhinos = [[350, 350, 250],
+			[1050, 250, 250],
+			[2000, 250, 250]];
+
+		var pongos = [[350, 350, 250],
+			[1050, 250, 250],
+			[2000, 250, 250]];
+
+		var suris = [[350, 350, 250],
 			[1050, 250, 250],
 			[2000, 250, 250]];
 
 
 		//CREATION PANGOLIN
-        var  sprite2 = this.monsters.create(350, 350, 'pango');
-        var monster = new Monster(0, 150, -1, 150, 0, sprite2, 0 , 0, this.moveRangeDefense);
-		monster.sprite.animations.add("pangoRight",[4,5]);
-		monster.sprite.animations.add("pangoLeft",[0,1]);
-		monster.sprite.animations.add("pangoRollRight",[2,3]);
-		monster.sprite.animations.add("pangoRollLeft",[6,7]);
-        this.monstersTab.push(monster);
-        game.physics.enable(monster.sprite, Phaser.Physics.ARCADE);
-        monster.sprite.body.drag.x = 250;
-        monster.sprite.body.drag.y = 250;
-        //monster.sprite.animations.add("walk");
-        //monster.sprite.animations.play('walk', 30, true);
+		for (var c in pongos) {
+			var  sprite2 = this.monsters.create(pongos[c][0], pongos[c][1], 'pango');
+			var monster = new Monster(0, 150, -1, pongos[c][2], 0, sprite2, 0 , 0, this.moveRangeDefense);
+			monster.sprite.animations.add("pangoRight",[4,5]);
+			monster.sprite.animations.add("pangoLeft",[0,1]);
+			monster.sprite.animations.add("pangoRollRight",[2,3]);
+			monster.sprite.animations.add("pangoRollLeft",[6,7]);
+			this.monstersTab.push(monster);
+			game.physics.enable(monster.sprite, Phaser.Physics.ARCADE);
+			monster.sprite.body.drag.x = 250;
+			monster.sprite.body.drag.y = 250;
+			setMonster(monster, 250, 250, 50, 24, 0,0);
+		}
 
-		
-        var  sprite2 = this.monsters.create(300, 350, 'pango');
-        var monster = new Monster(0, 150, -1, 150, 0, sprite2, 0 , 0, this.moveRangeDefense);
-		monster.sprite.animations.add("pangoRight",[4,5]);
-		monster.sprite.animations.add("pangoLeft",[0,1]);
-		monster.sprite.animations.add("pangoRollRight",[2,3]);
-		monster.sprite.animations.add("pangoRollLeft",[6,7]);		
-		this.monstersTab.push(monster);
-		game.physics.enable(monster.sprite, Phaser.Physics.ARCADE);
-
-		
-		
 		//CREATION SURICATES
         sprite2 = this.monsters.create(350, 350, 'monster');
         monster = new Monster(0, 150, -1, 250, 0, sprite2, 0 , 0, this.rangeAttack);
@@ -346,6 +344,7 @@ gameLevel1.prototype = {
 			monster.sprite.animations.add("rhinoLeft",[2,3]);
 			this.monstersTab.push(monster);
 			game.physics.enable(monster.sprite, Phaser.Physics.ARCADE);
+			setMonster(monster, 250, 250, 100,54,0,0);
 		}
 
         // Sprites are z-ordered by creation. As we added tiles later,
@@ -353,10 +352,7 @@ gameLevel1.prototype = {
         this.hero.sprite.bringToTop();
 
 
-		setMonster(this.monstersTab[0], 250, 250,50,24,0,0);
-		setMonster(this.monstersTab[1], 250, 250,50,24,0,0);
-		setMonster(this.monstersTab[2], 250, 250,44,40,0,0);
-		setMonster(this.monstersTab[3], 250, 250,100,54,0,0);
+//		setMonster(this.monstersTab[2], 250, 250,44,40,0,0);
 
 		 for (var i in this.monstersTab)
         {
