@@ -5,7 +5,8 @@ var gameLevel1 = function(){
 	this.sbThrown=0;
 	this.swordTimer=0;
 	this.monstersTab = null;
-    this.mbs = null;
+	this.mbs = null;
+	this.fbs = null;
     this.pnj = null;
 	this.music = null;
 };
@@ -30,10 +31,10 @@ function Character(life,sprite) {
 
 }
 
-function mudball(sprite) {
-    this.mb = sprite;
-    this.mbThrown = 0;
-}
+//function mudball(sprite) {
+//    this.mb = sprite;
+//    this.mbThrown = 0;
+//}
 	
 Character.prototype.makeSword = function() {
 	 if (this.facing == 'left')
@@ -219,7 +220,8 @@ gameLevel1.prototype = {
         //game.load.spritesheet('ballFrames', 'assets/ball_animation.png', 45, 45);
         game.load.image('mechant', 'assets/mechant.png');
         game.load.image('snowball', 'assets/snowball.png');
-        game.load.image('mudball', 'assets/mudball.png');
+		game.load.image('mudball', 'assets/mudball.png');
+		game.load.image('fireball', 'assets/fireball.png');
         game.load.image('monster', 'assets/mechant.png');
         game.load.image('pnj', 'assets/Sara.png');
         game.load.spritesheet('rhino', 'assets/sprites_sheet_rino.png',100,54);
@@ -265,16 +267,18 @@ gameLevel1.prototype = {
 
 		//song
 		this.music = game.add.audio('music');
+		this.music.play();
+		this.music.loop = true;
+
 		this.throw = game.add.audio('throw');
 		this.throwe = game.add.audio('throwe');
 		this.swordsong = game.add.audio('sword');
 		this.walk = game.add.audio('walk');
 		this.walk.allowMultiple = true;
+		this.walk.volume = 0.25;
 		this.swordsong.allowMultiple = true;
 
-		this.music.play();
-		this.music.loopFull(0.6);
-        
+
         // Observers
         this.cursorKeys = game.input.keyboard.createCursorKeys();
         this.cKey = game.input.keyboard.addKey(Phaser.Keyboard.C);
@@ -320,7 +324,8 @@ gameLevel1.prototype = {
 		
 		
 		this.monsters= 	this.add.physicsGroup();
-        this.mbs = this.add.physicsGroup();
+		this.mbs = this.add.physicsGroup();
+		this.fbs = this.add.physicsGroup();
 
 		
 		//PARTIE A RENDRE PROPRE -- bien faire pop le smonstres après le reste, bring to the top fonctionne pas vraiment
@@ -420,9 +425,11 @@ gameLevel1.prototype = {
 		game.physics.arcade.collide(this.hero.sprite, this.monsters,this.collideHeroMonster);
         game.physics.arcade.collide(this.monsters, this.wallLayer);
         game.physics.arcade.collide(this.sb, this.wallLayer);
-        game.physics.arcade.collide(this.mbs, this.wallLayer);
+		game.physics.arcade.collide(this.mbs, this.wallLayer);
+		game.physics.arcade.collide(this.fbs, this.wallLayer);
         game.physics.arcade.collide(this.sb, this.monsters, this.snowballDamage);
-        game.physics.arcade.collide(this.mbs, this.hero.sprite, this.mudballDamage);
+		game.physics.arcade.collide(this.mbs, this.hero.sprite, this.mudballDamage);
+		game.physics.arcade.collide(this.fbs, this.hero.sprite, this.fireballDamage);
 		game.physics.arcade.collide(this.hero.sprite, this.wallLayer);
 
 		game.physics.arcade.overlap(this.hero.sprite, this.monsters,this.overlapHeroMonster);
@@ -432,8 +439,9 @@ gameLevel1.prototype = {
 			this.hero.jump = true;
 		}
 
-        this.mbs.forEach(this.killHold, this);
-		
+		this.mbs.forEach(this.killHoldm, this);
+		this.fbs.forEach(this.killHoldf, this);
+
 		
 		this.hero.actionAllow = true;
 		
@@ -650,15 +658,22 @@ gameLevel1.prototype = {
 
 			
 	},
-	
-	killHold: function (mudball) {
-      if (game.time.now - mudball.mbThrown > 1000){
-		    this.mbs.remove(mudball);
-			mudball.kill();
-	  }
-    },
 
-    // Attack for the suricate
+	killHoldm: function (mudball) {
+		if (game.time.now - mudball.mbThrown > 1000){
+			this.mbs.remove(mudball);
+			mudball.kill();
+		}
+	},
+
+	killHoldf: function (fireball) {
+		if (game.time.now - fireball.fbThrown > 1000){
+			this.fbs.remove(fireball);
+			fireball.kill();
+		}
+	},
+
+	// Attack for the suricate
     rangeAttack: function (monster,level) {
 			monster.sprite.body.velocity.x = 0;
 			if( (Math.abs(monster.sprite.body.y - level.hero.sprite.body.y) < 180 && Math.abs(monster.sprite.body.x - level.hero.sprite.body.x) < monster.view )|| monster.chase >0){
@@ -754,28 +769,49 @@ gameLevel1.prototype = {
 	},
 
     //How to throw a snowball
-    mudball: function (monster,level){
+	mudball: function (monster,level){
 		this.throwe.play();
-            var tmp = level.mbs.create(monster.sprite.body.x, monster.sprite.body.y, 'mudball');
+		var tmp = level.mbs.create(monster.sprite.body.x, monster.sprite.body.y, 'mudball');
 
-            game.physics.enable(tmp, Phaser.Physics.ARCADE);
-            tmp.body.collideWorldBounds = false;
-            tmp.body.drag.y = 500;
+		game.physics.enable(tmp, Phaser.Physics.ARCADE);
+		tmp.body.collideWorldBounds = false;
+		tmp.body.drag.y = 500;
 
-            if(monster.direction == 1){
-				monster.sprite.animations.play('suriRight',15,false);
-                tmp.body.velocity.x = 500;
-                tmp.body.velocity.y = -200;
-            }
-            else{
-				monster.sprite.animations.play('suriLeft',15,false);
-                tmp.body.velocity.x = -500;
-                tmp.body.velocity.y = -200;
-            }
-            tmp.mbThrown = game.time.now;
-    },
+		if(monster.direction == 1){
+			monster.sprite.animations.play('suriRight',15,false);
+			tmp.body.velocity.x = 500;
+			tmp.body.velocity.y = -200;
+		}
+		else{
+			monster.sprite.animations.play('suriLeft',15,false);
+			tmp.body.velocity.x = -500;
+			tmp.body.velocity.y = -200;
+		}
+		tmp.mbThrown = game.time.now;
+	},
 
-    exchange: function (pnjSprite, heroSprite) {
+	fireball: function (monster,level){
+		this.throwe.play();
+		var tmp = level.fbs.create(monster.sprite.body.x, monster.sprite.body.y, 'fireball');
+
+		game.physics.enable(tmp, Phaser.Physics.ARCADE);
+		tmp.body.collideWorldBounds = false;
+		tmp.body.drag.y = 500;
+
+		if(monster.direction == 1){
+			monster.sprite.animations.play('suriRight',15,false);
+			tmp.body.velocity.x = 500;
+			tmp.body.velocity.y = -200;
+		}
+		else{
+			monster.sprite.animations.play('suriLeft',15,false);
+			tmp.body.velocity.x = -500;
+			tmp.body.velocity.y = -200;
+		}
+		tmp.fbThrown = game.time.now;
+	},
+
+	exchange: function (pnjSprite, heroSprite) {
         if (game.state.callbackContext.pnj.trade == true)
         {
             if(game.state.callbackContext.yKey.isDown) {
@@ -847,23 +883,37 @@ gameLevel1.prototype = {
         }
     },
 
-    mudballDamage : function (mudBallSprite, heroSprite) {
-        heroSprite.kill();
+	mudballDamage : function (mudBallSprite, heroSprite) {
+		heroSprite.kill();
 		var damage = 35;
 		if(game.state.callbackContext.hero.maskPut){
 			damage = 5;
 		}
-        game.state.callbackContext.hero.life -= (Math.random() * damage) + 5;
-        game.state.callbackContext.monsters.remove(mudBallSprite);
-        if (game.state.callbackContext.hero.life <= 0)
-        {
-            game.state.callbackContext.hero.sprite.kill();
+		game.state.callbackContext.hero.life -= (Math.random() * damage) + 5;
+		game.state.callbackContext.monsters.remove(mudBallSprite);
+		if (game.state.callbackContext.hero.life <= 0)
+		{
+			game.state.callbackContext.hero.sprite.kill();
 			game.state.callbackContext.finishGame(false);
-        }
-    },
-	
-	
-    pushBack: function (heroSprite,monsterSprite) {
+		}
+	},
+
+	fireballDamage : function (mudBallSprite, heroSprite) {
+		heroSprite.kill();
+		var damage = 35;
+		if(game.state.callbackContext.hero.maskPut){
+			damage = 10;
+		}
+		game.state.callbackContext.hero.life -= (Math.random() * damage) + 5;
+		game.state.callbackContext.monsters.remove(mudBallSprite);
+		if (game.state.callbackContext.hero.life <= 0)
+		{
+			game.state.callbackContext.hero.sprite.kill();
+			game.state.callbackContext.finishGame(false);
+		}
+	},
+
+	pushBack: function (heroSprite,monsterSprite) {
 		var i = game.state.callbackContext.monsters.children.indexOf(monsterSprite);
         var monster = game.state.callbackContext.monstersTab[i];// donne le monstre touché
 		var x= heroSprite.body.x - monsterSprite.body.x;
