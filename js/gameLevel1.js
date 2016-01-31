@@ -300,16 +300,16 @@ gameLevel1.prototype = {
         this.monstersTab = [];
 
 		// Create your monsters !!
-		var rhinos = [[350, 350, 250],
-			[1050, 250, 250],
-			[2000, 250, 250]];
+		var rhinos = [[1080, 350, 250],
+			[3000, 250, 250],
+			[4172, 250, 250]];
 
 		var pongos = [[350, 350, 250],
-			[1050, 250, 250],
-			[2000, 250, 250]];
+			[2000, 250, 250],
+			[3877, 250, 250]];
 
-		var suris = [[350, 350, 350],
-			[1050, 250, 350],
+		var suris = [[577, 200, 350],
+			[3900, 95, 650],
 			[2000, 250, 350]];
 
 
@@ -336,7 +336,7 @@ gameLevel1.prototype = {
 			monster.sprite.animations.add("suriLeft", [0, 1, 2, 1, 0]);
 			this.monstersTab.push(monster);
 			game.physics.enable(monster.sprite, Phaser.Physics.ARCADE);
-			setMonster(monster, 250, 250, 44, 40, 0, 0);
+			setMonster(monster, 250, 250, 24, 40, 0, 0);
 		}
 		
 		//CREATION RHINO
@@ -369,7 +369,7 @@ gameLevel1.prototype = {
 		this.hero.sprite.body.mass = 50;
 		this.hero.sprite.body.drag.x = 250;
 		this.hero.sprite.body.drag.y = 250;
-		this.hero.sprite.body.maxVelocity.set(200,700);
+		this.hero.sprite.body.maxVelocity.set(700,700);
 		
 		
 		
@@ -429,7 +429,7 @@ gameLevel1.prototype = {
 		
 		if (this.cursorKeys.left.isDown)
 		{
-			this.hero.sprite.body.velocity.x -= 150;
+			this.hero.sprite.body.velocity.x -= 250;
 			if(!moving  && this.hero.jump ){
 				this.hero.sprite.animations.play("left",walkAnimationSpeed,true)
 				moving = true;
@@ -439,7 +439,7 @@ gameLevel1.prototype = {
 		}
 		else if (this.cursorKeys.right.isDown)
 		{
-			this.hero.sprite.body.velocity.x += 150;
+			this.hero.sprite.body.velocity.x += 250;
 			if(!moving && this.hero.jump){
 				this.hero.sprite.animations.play("right",walkAnimationSpeed,true)
 				moving = true;
@@ -582,8 +582,8 @@ gameLevel1.prototype = {
     // Attack for the suricate
     rangeAttack: function (monster,level) {
 			monster.sprite.body.velocity.x = 0;
-			if( (Math.abs(monster.sprite.body.y - level.hero.sprite.body.y) < 30 && Math.abs(monster.sprite.body.x - level.hero.sprite.body.x) < monster.view )|| monster.chase >0){
-				if((Math.abs(monster.sprite.body.y - level.hero.sprite.body.y) < 30 && Math.abs(monster.sprite.body.x - level.hero.sprite.body.x) < monster.view ) ){
+			if( (Math.abs(monster.sprite.body.y - level.hero.sprite.body.y) < 180 && Math.abs(monster.sprite.body.x - level.hero.sprite.body.x) < monster.view )|| monster.chase >0){
+				if((Math.abs(monster.sprite.body.y - level.hero.sprite.body.y) < 180 && Math.abs(monster.sprite.body.x - level.hero.sprite.body.x) < monster.view ) ){
 					monster.chase = 50;
 				}else{
 					monster.chase--;
