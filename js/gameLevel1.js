@@ -7,6 +7,7 @@ var gameLevel1 = function(){
 	this.monstersTab = null;
     this.mbs = null;
     this.pnj = null;
+	this.music = null;
 };
 
 //***Heros***
@@ -222,7 +223,14 @@ gameLevel1.prototype = {
         game.load.spritesheet('pango', 'assets/sprites_sheet_pandolin.png',50,24);
         game.load.spritesheet('suri', 'assets/sprites_sheet_suricate.png',24,40);
 
-        //Tilemap
+		//audio
+		game.load.audio('music', 'assets/Kalimba.mp3');
+		game.load.audio('throw', 'assets/lancer_1.wav');
+		game.load.audio('throwe', 'assets/lancer_2.wav');
+		game.load.audio('sword', 'assets/impact_1.wav');
+		game.load.audio('walk', 'assets/pas_1.wav');
+
+		//Tilemap
         //Created with Tiled software, with needed format: Orthogonal / CSV / .json files
         game.load.tilemap('map', 'assets/map.json', null, Phaser.Tilemap.TILED_JSON);
         game.load.image('sprites_plateforme', 'assets/sprites_plateforme.png');
@@ -252,6 +260,17 @@ gameLevel1.prototype = {
 		this.hero.sprite.animations.add("swordRight",[96,97,98,99,100,100,99,98,97,96]);
 		this.hero.sprite.animations.add("swordLeft",[102,103,104,105,105,104,103,102]);
 
+		//song
+		this.music = game.add.audio('music');
+		this.throw = game.add.audio('throw');
+		this.throwe = game.add.audio('throwe');
+		this.swordsong = game.add.audio('sword');
+		this.walk = game.add.audio('walk');
+		this.walk.allowMultiple = true;
+		this.swordsong.allowMultiple = true;
+
+		this.music.play();
+		this.music.loopFull(0.6);
         
         // Observers
         this.cursorKeys = game.input.keyboard.createCursorKeys();
@@ -421,7 +440,9 @@ gameLevel1.prototype = {
 		if(this.xKey.isDown)
 		{
 			if(this.hero.actionAllow && this.hero.ski){
-				this.hero.makeSword();				
+				if (this.swordsong.isPlaying == false)
+					this.swordsong.play();
+				this.hero.makeSword();
 				 if (this.hero.facing == 'left')
 				{
 					this.hero.sprite.animations.play("swordLeft",40,false)
@@ -445,8 +466,7 @@ gameLevel1.prototype = {
 		{
 			console.log(this.hero.sprite.x, this.hero.sprite.y);
 		}
-		
-		
+
 		if (this.cursorKeys.left.isDown)
 		{
 			this.hero.sprite.body.velocity.x -= 250;
@@ -454,8 +474,9 @@ gameLevel1.prototype = {
 				this.hero.sprite.animations.play("left",walkAnimationSpeed,true)
 				moving = true;
 			};
+			if (moving == true && this.walk.isPlaying == false)
+				this.walk.play();
 			 this.hero.facing = 'left';
-
 		}
 		else if (this.cursorKeys.right.isDown)
 		{
@@ -464,10 +485,11 @@ gameLevel1.prototype = {
 				this.hero.sprite.animations.play("right",walkAnimationSpeed,true)
 				moving = true;
 			};		
-			 this.hero.facing = 'right';			
-
+			 this.hero.facing = 'right';
+			if (moving == true && this.walk.isPlaying == false)
+				this.walk.play();
 		}
-		
+
 		if (this.cursorKeys.up.isDown)
 		{	
 			if(this.hero.jump && !(this.hero.sprite.body.blocked.down || this.hero.sprite.body.touching.down)){
@@ -673,13 +695,13 @@ gameLevel1.prototype = {
 			monster.sprite.animations.stop();
 		}
 		monster.sprite.body.velocity.y = monster.inertiey;
-		console.log(monster.inertiex);
 		monster.inertiex *= 0.9;
 		monster.inertiey *= 0.9;
 	},
 
 	//How to throw a snowball
 	snowball: function(){
+		this.throw.play();
 		if(this.hero.gloves){
 			this.sb = game.add.sprite(this.hero.sprite.body.x, this.hero.sprite.body.y, 'snowball');
 
@@ -700,6 +722,7 @@ gameLevel1.prototype = {
 
     //How to throw a snowball
     mudball: function (monster,level){
+		this.throwe.play();
             var tmp = level.mbs.create(monster.sprite.body.x, monster.sprite.body.y, 'mudball');
 
             game.physics.enable(tmp, Phaser.Physics.ARCADE);
