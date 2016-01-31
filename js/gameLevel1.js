@@ -26,6 +26,9 @@ function Character(life,sprite) {
     this.frameRight = 48;
     this.frameLeft = 54;
     this.jumpTimer = 0;
+	this.inertiex = 0;
+	this.inertiey = 0;
+
 }
 
 function mudball(sprite) {
@@ -221,7 +224,7 @@ gameLevel1.prototype = {
         game.load.image('pnj', 'assets/Sara.png');
         game.load.spritesheet('rhino', 'assets/sprites_sheet_rino.png',100,54);
         game.load.spritesheet('pango', 'assets/sprites_sheet_pandolin.png',50,24);
-        game.load.spritesheet('suri', 'assets/sprites_sheet_suricate.png',24,40);
+        game.load.spritesheet('suri', 'assets/sprites_sheet_suricate2.png',24,40);
 
 		//audio
 		game.load.audio('music', 'assets/Kalimba.mp3');
@@ -357,7 +360,7 @@ gameLevel1.prototype = {
 			sprite2 = this.monsters.create(suris[c][0], suris[c][1], 'suri');
 			monster = new Monster(0, suris[c][3], -1, suris[c][2], 0, sprite2, 0, 0, this.rangeAttack);
 			monster.sprite.animations.add("suriRight", [0, 1, 2, 1, 0]);
-			monster.sprite.animations.add("suriLeft", [0, 1, 2, 1, 0]);
+			monster.sprite.animations.add("suriLeft", [5, 4, 3, 4, 5]);
 			this.monstersTab.push(monster);
 			game.physics.enable(monster.sprite, Phaser.Physics.ARCADE);
 			setMonster(monster, 250, 250, 24, 40, 0, 0);
@@ -391,7 +394,7 @@ gameLevel1.prototype = {
 		this.hero.sprite.body.mass = 50;
 		this.hero.sprite.body.drag.x = 250;
 		this.hero.sprite.body.drag.y = 250;
-		this.hero.sprite.body.maxVelocity.set(700,700);
+		this.hero.sprite.body.maxVelocity.set(300,700);
 		
 		
 		
@@ -467,11 +470,12 @@ gameLevel1.prototype = {
 			console.log(this.hero.sprite.x, this.hero.sprite.y);
 		}
 
+		var direction = 1;
 		if (this.cursorKeys.left.isDown)
 		{
 			this.hero.sprite.body.velocity.x -= 250;
 			if(!moving  && this.hero.jump ){
-				this.hero.sprite.animations.play("left",walkAnimationSpeed,true)
+				this.hero.sprite.animations.play("left",walkAnimationSpeed,true);
 				moving = true;
 			};
 			if (moving == true && this.walk.isPlaying == false)
@@ -482,7 +486,7 @@ gameLevel1.prototype = {
 		{
 			this.hero.sprite.body.velocity.x += 250;
 			if(!moving && this.hero.jump){
-				this.hero.sprite.animations.play("right",walkAnimationSpeed,true)
+				this.hero.sprite.animations.play("right",walkAnimationSpeed,true);
 				moving = true;
 			};		
 			 this.hero.facing = 'right';
@@ -490,6 +494,23 @@ gameLevel1.prototype = {
 				this.walk.play();
 		}
 
+		 if (this.hero.facing == 'left')
+			{
+				direction = 1;
+			}
+			else
+			{
+				direction = -1;
+			}
+		
+		
+		this.hero.sprite.body.velocity.x += this.hero.inertiex * direction ;
+		this.hero.inertiex *= 0.9;
+		if(this.hero.inertiex < 50){
+			this.hero.inertiex = 0;
+		}
+		
+		
 		if (this.cursorKeys.up.isDown)
 		{	
 			if(this.hero.jump && !(this.hero.sprite.body.blocked.down || this.hero.sprite.body.touching.down)){
@@ -585,10 +606,10 @@ gameLevel1.prototype = {
 			}
 			if(monster.sprite.body.x - level.hero.sprite.body.x < 0){
 				monster.sprite.animations.play("pangoRollLeft",6,true);
-				monster.sprite.body.velocity.x = 130;
+				monster.sprite.body.velocity.x = 130 - monster.inertiex/1.5;
 			}else{
 				monster.sprite.animations.play("pangoRollRight",6,true);
-				monster.sprite.body.velocity.x = -130;
+				monster.sprite.body.velocity.x = -130 + monster.inertiex/1.5;
 			}
 			
 			if(monster.sprite.body.onFloor()){
@@ -607,14 +628,17 @@ gameLevel1.prototype = {
 			}else{
 				monster.sprite.animations.play("pangoRight",6,true);
 			}
-			monster.sprite.body.velocity.x = monster.direction * 150;
+			monster.sprite.body.velocity.x = monster.direction * 150 -  monster.direction * monster.inertiex/1.5;
 			monster.move++;
 			if(monster.move > monster.maxMove || ((monster.sprite.body.blocked.left || monster.sprite.body.blocked.right) && monster.move > 10)){
 				monster.move = 0;
 				monster.direction *= -1;
 			}
 		}
-		
+		//monster.sprite.body.velocity.y = monster.inertiey;
+		monster.inertiex *= 0.8;
+		monster.inertiey *= 0.8;
+
 			
 	},
 	
@@ -694,7 +718,7 @@ gameLevel1.prototype = {
 		{
 			monster.sprite.animations.stop();
 		}
-		monster.sprite.body.velocity.y = monster.inertiey;
+		//monster.sprite.body.velocity.y = monster.inertiey;
 		monster.inertiex *= 0.9;
 		monster.inertiey *= 0.9;
 	},
@@ -735,7 +759,7 @@ gameLevel1.prototype = {
                 tmp.body.velocity.y = -200;
             }
             else{
-				monster.sprite.animations.play('suriRight',15,false);
+				monster.sprite.animations.play('suriLeft',15,false);
                 tmp.body.velocity.x = -500;
                 tmp.body.velocity.y = -200;
             }
@@ -758,7 +782,7 @@ gameLevel1.prototype = {
 
     collideHeroMonster: function (heroSprite,monsterSprite) {
         i = game.state.callbackContext.monsters.children.indexOf(monsterSprite);
-        //game.state.callbackContext.monstersTab[i]; donne le monstre touché
+        var monster = game.state.callbackContext.monstersTab[i];// donne le monstre touché
 		var x= heroSprite.body.x - monsterSprite.body.x;
 		var y= heroSprite.body.y - monsterSprite.body.y;
         game.state.callbackContext.hero.life -= 1;
@@ -767,22 +791,21 @@ gameLevel1.prototype = {
             // game.state.callbackContext.hero.sprite.kill();
         // }
 		if(x < 0){
-			heroSprite.body.velocity.y += y*3 ;
-			monsterSprite.body.velocity.y -= y*2;
+			game.state.callbackContext.hero.inertiey = 600;
+			monster.inertiey = 600;
 		
-			heroSprite.body.velocity.x += x*15 ;
-			monsterSprite.body.velocity.x -= x*15;
+			game.state.callbackContext.hero.inertiex =  800;
+			monster.inertiex =  800;
 
 		}
 		else
 		{
-			heroSprite.body.velocity.y += y*3 ;
-			monsterSprite.body.velocity.y -= y*2;
+			game.state.callbackContext.hero.inertiey = 600;
+			monster.inertiey =  600;
 			
-			heroSprite.body.velocity.x += x*3 ;
-			monsterSprite.body.velocity.x -= x*3;
+			game.state.callbackContext.hero.inertiex =  800;
+			monster.inertiex =  800;
 		}	
-			
 		return true;
 	},
 	
@@ -831,17 +854,8 @@ gameLevel1.prototype = {
 		var x= heroSprite.body.x - monsterSprite.body.x;
 		var y= heroSprite.body.y - monsterSprite.body.y;
         game.state.callbackContext.hero.life -= 1;
-		if(x < 0){
-			monster.inertiey -= y*2;
-			monster.inertiex -= x*20;
-			
-		}
-		else
-		{
+		monster.inertiex =  1200;
 
-			monster.inertiey -= y*2;
-			monster.inertiex -= x*20;
-		}	
 
 		return true;
 	},
