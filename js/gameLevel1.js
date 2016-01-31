@@ -20,6 +20,7 @@ function Character(life,sprite){
 	this.sword = null; 		
 	this.frameRight=48;
 	this.frameLeft=54;
+	this.jumpTimer = 0;
 
 }
 	
@@ -294,7 +295,8 @@ gameLevel1.prototype = {
 		this.hero.sprite.body.mass = 50;
 		this.hero.sprite.body.drag.x = 250;
 		this.hero.sprite.body.drag.y = 250;
-		
+		this.hero.sprite.body.maxVelocity.set(200,400);
+
     },
     // Called for each refresh
     update: function (){
@@ -310,7 +312,7 @@ gameLevel1.prototype = {
 
 		game.physics.arcade.overlap(this.hero.sprite, this.monsters,this.overlapHeroMonster);
  	  
-
+		this.hero.sprite.body.velocity.x *=   0.8 ;
 		if(this.hero.sprite.body.blocked.down || this.hero.sprite.body.touching.down){
 			this.hero.jump = true;
 		}
@@ -329,11 +331,11 @@ gameLevel1.prototype = {
 				this.hero.sprite.animations.play("swordRight",40,false)
             }
 			
-			if(game.time.now - this.swordTimer > 150){
-				this.sbThrown = game.time.now;
-				game.physics.arcade.collide(this.hero.sword, this.monsters, this.swordDamage);
+			if(game.time.now - this.swordTimer > 250){
+				this.swordTimer = game.time.now;
+				game.physics.arcade.overlap(this.hero.sword, this.monsters, this.swordDamage);
 			}
-			//this.hero.destroySword();
+			this.hero.destroySword();
 			moving = true;
 		}
 		
@@ -341,7 +343,7 @@ gameLevel1.prototype = {
 		
 		if (this.cursorKeys.left.isDown)
 		{
-			this.hero.sprite.body.velocity.x = -150;
+			this.hero.sprite.body.velocity.x -= 150;
 			if(!moving  && this.hero.jump ){
 				this.hero.sprite.animations.play("left",walkAnimationSpeed,true)
 				moving = true;
@@ -351,7 +353,7 @@ gameLevel1.prototype = {
 		}
 		else if (this.cursorKeys.right.isDown)
 		{
-			this.hero.sprite.body.velocity.x = 150;
+			this.hero.sprite.body.velocity.x += 150;
 			if(!moving && this.hero.jump){
 				this.hero.sprite.animations.play("right",walkAnimationSpeed,true)
 				moving = true;
@@ -360,12 +362,18 @@ gameLevel1.prototype = {
 
 		}
 		
-		if (this.cursorKeys.up.isDown && this.hero.jump)
-		{
-			this.hero.sprite.animations.stop();
-			this.hero.jump = false;
-			moving =false;
-			this.hero.sprite.body.velocity.y = -500;
+		if (this.cursorKeys.up.isDown)
+		{	
+			if(this.hero.jump){
+				this.hero.sprite.animations.stop();
+				this.hero.jump = false;
+				moving =false;
+				this.hero.sprite.body.velocity.y -= 50;
+				this.hero.jumpTimer = game.time.now;
+			}else if(game.time.now - this.hero.jumpTimer < 400){
+				console.log(this.hero.sprite.body.velocity.y);
+				this.hero.sprite.body.velocity.y -= 50;
+			}
 		}
 
 		//Snowball
@@ -409,11 +417,9 @@ gameLevel1.prototype = {
             this.moveRangeDefense(this.monstersTab[i]);
         }
 
-		 var maxCharacterVelocity = 600;
-        this.hero.sprite.body.maxVelocity.set(maxCharacterVelocity,maxCharacterVelocity);
         for (var i in this.monstersTab)
         {
-            this.monstersTab[i].sprite.body.maxVelocity.set(maxCharacterVelocity,maxCharacterVelocity);
+            this.monstersTab[i].sprite.body.maxVelocity.set(600,600);
         }
 
 
@@ -521,10 +527,10 @@ gameLevel1.prototype = {
 		var y= heroSprite.body.y - monsterSprite.body.y;
 		if(x < 0){
 			heroSprite.body.velocity.y += y*3 ;
-		monsterSprite.body.velocity.y -= y*3;
+			monsterSprite.body.velocity.y -= y*3;
 		
-		heroSprite.body.velocity.x += x*25 ;
-		monsterSprite.body.velocity.x -= x*25;
+			heroSprite.body.velocity.x += x*15 ;
+			monsterSprite.body.velocity.x -= x*100;
 			
 			
 		}
@@ -533,8 +539,8 @@ gameLevel1.prototype = {
 			heroSprite.body.velocity.y += y*3 ;
 			monsterSprite.body.velocity.y -= y*3;
 			
-			heroSprite.body.velocity.x += x*5 ;
-			monsterSprite.body.velocity.x -= x*25;
+			heroSprite.body.velocity.x += x*3 ;
+			monsterSprite.body.velocity.x -= x*100;
 		}	
 			
 		return true;
@@ -570,7 +576,7 @@ gameLevel1.prototype = {
 	
 	swordDamage : function (swordSprite, monsterSprite) {
         var i = game.state.callbackContext.monsters.children.indexOf(monsterSprite);
-        game.state.callbackContext.monstersTab[i].health = game.state.callbackContext.monstersTab[i].health - 50;
+        game.state.callbackContext.monstersTab[i].health = game.state.callbackContext.monstersTab[i].health - 10;
         game.state.callbackContext.sb = null;
         if (game.state.callbackContext.monstersTab[i].health == 0) {
             game.state.callbackContext.monsters.remove(monsterSprite);
