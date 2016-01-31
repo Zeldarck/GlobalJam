@@ -842,7 +842,7 @@ gameLevel1.prototype = {
         heroSprite.kill();
 		var damage = 35;
 		if(game.state.callbackContext.hero.maskPut){
-			damage = 10;
+			damage = 5;
 		}
         game.state.callbackContext.hero.life -= (Math.random() * damage) + 5;
         game.state.callbackContext.monsters.remove(mudBallSprite);
