@@ -544,13 +544,14 @@ gameLevel1.prototype = {
 	},
 	
 	killHold: function (mudball) {
-      if (game.time.now - mudball.mbThrown > 1000)
-          this.mbs.remove(mudball);
+      if (game.time.now - mudball.mbThrown > 1000){
+		    this.mbs.remove(mudball);
+			mudball.kill();
+	  }
     },
 
     // Attack for the suricate
     rangeAttack: function (monster,level) {
-		if (monster > 0) {
 			monster.sprite.body.velocity.x = 0;
 			if( (Math.abs(monster.sprite.body.y - level.hero.sprite.body.y) < 10 && Math.abs(monster.sprite.body.x - level.hero.sprite.body.x) < monster.view )|| monster.chase >0){
 				if((Math.abs(monster.sprite.body.y - level.hero.sprite.body.y) < 10 && Math.abs(monster.sprite.body.x - level.hero.sprite.body.x) < monster.view ) ){
@@ -566,10 +567,9 @@ gameLevel1.prototype = {
 				if ((game.time.now - monster.mbThrown) > 1000 )
 				{
 					monster.mbThrown = game.time.now;
-					level.mudball(monster);
+					level.mudball(monster,level);
 				}
 			}
-		}
     },
 
     // Movemevement for the RHINO
@@ -644,9 +644,8 @@ gameLevel1.prototype = {
 	},
 
     //How to throw a snowball
-    mudball: function (monster){
-
-            var tmp = this.mbs.create(monster.sprite.body.x, monster.sprite.body.y, 'mudball');
+    mudball: function (monster,level){
+            var tmp = level.mbs.create(monster.sprite.body.x, monster.sprite.body.y, 'mudball');
 
             game.physics.enable(tmp, Phaser.Physics.ARCADE);
             tmp.body.collideWorldBounds = false;
@@ -728,9 +727,10 @@ gameLevel1.prototype = {
         var i = game.state.callbackContext.monsters.children.indexOf(monsterSprite);
         game.state.callbackContext.monstersTab[i].health = game.state.callbackContext.monstersTab[i].health - 50;
         game.state.callbackContext.sb.kill();
-        if (game.state.callbackContext.monstersTab[i].health == 0) {
+        if (game.state.callbackContext.monstersTab[i].health <= 0) {
             game.state.callbackContext.monsters.remove(monsterSprite);
             monsterSprite.kill();
+			game.state.callbackContext.monstersTab.splice(i,1);
         }
     },
 
@@ -748,9 +748,11 @@ gameLevel1.prototype = {
         var i = game.state.callbackContext.monsters.children.indexOf(monsterSprite);
         game.state.callbackContext.monstersTab[i].health = game.state.callbackContext.monstersTab[i].health - 10;
         game.state.callbackContext.sb = null;
-        if (game.state.callbackContext.monstersTab[i].health == 0) {
+        if (game.state.callbackContext.monstersTab[i].health <= 0) {
             game.state.callbackContext.monsters.remove(monsterSprite);
-            monsterSprite.visible = false;
+            // monsterSprite.visible = false;
+			monsterSprite.kill();
+			game.state.callbackContext.monstersTab.splice(i,1);
         }
 		game.state.callbackContext.collideHeroMonster(game.state.callbackContext.hero.sprite,monsterSprite);
     }
