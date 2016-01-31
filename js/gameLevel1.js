@@ -198,7 +198,7 @@ gameLevel1.prototype = {
         //this.backgroundSprite = game.add.sprite(0, 0, 'background');
 		game.stage.backgroundColor = '#787878';
 
-        var sprite = game.add.sprite(20, 280, 'characterFrames');
+        var sprite = game.add.sprite(20, 250, 'characterFrames');
 
 
 		
@@ -251,7 +251,6 @@ gameLevel1.prototype = {
         // Every tiles in the walls layer will be able to colide in this layer
         map.setCollisionByExclusion([],true,'wallLayer');
         //map.setCollisionByExclusion([],true,'sprites_plateforme');
-		
 		
 		
 		this.monsters= 	this.add.physicsGroup();
