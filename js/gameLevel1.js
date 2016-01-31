@@ -21,7 +21,6 @@ function Character(life,sprite) {
     this.jump = true;
 	this.actionAllow =  true;
 	this.maskPut =  false;
-    this.sprite.life = 10;
     this.sword = null;
     this.frameRight = 48;
     this.frameLeft = 54;
@@ -48,7 +47,7 @@ Character.prototype.makeSword = function() {
     }
 
 		game.physics.enable(this.sword, Phaser.Physics.ARCADE);
-		this.sword.body.setSize(55, 40, 0, 0);   
+		this.sword.body.setSize(50, 40, 0, 0);   
 }
 
 Character.prototype.destroySword = function() {
@@ -176,20 +175,21 @@ function Pnj(sprite)
 //}
 //    Monstre      \\
 
-function Monster(Move, MaxMove, Direction, View, Chase, sprite, rangeArmor, cacArmor, moveFunction){
+function Monster(Move, MaxMove, Direction, View, Chase, sprite, rangeArmor, cacArmor, moveFunction, attack){
     this.sprite = sprite;
     this.move = Move;
     this.maxMove = MaxMove;
     this.direction = Direction;
     this.view = View;
     this.chase = Chase;
-    this.health = 100;
+    this.life = 100;
     this.mbThrown = 0;
 	this.rangeArmor = rangeArmor;
 	this.cacArmor = cacArmor;
 	this.moveFunction = moveFunction;
 	this.inertiex = 0;
 	this.inertiey = 0;
+	this.attack = attack;
 }
 
 function setMonster(monster, dragX, dragY, sizeX, sizeY, offsetX, offsetY) {
@@ -256,7 +256,7 @@ gameLevel1.prototype = {
         this.pnj = new Pnj(game.add.sprite(1600, 150, 'pnj'));
 
 		//create hero
-		this.hero = new Character(10,sprite); 
+		this.hero = new Character(100,sprite); 
         // Add animations
         this.hero.sprite.animations.add("left",[54,55,56,57,58,59]);
         this.hero.sprite.animations.add("right",[48,49,50,51,52,53]);
@@ -343,7 +343,7 @@ gameLevel1.prototype = {
 		//CREATION PANGOLIN
 		for (var c in pongos) {
 			var  sprite2 = this.monsters.create(pongos[c][0], pongos[c][1], 'pango');
-			var monster = new Monster(0, pongos[c][3], -1, pongos[c][2], 0, sprite2, 0 , 0, this.moveRangeDefense);
+			var monster = new Monster(0, pongos[c][3], -1, pongos[c][2], 0, sprite2, 70 , 20, this.moveRangeDefense, 30);
 			monster.sprite.animations.add("pangoRight",[4,5]);
 			monster.sprite.animations.add("pangoLeft",[0,1]);
 			monster.sprite.animations.add("pangoRollRight",[2,3]);
@@ -358,7 +358,7 @@ gameLevel1.prototype = {
 		//CREATION SURICATES
 		for (var c in suris) {
 			sprite2 = this.monsters.create(suris[c][0], suris[c][1], 'suri');
-			monster = new Monster(0, suris[c][3], -1, suris[c][2], 0, sprite2, 0, 0, this.rangeAttack);
+			monster = new Monster(0, suris[c][3], -1, suris[c][2], 0, sprite2, 30, 30, this.rangeAttack , 10);
 			monster.sprite.animations.add("suriRight", [0, 1, 2, 1, 0]);
 			monster.sprite.animations.add("suriLeft", [5, 4, 3, 4, 5]);
 			this.monstersTab.push(monster);
@@ -369,7 +369,7 @@ gameLevel1.prototype = {
 		//CREATION RHINO
 		for (var c in rhinos) {
 			sprite2 = this.monsters.create(rhinos[c][0], rhinos[c][1], 'rhino');
-			monster = new Monster(0, rhinos[c][3], -1, rhinos[c][2], 0, sprite2,0,0,this.moveCharger);
+			monster = new Monster(0, rhinos[c][3], -1, rhinos[c][2], 0, sprite2,30,30,this.moveCharger, 40);
 			monster.sprite.body.drag.x = 250;
 			monster.sprite.body.drag.y = 250;
 			monster.sprite.animations.add("rhinoRight",[0,1]);
@@ -573,7 +573,7 @@ gameLevel1.prototype = {
             // this.moveCharger(this.monstersTab[3]);
 
 			
-			// if (this.monstersTab[2].health > 0) {
+			// if (this.monstersTab[2].life > 0) {
                // this.rangeAttack(this.monstersTab[2]);
             // }
 			
@@ -785,11 +785,12 @@ gameLevel1.prototype = {
         var monster = game.state.callbackContext.monstersTab[i];// donne le monstre touché
 		var x= heroSprite.body.x - monsterSprite.body.x;
 		var y= heroSprite.body.y - monsterSprite.body.y;
-        game.state.callbackContext.hero.life -= 1;
-        // if (game.state.callbackContext.hero.life == 0)
-        // {
-            // game.state.callbackContext.hero.sprite.kill();
-        // }
+        game.state.callbackContext.hero.life -=  ((Math.random() * monster.attack) + 5);;
+        if (game.state.callbackContext.hero.life == 0)
+        {
+            game.state.callbackContext.hero.sprite.kill();
+			game.state.callbackContext.finishGame(false);
+        }
 		if(x < 0){
 			game.state.callbackContext.hero.inertiey = 600;
 			monster.inertiey = 600;
@@ -828,9 +829,9 @@ gameLevel1.prototype = {
 
     snowballDamage : function (snowBallSprite, monsterSprite) {
         var i = game.state.callbackContext.monsters.children.indexOf(monsterSprite);
-        game.state.callbackContext.monstersTab[i].health = game.state.callbackContext.monstersTab[i].health - 50;
+        game.state.callbackContext.monstersTab[i].life -= (1-game.state.callbackContext.monstersTab[i].rangeArmor/100) * ((Math.random() * 80) + 50);
         game.state.callbackContext.sb.kill();
-        if (game.state.callbackContext.monstersTab[i].health <= 0) {
+        if (game.state.callbackContext.monstersTab[i].life <= 0) {
             game.state.callbackContext.monsters.remove(monsterSprite);
             monsterSprite.kill();
 			game.state.callbackContext.monstersTab.splice(i,1);
@@ -839,12 +840,17 @@ gameLevel1.prototype = {
 
     mudballDamage : function (mudBallSprite, heroSprite) {
         heroSprite.kill();
-        game.state.callbackContext.hero.life -= 1;
+		var damage = 35;
+		if(game.state.callbackContext.hero.maskPut){
+			damage = 10;
+		}
+        game.state.callbackContext.hero.life -= (Math.random() * damage) + 5;
         game.state.callbackContext.monsters.remove(mudBallSprite);
-        // if (game.state.callbackContext.hero.life == 0)
-        // {
-            // game.state.callbackContext.hero.sprite.kill();
-        // }
+        if (game.state.callbackContext.hero.life <= 0)
+        {
+            game.state.callbackContext.hero.sprite.kill();
+			game.state.callbackContext.finishGame(false);
+        }
     },
 	
 	
@@ -862,16 +868,32 @@ gameLevel1.prototype = {
 	
 	swordDamage : function (swordSprite, monsterSprite) {
         var i = game.state.callbackContext.monsters.children.indexOf(monsterSprite);
-        game.state.callbackContext.monstersTab[i].health = game.state.callbackContext.monstersTab[i].health - 10;
+        game.state.callbackContext.monstersTab[i].life -= (1-game.state.callbackContext.monstersTab[i].cacArmor/100) * ((Math.random() * 80) + 50);
         game.state.callbackContext.sb = null;
-        if (game.state.callbackContext.monstersTab[i].health <= 0) {
+        if (game.state.callbackContext.monstersTab[i].life <= 0) {
             game.state.callbackContext.monsters.remove(monsterSprite);
-            // monsterSprite.visible = false;
 			monsterSprite.kill();
 			game.state.callbackContext.monstersTab.splice(i,1);
         }else{
 			game.state.callbackContext.pushBack(game.state.callbackContext.hero.sprite,monsterSprite);
 		}
-    }
+    },
+	
+	finishGame : function (win) {
+		var text;
+		if(win){
+			text = game.add.text(400,300,"You Win");
+		}else{
+			text = game.add.text(400,300,"You loose");
+		}
+        text.fixedToCamera = true;
+        game.paused = true;
+        window.setTimeout(function(){
+            game.state.restart(true);
+            game.paused = false;
+        }, 2000);
+		
+		
+	}
 	
 };
