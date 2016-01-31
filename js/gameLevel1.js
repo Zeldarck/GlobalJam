@@ -199,11 +199,12 @@ gameLevel1.prototype = {
 
 
     // Assets loading - do not use asssets here
-		 preload: function () {
+    preload: function () {
         // Load this images, available with the associated keys later
         game.load.image('background', 'assets/background.jpg');
         game.load.image('character', 'assets/snowboy_sky_masque.png');
-		game.load.spritesheet('characterFrames', 'assets/sprites_sheet_snowboy.png', 90, 54);
+        game.load.spritesheet('characterFrames', 'assets/sprites_sheet_snowboy.png', 90, 54);
+        game.load.spritesheet('pandolin', 'assets/sprites_sheet_pandolin.png', 24, 50);
         // Each sprite is 54x55 . -1 means we don't limit to a number of sprites,
         //  0 is the margin of the file, 10 the spacing between each sprites
         //game.load.spritesheet('characterFrames', 'assets/SaraFullSheet7.png', 54, 55, -1, 0 ,10);
@@ -236,12 +237,11 @@ gameLevel1.prototype = {
 
 
         //create pnj
-        this.pnj = new Pnj(game.add.sprite(600, 150, 'pnj'));
-
+        this.pnj = new Pnj(game.add.sprite(1600, 150, 'pnj'));
 
 		//create hero
 		this.hero = new Character(10,sprite); 
-        // Add animations     
+        // Add animations
         this.hero.sprite.animations.add("left",[54,55,56,57,58,59]);
         this.hero.sprite.animations.add("right",[48,49,50,51,52,53]);
 		this.hero.sprite.animations.add("swordRight",[96,97,98,99,100,100,99,98,97,96]);
@@ -297,14 +297,20 @@ gameLevel1.prototype = {
 		//PARTIE A RENDRE PROPRE -- bien faire pop le smonstres après le reste, bring to the top fonctionne pas vraiment
         this.monstersTab = [];
 
-			
+		var rhinos = [[350, 350, 250],
+			[1050, 250, 250],
+			[2000, 250, 250]];
 
 
 		//CREATION PANGOLIN
-        var  sprite2 = this.monsters.create(350, 350, 'monster');
+        var  sprite2 = this.monsters.create(350, 350, 'pandolin');
         var monster = new Monster(0, 150, -1, 100, 0, sprite2, 0 , 0, this.moveRangeDefense);
         this.monstersTab.push(monster);
         game.physics.enable(monster.sprite, Phaser.Physics.ARCADE);
+        monster.sprite.body.drag.x = 250;
+        monster.sprite.body.drag.y = 250;
+        //monster.sprite.animations.add("walk");
+        //monster.sprite.animations.play('walk', 30, true);
 
 		
         sprite2 = this.monsters.create(300, 350, 'monster');
@@ -322,15 +328,16 @@ gameLevel1.prototype = {
 		
 		
 		//CREATION RHINO
-		sprite2 = this.monsters.create(350, 100, 'rhino');
-        monster = new Monster(0, 150, -1, 250, 0, sprite2,0,0,this.moveCharger);
-		monster.sprite.body.drag.x = 250;
-		monster.sprite.body.drag.y = 250;
-		monster.sprite.animations.add("rhinoRight",[0,1]);
-		monster.sprite.animations.add("rhinoLeft",[2,3]);
-		this.monstersTab.push(monster);
-		game.physics.enable(monster.sprite, Phaser.Physics.ARCADE);
-
+		for (var c in rhinos) {
+			sprite2 = this.monsters.create(rhinos[c][0], rhinos[c][1], 'rhino');
+			monster = new Monster(0, 150, -1, rhinos[c][2], 0, sprite2,0,0,this.moveCharger);
+			monster.sprite.body.drag.x = 250;
+			monster.sprite.body.drag.y = 250;
+			monster.sprite.animations.add("rhinoRight",[0,1]);
+			monster.sprite.animations.add("rhinoLeft",[2,3]);
+			this.monstersTab.push(monster);
+			game.physics.enable(monster.sprite, Phaser.Physics.ARCADE);
+		}
 
         // Sprites are z-ordered by creation. As we added tiles later,
         //  we move back other sprites to top
@@ -669,7 +676,7 @@ gameLevel1.prototype = {
             if(game.state.callbackContext.yKey.isDown) {
                 console.log("Trade ok");
                 game.state.callbackContext.pnj.trade = false;
-                game.state.callbackContext.hero.looseMask();
+                game.state.callbackContext.hero.looseGloves();
             }
 
             else if(game.state.callbackContext.nKey.isDown)
