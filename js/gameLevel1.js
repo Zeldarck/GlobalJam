@@ -278,7 +278,7 @@ gameLevel1.prototype = {
         //this.backgroundSprite = game.add.sprite(0, 0, 'background');
 		game.stage.backgroundColor = '#787878';
 
-        var sprite = game.add.sprite(20, 250, 'characterFrames');
+        var sprite = game.add.sprite(20, 280, 'characterFrames');
 
 
 		
@@ -286,9 +286,9 @@ gameLevel1.prototype = {
 
 
         //create pnjs
-        this.snowman = new Pnj('I want gloves',game.add.sprite(100, 250, 'snowman'),0);
-        this.esquimo = new Pnj('I want a mask',game.add.sprite(150, 250, 'esquimo'),1);
-        this.pingouin = new Pnj('I want ski',game.add.sprite(200, 250, 'pingouin'),2);
+        this.snowman = new Pnj('I want that gloves',game.add.sprite(8730, 370, 'snowman'),0);
+        this.esquimo = new Pnj('I want a mask',game.add.sprite(15380, 720, 'esquimo'),1);
+        this.pingouin = new Pnj('Gimme gimme gimme a ski',game.add.sprite(21220, 345, 'pingouin'),2);
 		
 		this.snowman.sprite.animations.add("static",[0,1]);
 		this.esquimo.sprite.animations.add("static",[0,1]);
@@ -381,24 +381,24 @@ gameLevel1.prototype = {
 
 		// Create your monsters !!
 		var rhinos = [[1435, 310, 250, 200],
-			[4605, 260, 250, 200],
-			[7105, 260, 250, 200],
-			[11620, 240, 250, 200],
-			[16000, 680, 250, 200],
+			// [4605, 260, 250, 200],
+			// [7105, 260, 250, 200],
+			// [11620, 240, 250, 200],
+			// [16000, 680, 250, 200],
 			[18630, 340, 250, 200]];
 
 		var pongos = [[255, 340, 250, 110],
-			[2870, 340, 250, 200],
-			[6120, 340, 250, 200],
-			[17580, 710, 250, 200],
-			[11700, 780, 250, 200],
+			// [2870, 340, 250, 200],
+			// [6120, 340, 250, 200],
+			// [17580, 710, 250, 200],
+			// [11700, 780, 250, 200],
 			[22640, 460, 250, 200]];
 
 		var suris = [[3850, 90, 350, 200],
-			[8525, 260, 650, 200],
-			[11650, 640, 650, 200],
-			[14380, 270, 650, 200],
-			[19550, 260, 650, 200],
+			// [8525, 260, 650, 200],
+			// [11650, 640, 650, 200],
+			// [14380, 270, 650, 200],
+			// [19550, 260, 650, 200],
 			[22640, 460, 350, 200]];
 
 
@@ -936,7 +936,7 @@ gameLevel1.prototype = {
         if (pnj.trade)
         {
 			if(game.state.callbackContext.text == null){
-				game.state.callbackContext.text = game.add.text(400,300,pnj.speak + '---- Y ?');
+				game.state.callbackContext.text = game.add.text(pnj.sprite.x,pnj.sprite.y-100,pnj.speak + '---- Y ?');
 			}
 			game.state.callbackContext.textTime = game.time.now;
 
