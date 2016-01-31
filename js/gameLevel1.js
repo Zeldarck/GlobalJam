@@ -5,7 +5,9 @@ var gameLevel1 = function(){
 	this.sbThrown=0;
 	this.swordTimer=0;
 	this.monstersTab = null;
-    this.mbs = null;
+	this.mbs = null;
+	this.fbs = null;
+    this.pnj = null;
 	this.music = null;
 	this.elsaTime = 0; 
 	this.snowman= null;
@@ -47,10 +49,10 @@ function Character(life,sprite) {
 
 }
 
-function mudball(sprite) {
-    this.mb = sprite;
-    this.mbThrown = 0;
-}
+//function mudball(sprite) {
+//    this.mb = sprite;
+//    this.mbThrown = 0;
+//}
 	
 Character.prototype.makeSword = function() {
 	 if (this.facing == 'left')
@@ -220,7 +222,8 @@ gameLevel1.prototype = {
         //game.load.spritesheet('ballFrames', 'assets/ball_animation.png', 45, 45);
         game.load.image('mechant', 'assets/mechant.png');
         game.load.image('snowball', 'assets/snowball.png');
-        game.load.image('mudball', 'assets/mudball.png');
+		game.load.image('mudball', 'assets/mudball.png');
+		game.load.image('fireball', 'assets/fireball.png');
         game.load.image('monster', 'assets/mechant.png');
         game.load.spritesheet('snowman', 'assets/sprites_sheet_snowman.png',56,54);
 		game.load.spritesheet('esquimo', 'assets/sprites_sheet_esquimo.png',38,54);
@@ -275,16 +278,18 @@ gameLevel1.prototype = {
 
 		//song
 		this.music = game.add.audio('music');
+		this.music.play();
+		this.music.loop = true;
+
 		this.throw = game.add.audio('throw');
 		this.throwe = game.add.audio('throwe');
 		this.swordsong = game.add.audio('sword');
 		this.walk = game.add.audio('walk');
 		this.walk.allowMultiple = true;
+		this.walk.volume = 0.25;
 		this.swordsong.allowMultiple = true;
 
-		this.music.play();
-		this.music.loopFull(0.6);
-        
+
         // Observers
         this.cursorKeys = game.input.keyboard.createCursorKeys();
         this.cKey = game.input.keyboard.addKey(Phaser.Keyboard.C);
@@ -303,15 +308,15 @@ gameLevel1.prototype = {
 		
         // Init hero sprite
         game.physics.enable(this.hero.sprite, Phaser.Physics.ARCADE);
-
         // Init hero
-        this.hero.sprite.body.collideWorldBounds = false;
+        this.hero.sprite.body.collideWorldBounds = true;
         this.hero.sprite.body.setSize(10, 35, 35, 20);
 
         //Init pnj
         game.physics.enable(this.snowman.sprite, Phaser.Physics.ARCADE);
 		game.physics.enable(this.esquimo.sprite, Phaser.Physics.ARCADE);
 		game.physics.enable(this.pingouin.sprite, Phaser.Physics.ARCADE);
+
 
         //setPnj(this.pnj, 350, 250,54,55,0,0);
 
@@ -325,34 +330,47 @@ gameLevel1.prototype = {
         //var backgroundLayer = map.createLayer('background');
         this.wallLayer = map.createLayer('wallLayer');
         this.decorationLayer = map.createLayer('decorationLayer');
+		this.deathLayer = map.createLayer('deathLayer');
         //The world will have the map size
         this.wallLayer.resizeWorld();
         //The camera will follow the player, as the world is bigger than the screen
         game.camera.follow(this.hero.sprite);
         // Every tiles in the walls layer will be able to colide in this layer
         map.setCollisionByExclusion([],true,'wallLayer');
+		map.setCollisionByExclusion([],true,'deathLayer');
+
         //map.setCollisionByExclusion([],true,'sprites_plateforme');
 		
 		
 		this.monsters= 	this.add.physicsGroup();
-        this.mbs = this.add.physicsGroup();
+		this.mbs = this.add.physicsGroup();
+		this.fbs = this.add.physicsGroup();
 
 		
 		//PARTIE A RENDRE PROPRE -- bien faire pop le smonstres après le reste, bring to the top fonctionne pas vraiment
         this.monstersTab = [];
 
 		// Create your monsters !!
-		var rhinos = [[1080, 350, 250, 200],
-			[3000, 250, 250, 200],
-			[4172, 250, 250, 200]];
+		var rhinos = [[1435, 310, 250, 200],
+			[4605, 260, 250, 200],
+			[7105, 260, 250, 200],
+			[11620, 240, 250, 200],
+			[16000, 680, 250, 200],
+			[18630, 340, 250, 200]];
 
-		var pongos = [[350, 350, 250, 200],
-			[2000, 250, 250, 200],
-			[3877, 250, 250, 200]];
+		var pongos = [[255, 340, 250, 110],
+			[2870, 340, 250, 200],
+			[6120, 340, 250, 200],
+			[17580, 710, 250, 200],
+			[11700, 780, 250, 200],
+			[22640, 460, 250, 200]];
 
-		var suris = [[577, 200, 350, 200],
-			[3900, 95, 650, 200],
-			[2000, 250, 350, 200]];
+		var suris = [[3850, 90, 350, 200],
+			[8525, 260, 650, 200],
+			[11650, 640, 650, 200],
+			[14380, 270, 650, 200],
+			[19550, 260, 650, 200],
+			[22640, 460, 350, 200]];
 
 
 		//CREATION PANGOLIN
@@ -409,7 +427,7 @@ gameLevel1.prototype = {
 		this.hero.sprite.body.mass = 50;
 		this.hero.sprite.body.drag.x = 250;
 		this.hero.sprite.body.drag.y = 250;
-		this.hero.sprite.body.maxVelocity.set(300,700);
+		this.hero.sprite.body.maxVelocity.set(500,700);
 		
 		
 		
@@ -443,10 +461,21 @@ gameLevel1.prototype = {
 		game.physics.arcade.collide(this.hero.sprite, this.monsters,this.collideHeroMonster);
         game.physics.arcade.collide(this.monsters, this.wallLayer);
         game.physics.arcade.collide(this.sb, this.wallLayer);
-        game.physics.arcade.collide(this.mbs, this.wallLayer);
+		game.physics.arcade.collide(this.mbs, this.wallLayer);
+		game.physics.arcade.collide(this.fbs, this.wallLayer);
         game.physics.arcade.collide(this.sb, this.monsters, this.snowballDamage);
-        game.physics.arcade.collide(this.mbs, this.hero.sprite, this.mudballDamage);
+		game.physics.arcade.collide(this.mbs, this.hero.sprite, this.mudballDamage);
+		game.physics.arcade.collide(this.fbs, this.hero.sprite, this.fireballDamage);
 		game.physics.arcade.collide(this.hero.sprite, this.wallLayer);
+		game.physics.arcade.collide(this.hero.sprite, this.deathLayer,function(){
+			if (game.state.callbackContext.hero.sprite.y>1100)
+			{
+				game.state.callbackContext.hero.sprite.kill();
+				game.state.callbackContext.finishGame(false);
+			}
+		});
+		
+
 
 		game.physics.arcade.overlap(this.hero.sprite, this.monsters,this.overlapHeroMonster);
  	  
@@ -455,8 +484,9 @@ gameLevel1.prototype = {
 			this.hero.jump = true;
 		}
 
-        this.mbs.forEach(this.killHold, this);
-		
+		this.mbs.forEach(this.killHoldm, this);
+		this.fbs.forEach(this.killHoldf, this);
+
 		
 		this.hero.actionAllow = true;
 		
@@ -673,15 +703,22 @@ gameLevel1.prototype = {
 
 			
 	},
-	
-	killHold: function (mudball) {
-      if (game.time.now - mudball.mbThrown > 1000){
-		    this.mbs.remove(mudball);
-			mudball.kill();
-	  }
-    },
 
-    // Attack for the suricate
+	killHoldm: function (mudball) {
+		if (game.time.now - mudball.mbThrown > 1000){
+			this.mbs.remove(mudball);
+			mudball.kill();
+		}
+	},
+
+	killHoldf: function (fireball) {
+		if (game.time.now - fireball.fbThrown > 1000){
+			this.fbs.remove(fireball);
+			fireball.kill();
+		}
+	},
+
+	// Attack for the suricate
     rangeAttack: function (monster,level) {
 			monster.sprite.body.velocity.x = 0;
 			if( (Math.abs(monster.sprite.body.y - level.hero.sprite.body.y) < 180 && Math.abs(monster.sprite.body.x - level.hero.sprite.body.x) < monster.view )|| monster.chase >0){
@@ -777,26 +814,46 @@ gameLevel1.prototype = {
 	},
 
     //How to throw a snowball
-    mudball: function (monster,level){
+	mudball: function (monster,level){
 		this.throwe.play();
-            var tmp = level.mbs.create(monster.sprite.body.x, monster.sprite.body.y, 'mudball');
+		var tmp = level.mbs.create(monster.sprite.body.x, monster.sprite.body.y, 'mudball');
 
-            game.physics.enable(tmp, Phaser.Physics.ARCADE);
-            tmp.body.collideWorldBounds = false;
-            tmp.body.drag.y = 500;
+		game.physics.enable(tmp, Phaser.Physics.ARCADE);
+		tmp.body.collideWorldBounds = false;
+		tmp.body.drag.y = 500;
 
-            if(monster.direction == 1){
-				monster.sprite.animations.play('suriRight',15,false);
-                tmp.body.velocity.x = 500;
-                tmp.body.velocity.y = -200;
-            }
-            else{
-				monster.sprite.animations.play('suriLeft',15,false);
-                tmp.body.velocity.x = -500;
-                tmp.body.velocity.y = -200;
-            }
-            tmp.mbThrown = game.time.now;
-    },
+		if(monster.direction == 1){
+			monster.sprite.animations.play('suriRight',15,false);
+			tmp.body.velocity.x = 500;
+			tmp.body.velocity.y = -200;
+		}
+		else{
+			monster.sprite.animations.play('suriLeft',15,false);
+			tmp.body.velocity.x = -500;
+			tmp.body.velocity.y = -200;
+		}
+		tmp.mbThrown = game.time.now;
+	},
+
+	fireball: function (monster,level){
+		this.throwe.play();
+		var tmp = level.fbs.create(monster.sprite.body.x, monster.sprite.body.y, 'fireball');
+		game.physics.enable(tmp, Phaser.Physics.ARCADE);
+		tmp.body.collideWorldBounds = false;
+		tmp.body.drag.y = 500;
+
+		if(monster.direction == 1){
+			monster.sprite.animations.play('suriRight',15,false);
+			tmp.body.velocity.x = 500;
+			tmp.body.velocity.y = -200;
+		}
+		else{
+			monster.sprite.animations.play('suriLeft',15,false);
+			tmp.body.velocity.x = -500;
+			tmp.body.velocity.y = -200;
+		}
+		tmp.fbThrown = game.time.now;
+	},
 
     exchange: function (pnjSprite, heroSprite) {
 		var pnj = null;
@@ -893,23 +950,37 @@ gameLevel1.prototype = {
         }
     },
 
-    mudballDamage : function (mudBallSprite, heroSprite) {
-        heroSprite.kill();
+	mudballDamage : function (mudBallSprite, heroSprite) {
+		heroSprite.kill();
 		var damage = 35;
 		if(game.state.callbackContext.hero.maskPut){
 			damage = 5;
 		}
-        game.state.callbackContext.hero.life -= (Math.random() * damage) + 5;
-        game.state.callbackContext.monsters.remove(mudBallSprite);
-        if (game.state.callbackContext.hero.life <= 0)
-        {
-            game.state.callbackContext.hero.sprite.kill();
+		game.state.callbackContext.hero.life -= (Math.random() * damage) + 5;
+		game.state.callbackContext.monsters.remove(mudBallSprite);
+		if (game.state.callbackContext.hero.life <= 0)
+		{
+			game.state.callbackContext.hero.sprite.kill();
 			game.state.callbackContext.finishGame(false);
-        }
-    },
-	
-	
-    pushBack: function (heroSprite,monsterSprite) {
+		}
+	},
+
+	fireballDamage : function (mudBallSprite, heroSprite) {
+		heroSprite.kill();
+		var damage = 35;
+		if(game.state.callbackContext.hero.maskPut){
+			damage = 10;
+		}
+		game.state.callbackContext.hero.life -= (Math.random() * damage) + 5;
+		game.state.callbackContext.monsters.remove(mudBallSprite);
+		if (game.state.callbackContext.hero.life <= 0)
+		{
+			game.state.callbackContext.hero.sprite.kill();
+			game.state.callbackContext.finishGame(false);
+		}
+	},
+
+	pushBack: function (heroSprite,monsterSprite) {
 		var i = game.state.callbackContext.monsters.children.indexOf(monsterSprite);
         var monster = game.state.callbackContext.monstersTab[i];// donne le monstre touché
 		var x= heroSprite.body.x - monsterSprite.body.x;
@@ -925,7 +996,9 @@ gameLevel1.prototype = {
         var i = game.state.callbackContext.monsters.children.indexOf(monsterSprite);
         game.state.callbackContext.monstersTab[i].life -= (1-game.state.callbackContext.monstersTab[i].cacArmor/100) * ((Math.random() * 80) + 50);
         game.state.callbackContext.sb = null;
+
         if (game.state.callbackContext.monstersTab[i].life <= 0) {
+
             game.state.callbackContext.monsters.remove(monsterSprite);
 			monsterSprite.kill();
 			game.state.callbackContext.monstersTab.splice(i,1);
