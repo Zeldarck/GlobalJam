@@ -176,17 +176,44 @@ Character.prototype.looseGloves = function(){
 }
 
 
+//function setPnj(pnj, dragX, dragY, sizeX, sizeY, offsetX, offsetY)
+//{
+//    pnj.sprite.body.drag.x = dragX;
+//    pnj.sprite.body.drag.y = dragY;
+//    pnj.sprite.body.collideWorldBounds = true;
+//    pnj.sprite.body.setSize(sizeX, sizeY, offsetX, offsetY);
+//    pnj.sprite.body.mass = 50;
+//    pnj.sprite.body.immovable = true;
+//}
+
+function Boss(Move, MaxMove, Direction, View, Chase, sprite, rangeArmor, cacArmor, moveFunction, attack){
+	this.sprite = sprite;
+	this.move = Move;
+	this.maxMove = MaxMove;
+	this.direction = Direction;
+	this.view = View;
+	this.chase = Chase;
+	this.life = 400;
+	this.mbThrown = 0;
+	this.rangeArmor = rangeArmor;
+	this.cacArmor = cacArmor;
+	this.moveFunction = moveFunction;
+	this.inertiex = 0;
+	this.inertiey = 0;
+	this.attack = attack;
+}
+
 //    Monstre      \\
 
 function Monster(Move, MaxMove, Direction, View, Chase, sprite, rangeArmor, cacArmor, moveFunction, attack){
-    this.sprite = sprite;
-    this.move = Move;
-    this.maxMove = MaxMove;
-    this.direction = Direction;
-    this.view = View;
-    this.chase = Chase;
-    this.life = 100;
-    this.mbThrown = 0;
+	this.sprite = sprite;
+	this.move = Move;
+	this.maxMove = MaxMove;
+	this.direction = Direction;
+	this.view = View;
+	this.chase = Chase;
+	this.life = 100;
+	this.mbThrown = 0;
 	this.rangeArmor = rangeArmor;
 	this.cacArmor = cacArmor;
 	this.moveFunction = moveFunction;
@@ -251,7 +278,7 @@ gameLevel1.prototype = {
         //this.backgroundSprite = game.add.sprite(0, 0, 'background');
 		game.stage.backgroundColor = '#787878';
 
-        var sprite = game.add.sprite(20, 250, 'characterFrames');
+        var sprite = game.add.sprite(20, 280, 'characterFrames');
 
 
 		
@@ -259,9 +286,9 @@ gameLevel1.prototype = {
 
 
         //create pnjs
-        this.snowman = new Pnj('I want gloves',game.add.sprite(100, 250, 'snowman'),0);
-        this.esquimo = new Pnj('I want a mask',game.add.sprite(150, 250, 'esquimo'),1);
-        this.pingouin = new Pnj('I want ski',game.add.sprite(200, 250, 'pingouin'),2);
+        this.snowman = new Pnj('I want that gloves',game.add.sprite(8730, 370, 'snowman'),0);
+        this.esquimo = new Pnj('I want a mask',game.add.sprite(15380, 720, 'esquimo'),1);
+        this.pingouin = new Pnj('Gimme gimme gimme a ski',game.add.sprite(21220, 345, 'pingouin'),2);
 		
 		this.snowman.sprite.animations.add("static",[0,1]);
 		this.esquimo.sprite.animations.add("static",[0,1]);
@@ -286,7 +313,9 @@ gameLevel1.prototype = {
 		this.swordsong = game.add.audio('sword');
 		this.walk = game.add.audio('walk');
 		this.walk.allowMultiple = true;
-		this.walk.volume = 0.25;
+		this.walk.volume = 0.15;
+		this.throw.volume = 0.20;
+		this.throwe.volume = 0.20;
 		this.swordsong.allowMultiple = true;
 
 
@@ -352,30 +381,44 @@ gameLevel1.prototype = {
 
 		// Create your monsters !!
 		var rhinos = [[1435, 310, 250, 200],
-			[4605, 260, 250, 200],
-			[7105, 260, 250, 200],
-			[11620, 240, 250, 200],
-			[16000, 680, 250, 200],
+			// [4605, 260, 250, 200],
+			// [7105, 260, 250, 200],
+			// [11620, 240, 250, 200],
+			// [16000, 680, 250, 200],
 			[18630, 340, 250, 200]];
 
 		var pongos = [[255, 340, 250, 110],
-			[2870, 340, 250, 200],
-			[6120, 340, 250, 200],
-			[17580, 710, 250, 200],
-			[11700, 780, 250, 200],
+			// [2870, 340, 250, 200],
+			// [6120, 340, 250, 200],
+			// [17580, 710, 250, 200],
+			// [11700, 780, 250, 200],
 			[22640, 460, 250, 200]];
 
 		var suris = [[3850, 90, 350, 200],
-			[8525, 260, 650, 200],
-			[11650, 640, 650, 200],
-			[14380, 270, 650, 200],
-			[19550, 260, 650, 200],
+			// [8525, 260, 650, 200],
+			// [11650, 640, 650, 200],
+			// [14380, 270, 650, 200],
+			// [19550, 260, 650, 200],
 			[22640, 460, 350, 200]];
 
 
+		//create boss
+		var sprite2 = this.monsters.create(500, 50, 'pango');
+		this.boss = new Boss(0, 400, -1, 250, 0, sprite2, 70 , 20, this.bossAttack, 30);
+		this.boss.sprite.animations.add("pangoRight",[4,5]);
+		this.boss.sprite.animations.add("pangoLeft",[0,1]);
+		this.boss.sprite.animations.add("pangoRollRight",[2,3]);
+		this.boss.sprite.animations.add("pangoRollLeft",[6,7]);
+		this.monstersTab.push(this.boss);
+		game.physics.enable(this.boss.sprite, Phaser.Physics.ARCADE);
+		this.boss.sprite.body.drag.x = 250;
+		this.boss.sprite.body.drag.y = 250;
+		setMonster(this.boss, 250, 250, 50, 24, 0,0);
+		console.log(this.boss);
+
 		//CREATION PANGOLIN
 		for (var c in pongos) {
-			var  sprite2 = this.monsters.create(pongos[c][0], pongos[c][1], 'pango');
+			sprite2 = this.monsters.create(pongos[c][0], pongos[c][1], 'pango');
 			var monster = new Monster(0, pongos[c][3], -1, pongos[c][2], 0, sprite2, 70 , 20, this.moveRangeDefense, 30);
 			monster.sprite.animations.add("pangoRight",[4,5]);
 			monster.sprite.animations.add("pangoLeft",[0,1]);
@@ -459,11 +502,14 @@ gameLevel1.prototype = {
 		
 
 		game.physics.arcade.collide(this.hero.sprite, this.monsters,this.collideHeroMonster);
+		game.physics.arcade.collide(this.hero.sprite, this.boss.sprite, this.collideHeroMonster);
         game.physics.arcade.collide(this.monsters, this.wallLayer);
-        game.physics.arcade.collide(this.sb, this.wallLayer);
+		game.physics.arcade.collide(this.sb, this.wallLayer);
 		game.physics.arcade.collide(this.mbs, this.wallLayer);
+		game.physics.arcade.collide(this.boss.sprite, this.wallLayer);
 		game.physics.arcade.collide(this.fbs, this.wallLayer);
-        game.physics.arcade.collide(this.sb, this.monsters, this.snowballDamage);
+		game.physics.arcade.collide(this.sb, this.boss.sprite, this.snowballDamage);
+		game.physics.arcade.collide(this.sb, this.monsters, this.snowballDamage);
 		game.physics.arcade.collide(this.mbs, this.hero.sprite, this.mudballDamage);
 		game.physics.arcade.collide(this.fbs, this.hero.sprite, this.fireballDamage);
 		game.physics.arcade.collide(this.hero.sprite, this.wallLayer);
@@ -719,28 +765,49 @@ gameLevel1.prototype = {
 	},
 
 	// Attack for the suricate
-    rangeAttack: function (monster,level) {
-			monster.sprite.body.velocity.x = 0;
-			if( (Math.abs(monster.sprite.body.y - level.hero.sprite.body.y) < 180 && Math.abs(monster.sprite.body.x - level.hero.sprite.body.x) < monster.view )|| monster.chase >0){
-				if((Math.abs(monster.sprite.body.y - level.hero.sprite.body.y) < 180 && Math.abs(monster.sprite.body.x - level.hero.sprite.body.x) < monster.view ) ){
-					monster.chase = 50;
-				}else{
-					monster.chase--;
-				}
-				if(monster.sprite.body.x - level.hero.sprite.body.x < 0){
-					monster.direction = 1;
-				}else{
-					monster.direction = -1;
-				}
-				if ((game.time.now - monster.mbThrown) > 1000 )
-				{
-					monster.mbThrown = game.time.now;
-					level.mudball(monster,level);
-				}
+	rangeAttack: function (monster,level) {
+		monster.sprite.body.velocity.x = 0;
+		if( (Math.abs(monster.sprite.body.y - level.hero.sprite.body.y) < 180 && Math.abs(monster.sprite.body.x - level.hero.sprite.body.x) < monster.view )|| monster.chase >0){
+			if((Math.abs(monster.sprite.body.y - level.hero.sprite.body.y) < 180 && Math.abs(monster.sprite.body.x - level.hero.sprite.body.x) < monster.view ) ){
+				monster.chase = 50;
+			}else{
+				monster.chase--;
 			}
-    },
+			if(monster.sprite.body.x - level.hero.sprite.body.x < 0){
+				monster.direction = 1;
+			}else{
+				monster.direction = -1;
+			}
+			if ((game.time.now - monster.mbThrown) > 1000 )
+			{
+				monster.mbThrown = game.time.now;
+				level.mudball(monster,level);
+			}
+		}
+	},
 
-    // Movemevement for the RHINO
+	bossAttack: function (monster,level) {
+		monster.sprite.body.velocity.x = 0;
+		if( (Math.abs(monster.sprite.body.y - level.hero.sprite.body.y) < 180 && Math.abs(monster.sprite.body.x - level.hero.sprite.body.x) < monster.view )|| monster.chase >0){
+			if((Math.abs(monster.sprite.body.y - level.hero.sprite.body.y) < 180 && Math.abs(monster.sprite.body.x - level.hero.sprite.body.x) < monster.view ) ){
+				monster.chase = 50;
+			}else{
+				monster.chase--;
+			}
+			if(monster.sprite.body.x - level.hero.sprite.body.x < 0){
+				monster.direction = 1;
+			}else{
+				monster.direction = -1;
+			}
+			if ((game.time.now - monster.mbThrown) > 1000 )
+			{
+				monster.mbThrown = game.time.now;
+				level.fireball(monster,level);
+			}
+		}
+	},
+
+	// Movemevement for the RHINO
 	moveCharger: function (monster,level) {
 		level.hero.sprite.body.velocity.x *=   0.9 ;
 		var test = false;
@@ -869,7 +936,7 @@ gameLevel1.prototype = {
         if (pnj.trade)
         {
 			if(game.state.callbackContext.text == null){
-				game.state.callbackContext.text = game.add.text(400,300,pnj.speak + '---- Y ?');
+				game.state.callbackContext.text = game.add.text(pnj.sprite.x,pnj.sprite.y-100,pnj.speak + '---- Y ?');
 			}
 			game.state.callbackContext.textTime = game.time.now;
 
