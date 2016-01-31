@@ -308,17 +308,24 @@ gameLevel1.prototype = {
         this.monstersTab = [];
 
 		// Create your monsters !!
-		var rhinos = [[1080, 350, 250, 200],
-			[3000, 250, 250, 200],
-			[4172, 250, 250, 200]];
+		var rhinos = [[4605, 260, 250, 200],
+			[7105, 260, 250, 200],
+			[11620, 240, 250, 200],
+			[16000, 680, 250, 200],
+			[18630, 340, 250, 200]];
 
-		var pongos = [[350, 350, 250, 200],
-			[2000, 250, 250, 200],
-			[3877, 250, 250, 200]];
+		var pongos = [[2870, 340, 250, 200],
+			[6120, 340, 250, 200],
+			[17580, 710, 250, 200],
+			[11700, 780, 250, 200],
+			[22640, 460, 250, 200]];
 
-		var suris = [[577, 200, 350, 200],
-			[3900, 95, 650, 200],
-			[2000, 250, 350, 200]];
+		var suris = [[3850, 90, 350, 200],
+			[8525, 260, 650, 200],
+			[11650, 640, 650, 200],
+			[14380, 270, 650, 200],
+			[19550, 260, 650, 200],
+			[22640, 460, 350, 200]];
 
 
 		//CREATION PANGOLIN
@@ -375,7 +382,7 @@ gameLevel1.prototype = {
 		this.hero.sprite.body.mass = 50;
 		this.hero.sprite.body.drag.x = 250;
 		this.hero.sprite.body.drag.y = 250;
-		this.hero.sprite.body.maxVelocity.set(300,700);
+		this.hero.sprite.body.maxVelocity.set(500,700);
 		
 		
 		
@@ -839,7 +846,8 @@ gameLevel1.prototype = {
         var i = game.state.callbackContext.monsters.children.indexOf(monsterSprite);
         game.state.callbackContext.monstersTab[i].health = game.state.callbackContext.monstersTab[i].health - 10;
         game.state.callbackContext.sb = null;
-        if (game.state.callbackContext.monstersTab[i].health <= 0) {
+  
+  if (game.state.callbackContext.monstersTab[i].health <= 0) {
             game.state.callbackContext.monsters.remove(monsterSprite);
             // monsterSprite.visible = false;
 			monsterSprite.kill();
