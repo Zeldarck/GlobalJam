@@ -898,7 +898,7 @@ gameLevel1.prototype = {
 		var x= heroSprite.body.x - monsterSprite.body.x;
 		var y= heroSprite.body.y - monsterSprite.body.y;
         game.state.callbackContext.hero.life -=  ((Math.random() * monster.attack) + 5);;
-        if (game.state.callbackContext.hero.life == 0)
+        if (game.state.callbackContext.hero.life <= 0)
         {
             game.state.callbackContext.hero.sprite.kill();
 			game.state.callbackContext.finishGame(false);
