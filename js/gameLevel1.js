@@ -303,23 +303,23 @@ gameLevel1.prototype = {
         this.monstersTab = [];
 
 		// Create your monsters !!
-		var rhinos = [[1080, 350, 250],
-			[3000, 250, 250],
-			[4172, 250, 250]];
+		var rhinos = [[1080, 350, 250, 200],
+			[3000, 250, 250, 200],
+			[4172, 250, 250, 200]];
 
-		var pongos = [[350, 350, 250],
-			[2000, 250, 250],
-			[3877, 250, 250]];
+		var pongos = [[350, 350, 250, 200],
+			[2000, 250, 250, 200],
+			[3877, 250, 250, 200]];
 
-		var suris = [[577, 200, 350],
-			[3900, 95, 650],
-			[2000, 250, 350]];
+		var suris = [[577, 200, 350, 200],
+			[3900, 95, 650, 200],
+			[2000, 250, 350, 200]];
 
 
 		//CREATION PANGOLIN
 		for (var c in pongos) {
 			var  sprite2 = this.monsters.create(pongos[c][0], pongos[c][1], 'pango');
-			var monster = new Monster(0, 150, -1, pongos[c][2], 0, sprite2, 0 , 0, this.moveRangeDefense);
+			var monster = new Monster(0, pongos[c][3], -1, pongos[c][2], 0, sprite2, 0 , 0, this.moveRangeDefense);
 			monster.sprite.animations.add("pangoRight",[4,5]);
 			monster.sprite.animations.add("pangoLeft",[0,1]);
 			monster.sprite.animations.add("pangoRollRight",[2,3]);
@@ -334,7 +334,7 @@ gameLevel1.prototype = {
 		//CREATION SURICATES
 		for (var c in suris) {
 			sprite2 = this.monsters.create(suris[c][0], suris[c][1], 'suri');
-			monster = new Monster(0, 150, -1, suris[c][2], 0, sprite2, 0, 0, this.rangeAttack);
+			monster = new Monster(0, suris[c][3], -1, suris[c][2], 0, sprite2, 0, 0, this.rangeAttack);
 			monster.sprite.animations.add("suriRight", [0, 1, 2, 1, 0]);
 			monster.sprite.animations.add("suriLeft", [0, 1, 2, 1, 0]);
 			this.monstersTab.push(monster);
@@ -345,7 +345,7 @@ gameLevel1.prototype = {
 		//CREATION RHINO
 		for (var c in rhinos) {
 			sprite2 = this.monsters.create(rhinos[c][0], rhinos[c][1], 'rhino');
-			monster = new Monster(0, 150, -1, rhinos[c][2], 0, sprite2,0,0,this.moveCharger);
+			monster = new Monster(0, rhinos[c][3], -1, rhinos[c][2], 0, sprite2,0,0,this.moveCharger);
 			monster.sprite.body.drag.x = 250;
 			monster.sprite.body.drag.y = 250;
 			monster.sprite.animations.add("rhinoRight",[0,1]);
