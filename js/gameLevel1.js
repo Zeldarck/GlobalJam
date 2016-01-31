@@ -216,7 +216,7 @@ gameLevel1.prototype = {
         game.load.image('pnj', 'assets/Sara.png');
         game.load.spritesheet('rhino', 'assets/sprites_sheet_rino.png',100,54);
         game.load.spritesheet('pango', 'assets/sprites_sheet_pandolin.png',50,24);
-
+        game.load.spritesheet('suri', 'assets/sprites_sheet_suricate.png',24,40);
 
         //Tilemap
         //Created with Tiled software, with needed format: Orthogonal / CSV / .json files
@@ -330,8 +330,10 @@ gameLevel1.prototype = {
 		
 		
 		//CREATION SURICATES
-        sprite2 = this.monsters.create(350, 350, 'monster');
+        sprite2 = this.monsters.create(350, 350, 'suri');
         monster = new Monster(0, 150, -1, 250, 0, sprite2, 0 , 0, this.rangeAttack);
+		monster.sprite.animations.add("suriRight",[0,1,2,1,0]);
+		monster.sprite.animations.add("suriLeft",[0,1,2,1,0]);
         this.monstersTab.push(monster);
         game.physics.enable(monster.sprite, Phaser.Physics.ARCADE);
 		
@@ -355,7 +357,7 @@ gameLevel1.prototype = {
 
 		setMonster(this.monstersTab[0], 250, 250,50,24,0,0);
 		setMonster(this.monstersTab[1], 250, 250,50,24,0,0);
-		setMonster(this.monstersTab[2], 250, 250,44,40,0,0);
+		setMonster(this.monstersTab[2], 250, 250,24,40,0,0);
 		setMonster(this.monstersTab[3], 250, 250,100,54,0,0);
 
 		 for (var i in this.monstersTab)
@@ -529,8 +531,8 @@ gameLevel1.prototype = {
 	// Movemevement for the PANGOLIN
 	moveRangeDefense: function (monster,level) {
 		level.hero.sprite.body.velocity.x *=   0.9 ;
-		if( (Math.abs(monster.sprite.body.y - level.hero.sprite.body.y) < 10 && Math.abs(monster.sprite.body.x - level.hero.sprite.body.x) < monster.view )|| monster.chase >0){
-			if((Math.abs(monster.sprite.body.y - level.hero.sprite.body.y) < 10 && Math.abs(monster.sprite.body.x - level.hero.sprite.body.x) < monster.view ) ){
+		if( (Math.abs(monster.sprite.body.y - level.hero.sprite.body.y) < 25 && Math.abs(monster.sprite.body.x - level.hero.sprite.body.x) < monster.view )|| monster.chase >0){
+			if((Math.abs(monster.sprite.body.y - level.hero.sprite.body.y) < 25 && Math.abs(monster.sprite.body.x - level.hero.sprite.body.x) < monster.view ) ){
 				monster.chase = 50;
 			}else{
 				monster.chase--;
@@ -547,6 +549,10 @@ gameLevel1.prototype = {
 				monster.sprite.body.velocity.y = -200;
 			}
 			
+			if( monster.sprite.body.blocked.left || monster.sprite.body.blocked.right || monster.sprite.body.touching.left || monster.sprite.body.touching.right){
+				monster.sprite.body.velocity.y = -150;
+			}
+			
 		}
 		else 
 		{
@@ -557,13 +563,13 @@ gameLevel1.prototype = {
 			}
 			monster.sprite.body.velocity.x = monster.direction * 150;
 			monster.move++;
-			if(monster.move > monster.maxMove){
+			if(monster.move > monster.maxMove || ((monster.sprite.body.blocked.left || monster.sprite.body.blocked.right) && monster.move > 10)){
 				monster.move = 0;
 				monster.direction *= -1;
 			}
 		}
 		
-		
+			
 	},
 	
 	killHold: function (mudball) {
@@ -576,8 +582,8 @@ gameLevel1.prototype = {
     // Attack for the suricate
     rangeAttack: function (monster,level) {
 			monster.sprite.body.velocity.x = 0;
-			if( (Math.abs(monster.sprite.body.y - level.hero.sprite.body.y) < 10 && Math.abs(monster.sprite.body.x - level.hero.sprite.body.x) < monster.view )|| monster.chase >0){
-				if((Math.abs(monster.sprite.body.y - level.hero.sprite.body.y) < 10 && Math.abs(monster.sprite.body.x - level.hero.sprite.body.x) < monster.view ) ){
+			if( (Math.abs(monster.sprite.body.y - level.hero.sprite.body.y) < 30 && Math.abs(monster.sprite.body.x - level.hero.sprite.body.x) < monster.view )|| monster.chase >0){
+				if((Math.abs(monster.sprite.body.y - level.hero.sprite.body.y) < 30 && Math.abs(monster.sprite.body.x - level.hero.sprite.body.x) < monster.view ) ){
 					monster.chase = 50;
 				}else{
 					monster.chase--;
@@ -675,10 +681,12 @@ gameLevel1.prototype = {
             tmp.body.drag.y = 500;
 
             if(monster.direction == 1){
+				monster.sprite.animations.play('suriRight',15,false);
                 tmp.body.velocity.x = 500;
                 tmp.body.velocity.y = -200;
             }
             else{
+				monster.sprite.animations.play('suriRight',15,false);
                 tmp.body.velocity.x = -500;
                 tmp.body.velocity.y = -200;
             }
