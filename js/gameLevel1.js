@@ -285,6 +285,7 @@ gameLevel1.prototype = {
 		game.stage.backgroundColor = '#787878';
 
         var sprite = game.add.sprite(20, 280, 'characterFrames');
+        // var sprite = game.add.sprite(15380, 720, 'characterFrames'); //new Pnj('I want a mask',game.add.sprite(15380, 720, 'esquimo'),1);
 
 
 		
@@ -1063,13 +1064,12 @@ gameLevel1.prototype = {
         var monster = game.state.callbackContext.monstersTab[i];// donne le monstre touché
 		var x= heroSprite.body.x - monsterSprite.body.x;
 		var y= heroSprite.body.y - monsterSprite.body.y;
-        game.state.callbackContext.hero.life -= 1;
-		monster.inertiex =  1200;
 
+		monster.inertiex =  1200;
 
 		return true;
 	},
-	
+		
 	swordDamage : function (swordSprite, monsterSprite) {
         var i = game.state.callbackContext.monsters.children.indexOf(monsterSprite);
         game.state.callbackContext.monstersTab[i].life -= (1-game.state.callbackContext.monstersTab[i].cacArmor/100) * ((Math.random() * 80) + 50);
@@ -1103,7 +1103,8 @@ gameLevel1.prototype = {
 	},
 	
 	createPango : function(){
-		for(var c = this.indexPango; c < this.pongos.length ; c++){
+		var c;
+		for( c = this.indexPango; c < this.pongos.length ; c++){
 			if(this.pongos[c][0] - this.hero.sprite.body.x < 1000 ){
 				var  sprite2 = this.monsters.create(this.pongos[c][0], this.pongos[c][1], 'pango');
 				var monster = new Monster(0, this.pongos[c][3], -1, this.pongos[c][2], 0, sprite2, 70 , 20, this.moveRangeDefense, 30);
@@ -1123,14 +1124,15 @@ gameLevel1.prototype = {
 				}
 				
 			}else{
-				this.indexPango = c;
 				break;
 			}
 		}
+		this.indexPango = c;
 	},
 	
 	createRhino : function(){
-		for(var c = this.indexRhino; c < this.rhinos.length ; c++){
+		var c;
+		for( c = this.indexRhino; c < this.rhinos.length ; c++){
 			if(this.rhinos[c][0] - this.hero.sprite.body.x < 1000 ){
 				sprite2 = this.monsters.create(this.rhinos[c][0], this.rhinos[c][1], 'rhino');
 				monster = new Monster(0, this.rhinos[c][3], -1, this.rhinos[c][2], 0, sprite2,30,30,this.moveCharger, 40);
@@ -1147,14 +1149,15 @@ gameLevel1.prototype = {
 					this.monstersTab.splice(0,1);
 				}
 			}else{
-				this.indexRhino = c;
 				break;
 			}
 		}
+		this.indexRhino = c;
 	},
 	
 	createSuri : function(){
-		for(var c = this.indexSuri; c < this.suris.length ; c++){
+		var c;
+		for( c = this.indexSuri; c < this.suris.length ; c++){
 			if(this.suris[c][0] - this.hero.sprite.body.x < 1000 ){
 					sprite2 = this.monsters.create(this.suris[c][0], this.suris[c][1], 'suri');
 					monster = new Monster(0, this.suris[c][3], -1, this.suris[c][2], 0, sprite2, 30, 30, this.rangeAttack , 10);
@@ -1169,10 +1172,10 @@ gameLevel1.prototype = {
 					this.monstersTab.splice(0,1);
 				}
 			}else{
-				this.indexSuri = c;
 				break;
 			}
 		}
+		this.indexSuri = c;
 	}
 	
 };
