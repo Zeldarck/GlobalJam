@@ -6,9 +6,26 @@ var gameLevel1 = function(){
 	this.swordTimer=0;
 	this.monstersTab = null;
     this.mbs = null;
-    this.pnj = null;
 	this.music = null;
+	this.elsaTime = 0; 
+	this.snowman= null;
+	this.pingouin = null;
+	this.esquimo = null;
+	this.text = null;
+	this.textTime = 0;
 };
+
+
+//***PNJ***
+function Pnj(speak,sprite,type) {
+    this.sprite = sprite;
+	this.trade =  true;
+	this.sprite.whoisit = type;
+	this.type =  type;
+    this.speak = speak;
+}
+
+
 
 //***Heros***
 function Character(life,sprite) {
@@ -74,7 +91,7 @@ Character.prototype.looseMask = function(){
 			this.sprite.animations.add("left",[42,43,44,45,46,47]);
 		}
 	}else{
-		if(this.hero.gloves){
+		if(this.gloves){
 			//Gloves
 			this.frameRight=12;
 			this.frameLeft=18;
@@ -107,7 +124,7 @@ Character.prototype.looseSki = function(){
 			this.sprite.animations.add("left",[66,67,68,69,70,71]);
 		}
 	}else{
-		if(this.hero.gloves){
+		if(this.gloves){
 			//Gloves
 			this.frameRight=12;
 			this.frameLeft=18;
@@ -156,23 +173,7 @@ Character.prototype.looseGloves = function(){
 	}
 }
 
-//    Pnj    \\
 
-function Pnj(sprite)
-{
-    this.sprite = sprite;
-    this.trade = true;
-}
-
-//function setPnj(pnj, dragX, dragY, sizeX, sizeY, offsetX, offsetY)
-//{
-//    pnj.sprite.body.drag.x = dragX;
-//    pnj.sprite.body.drag.y = dragY;
-//    pnj.sprite.body.collideWorldBounds = true;
-//    pnj.sprite.body.setSize(sizeX, sizeY, offsetX, offsetY);
-//    pnj.sprite.body.mass = 50;
-//    pnj.sprite.body.immovable = true;
-//}
 //    Monstre      \\
 
 function Monster(Move, MaxMove, Direction, View, Chase, sprite, rangeArmor, cacArmor, moveFunction, attack){
@@ -211,7 +212,7 @@ gameLevel1.prototype = {
         // Load this images, available with the associated keys later
         game.load.image('background', 'assets/background.jpg');
         game.load.image('character', 'assets/snowboy_sky_masque.png');
-        game.load.spritesheet('characterFrames', 'assets/sprites_sheet_snowboy.png', 90, 54);
+        game.load.spritesheet('characterFrames', 'assets/sprites_sheet-snowboy.png', 90, 54);
         game.load.spritesheet('pandolin', 'assets/sprites_sheet_pandolin.png', 24, 50);
         // Each sprite is 54x55 . -1 means we don't limit to a number of sprites,
         //  0 is the margin of the file, 10 the spacing between each sprites
@@ -221,7 +222,9 @@ gameLevel1.prototype = {
         game.load.image('snowball', 'assets/snowball.png');
         game.load.image('mudball', 'assets/mudball.png');
         game.load.image('monster', 'assets/mechant.png');
-        game.load.image('pnj', 'assets/Sara.png');
+        game.load.spritesheet('snowman', 'assets/sprites_sheet_snowman.png',56,54);
+		game.load.spritesheet('esquimo', 'assets/sprites_sheet_esquimo.png',38,54);
+		game.load.spritesheet('pingouin', 'assets/sprites_sheet_pingouin.png',22,54);
         game.load.spritesheet('rhino', 'assets/sprites_sheet_rino.png',100,54);
         game.load.spritesheet('pango', 'assets/sprites_sheet_pandolin.png',50,24);
         game.load.spritesheet('suri', 'assets/sprites_sheet_suricate2.png',24,40);
@@ -252,8 +255,15 @@ gameLevel1.prototype = {
 
 
 
-        //create pnj
-        this.pnj = new Pnj(game.add.sprite(1600, 150, 'pnj'));
+        //create pnjs
+        this.snowman = new Pnj('I want gloves',game.add.sprite(100, 250, 'snowman'),0);
+        this.esquimo = new Pnj('I want a mask',game.add.sprite(150, 250, 'esquimo'),1);
+        this.pingouin = new Pnj('I want ski',game.add.sprite(200, 250, 'pingouin'),2);
+		
+		this.snowman.sprite.animations.add("static",[0,1]);
+		this.esquimo.sprite.animations.add("static",[0,1]);
+		this.pingouin.sprite.animations.add("static",[0,1]);
+
 
 		//create hero
 		this.hero = new Character(100,sprite); 
@@ -285,6 +295,8 @@ gameLevel1.prototype = {
 		//A super Q key to test methods !
 		this.qKey=game.input.keyboard.addKey(Phaser.Keyboard.Q);
 		this.tKey=game.input.keyboard.addKey(Phaser.Keyboard.T);
+		
+
 
         // Physics engine initialisation (optional for arcade engine, need for other ones)
         game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -297,7 +309,10 @@ gameLevel1.prototype = {
         this.hero.sprite.body.setSize(10, 35, 35, 20);
 
         //Init pnj
-        game.physics.enable(this.pnj.sprite, Phaser.Physics.ARCADE);
+        game.physics.enable(this.snowman.sprite, Phaser.Physics.ARCADE);
+		game.physics.enable(this.esquimo.sprite, Phaser.Physics.ARCADE);
+		game.physics.enable(this.pingouin.sprite, Phaser.Physics.ARCADE);
+
         //setPnj(this.pnj, 350, 250,54,55,0,0);
 
         // The sprite will collide with the borders
@@ -405,9 +420,26 @@ gameLevel1.prototype = {
 
 		var moving = false;
 		var walkAnimationSpeed = 6;
+		
+		this.snowman.sprite.animations.play("static",4,true);
+		this.esquimo.sprite.animations.play("static",4,true);
+		this.pingouin.sprite.animations.play("static",4,true);
 
-        game.physics.arcade.collide(this.pnj.sprite, this.wallLayer);
-        game.physics.arcade.overlap(this.pnj.sprite, this.hero.sprite, this.exchange);
+					
+        game.physics.arcade.collide(this.esquimo.sprite, this.wallLayer);
+		 game.physics.arcade.collide(this.pingouin.sprite, this.wallLayer);
+		game.physics.arcade.collide(this.snowman.sprite, this.wallLayer);
+		
+		game.physics.arcade.overlap(this.esquimo.sprite, this.hero.sprite, this.exchange);
+		game.physics.arcade.overlap(this.pingouin.sprite, this.hero.sprite, this.exchange);
+		game.physics.arcade.overlap(this.snowman.sprite, this.hero.sprite, this.exchange);
+		console.log(game.time.now - this.textTime);
+			if(this.text != null && (game.time.now - this.textTime > 100)){
+				this.text.destroy();
+				this.text = null;
+			}
+		
+
 		game.physics.arcade.collide(this.hero.sprite, this.monsters,this.collideHeroMonster);
         game.physics.arcade.collide(this.monsters, this.wallLayer);
         game.physics.arcade.collide(this.sb, this.wallLayer);
@@ -585,7 +617,7 @@ gameLevel1.prototype = {
         }
 
 
-
+	
     
 
     },
@@ -767,18 +799,41 @@ gameLevel1.prototype = {
     },
 
     exchange: function (pnjSprite, heroSprite) {
-        if (game.state.callbackContext.pnj.trade == true)
+		var pnj = null;
+		
+		if(pnjSprite.whoisit == 0){
+			pnj = game.state.callbackContext.snowman;
+		}else if(pnjSprite.whoisit == 1){
+			pnj = game.state.callbackContext.esquimo;
+		}else{
+			pnj = game.state.callbackContext.pingouin;
+		}
+			
+        if (pnj.trade)
         {
-            if(game.state.callbackContext.yKey.isDown) {
-                console.log("Trade ok");
-                game.state.callbackContext.pnj.trade = false;
-                game.state.callbackContext.hero.looseGloves();
-            }
+			if(game.state.callbackContext.text == null){
+				game.state.callbackContext.text = game.add.text(400,300,pnj.speak + '---- Y ?');
+			}
+			game.state.callbackContext.textTime = game.time.now;
 
-            else if(game.state.callbackContext.nKey.isDown)
-                console.log("Trade ko");
+				if(game.state.callbackContext.yKey.isDown) {
+					 pnj.trade = false;
+					 if(pnjSprite.whoisit == 0){
+						game.state.callbackContext.hero.looseGloves();
+					}else if(pnjSprite.whoisit == 1){
+						game.state.callbackContext.hero.looseMask();
+					}else{
+						game.state.callbackContext.hero.looseSki();
+					}
+					 
+					 
+					 
+				}else if(game.state.callbackContext.nKey.isDown){
+					
+				}
         }
     },
+
 
     collideHeroMonster: function (heroSprite,monsterSprite) {
         i = game.state.callbackContext.monsters.children.indexOf(monsterSprite);
