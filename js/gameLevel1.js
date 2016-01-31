@@ -211,7 +211,7 @@ gameLevel1.prototype = {
         // Load this images, available with the associated keys later
         game.load.image('background', 'assets/background.jpg');
         game.load.image('character', 'assets/snowboy_sky_masque.png');
-        game.load.spritesheet('characterFrames', 'assets/sprites_sheet_snowboy.png', 90, 54);
+        game.load.spritesheet('characterFrames', 'assets/sprites_sheet-snowboy.png', 90, 54);
         game.load.spritesheet('pandolin', 'assets/sprites_sheet_pandolin.png', 24, 50);
         // Each sprite is 54x55 . -1 means we don't limit to a number of sprites,
         //  0 is the margin of the file, 10 the spacing between each sprites
@@ -327,13 +327,15 @@ gameLevel1.prototype = {
         this.monstersTab = [];
 
 		// Create your monsters !!
-		var rhinos = [[4605, 260, 250, 200],
+		var rhinos = [[1435, 310, 250, 200],
+			[4605, 260, 250, 200],
 			[7105, 260, 250, 200],
 			[11620, 240, 250, 200],
 			[16000, 680, 250, 200],
 			[18630, 340, 250, 200]];
 
-		var pongos = [[2870, 340, 250, 200],
+		var pongos = [[255, 340, 250, 110],
+			[2870, 340, 250, 200],
 			[6120, 340, 250, 200],
 			[17580, 710, 250, 200],
 			[11700, 780, 250, 200],
