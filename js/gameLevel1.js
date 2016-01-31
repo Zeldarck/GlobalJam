@@ -187,17 +187,17 @@ gameLevel1.prototype = {
 
         //Tilemap
         //Created with Tiled software, with needed format: Orthogonal / CSV / .json files
-        game.load.tilemap('map', 'assets/tiled.json', null, Phaser.Tilemap.TILED_JSON);
-        game.load.image('RPGpack_sheet', 'assets/RPGpack_sheet.png');
+        game.load.tilemap('map', 'assets/map.json', null, Phaser.Tilemap.TILED_JSON);
+        game.load.image('sprites_plateforme', 'assets/sprites_plateforme.png');
 
     },
     // Called after preload - create sprites,... using assets here
     create: function () {
         // Create a sprite
-        this.backgroundSprite = game.add.sprite(0, 0, 'background');
+        //this.backgroundSprite = game.add.sprite(0, 0, 'background');
+		game.stage.backgroundColor = '#787878';
 
-
-        var sprite = game.add.sprite(375, 300, 'characterFrames');
+        var sprite = game.add.sprite(20, 280, 'characterFrames');
 
 
 		
@@ -230,7 +230,7 @@ gameLevel1.prototype = {
         game.physics.enable(this.hero.sprite, Phaser.Physics.ARCADE);
 				
         // Init hero
-        this.hero.sprite.body.collideWorldBounds = true;
+        this.hero.sprite.body.collideWorldBounds = false;
         this.hero.sprite.body.setSize(10, 35, 35, 20);
 
         // The sprite will collide with the borders
@@ -238,18 +238,18 @@ gameLevel1.prototype = {
 
         var map = game.add.tilemap('map');
         // The tileset name must match the one defined in Tiled
-        map.addTilesetImage('RPGpack_sheet');
+        map.addTilesetImage('sprites_plateforme');
         // The layer name must match the one defined in Tiled
-        var backgroundLayer = map.createLayer('background');
-        this.wallLayer = map.createLayer('walls');
-        this.goalLayer = map.createLayer('goals');
+        //var backgroundLayer = map.createLayer('background');
+        this.wallLayer = map.createLayer('wallLayer');
+        this.decorationLayer = map.createLayer('decorationLayer');
         //The world will have the map size
-        backgroundLayer.resizeWorld();
+        this.wallLayer.resizeWorld();
         //The camera will follow the player, as the world is bigger than the screen
         game.camera.follow(this.hero.sprite);
         // Every tiles in the walls layer will be able to colide in this layer
-        map.setCollisionByExclusion([],true,'walls');
-        map.setCollisionByExclusion([],true,'goals');
+        map.setCollisionByExclusion([],true,'wallLayer');
+        //map.setCollisionByExclusion([],true,'sprites_plateforme');
 		
 		
 		
@@ -259,11 +259,11 @@ gameLevel1.prototype = {
 		//PARTIE A RENDRE PROPRE -- bien faire pop le smonstres après le reste, bring to the top fonctionne pas vraiment
         this.monstersTab = [];
 		
-		var  sprite2 = this.monsters.create(350, 450, 'monster');
+		var  sprite2 = this.monsters.create(2875, 100, 'monster');
         var monster = new Monster(0, 150, -1, 100, 0, sprite2);
 		this.monstersTab.push(monster);
 		game.physics.enable(monster.sprite, Phaser.Physics.ARCADE);
-		sprite2 = this.monsters.create(300, 450, 'monster');
+		sprite2 = this.monsters.create(350, 100, 'monster');
         monster = new Monster(0, 150, -1, 100, 0, sprite2);
 		this.monstersTab.push(monster);
 		game.physics.enable(monster.sprite, Phaser.Physics.ARCADE);
