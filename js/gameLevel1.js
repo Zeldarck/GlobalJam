@@ -1,9 +1,10 @@
 var gameLevel1 = function(){
 	this.monsters = null;
 	this.hero = null;
-	this.sb = null;
-	this.sbThrown=0;
+    this.sb = null;
+    this.sbThrown=0;
 	this.monstersTab = null;
+    this.mbs = null;
 };
 
 //***Heros***
@@ -19,7 +20,11 @@ function Character(life,sprite){
 	this.sword = null; 		
 	this.frameRight=48;
 	this.frameLeft=54;
+}
 
+function mudball(sprite) {
+    this.mb = sprite;
+    this.mbThrown = 0;
 }
 	
 Character.prototype.makeSword = function() {
@@ -146,7 +151,8 @@ Character.prototype.looseGloves = function(){
 
 //    Monstre      \\
 
-function Monster(Move, MaxMove, Direction, View, Chase, sprite){
+function Monster(Move, MaxMove, Direction, View, Chase, sprite, type){
+    this.type = type;
     this.sprite = sprite;
     this.move = Move;
     this.maxMove = MaxMove;
@@ -154,6 +160,7 @@ function Monster(Move, MaxMove, Direction, View, Chase, sprite){
     this.view = View;
     this.chase = Chase;
     this.health = 100;
+    this.mbThrown = 0;
 }
 function setMonster(monster, x, y) {
     monster.sprite.body.drag.x = x;
@@ -181,7 +188,8 @@ gameLevel1.prototype = {
         //game.load.spritesheet('characterFrames', 'assets/SaraFullSheet7.png', 54, 55, -1, 0 ,10);
         //game.load.spritesheet('ballFrames', 'assets/ball_animation.png', 45, 45);
         game.load.image('mechant', 'assets/mechant.png');
-		game.load.image('snowball', 'assets/snowball.png');
+        game.load.image('snowball', 'assets/snowball.png');
+        game.load.image('mudball', 'assets/mudball.png');
         game.load.image('monster', 'assets/mechant.png');
 
 
@@ -254,21 +262,27 @@ gameLevel1.prototype = {
 		
 		
 		this.monsters= 	this.add.physicsGroup();
+        this.mbs = this.add.physicsGroup();
 
 		
 		//PARTIE A RENDRE PROPRE -- bien faire pop le smonstres après le reste, bring to the top fonctionne pas vraiment
         this.monstersTab = [];
-		
-		var  sprite2 = this.monsters.create(350, 450, 'monster');
-        var monster = new Monster(0, 150, -1, 100, 0, sprite2);
+
+        var  sprite2 = this.monsters.create(350, 450, 'monster');
+        var monster = new Monster(0, 150, -1, 100, 0, sprite2, "cac");
+        this.monstersTab.push(monster);
+        game.physics.enable(monster.sprite, Phaser.Physics.ARCADE);
+
+        sprite2 = this.monsters.create(300, 450, 'monster');
+        monster = new Monster(0, 150, -1, 100, 0, sprite2, "cac");
 		this.monstersTab.push(monster);
 		game.physics.enable(monster.sprite, Phaser.Physics.ARCADE);
-		sprite2 = this.monsters.create(300, 450, 'monster');
-        monster = new Monster(0, 150, -1, 100, 0, sprite2);
-		this.monstersTab.push(monster);
-		game.physics.enable(monster.sprite, Phaser.Physics.ARCADE);
-		
-		
+
+        sprite2 = this.monsters.create(350, 450, 'monster');
+        monster = new Monster(0, 150, -1, 250, 0, sprite2, "dis");
+        this.monstersTab.push(monster);
+        game.physics.enable(monster.sprite, Phaser.Physics.ARCADE);
+
 
         // Sprites are z-ordered by creation. As we added tiles later,
         //  we move back other sprites to top
@@ -299,7 +313,9 @@ gameLevel1.prototype = {
 		game.physics.arcade.collide(this.hero.sprite, this.monsters,this.collideHeroMonster);
         game.physics.arcade.collide(this.monsters, this.wallLayer);
         game.physics.arcade.collide(this.sb, this.wallLayer);
+        game.physics.arcade.collide(this.mbs, this.wallLayer);
         game.physics.arcade.collide(this.sb, this.monsters, this.snowballDamage);
+        game.physics.arcade.collide(this.mbs, this.hero.sprite, this.mudballDamage);
 		game.physics.arcade.collide(this.hero.sprite, this.wallLayer);
 
 		game.physics.arcade.overlap(this.hero.sprite, this.monsters,this.overlapHeroMonster);
@@ -308,7 +324,8 @@ gameLevel1.prototype = {
 		if(this.hero.sprite.body.blocked.down || this.hero.sprite.body.touching.down){
 			this.hero.jump = true;
 		}
-		
+
+        this.mbs.forEach(this.killHold, this);
 		
 		if(this.spacebarKey.isDown)
 		{
@@ -363,7 +380,6 @@ gameLevel1.prototype = {
 		//Snowball
 		if(this.wKey.isDown && (game.time.now-this.sbThrown)>1000)
 		{
-			
 			this.snowball();
 		}
 		if ((game.time.now-this.sbThrown) > 1000 )
@@ -398,10 +414,15 @@ gameLevel1.prototype = {
 
         for (var i in this.monstersTab)
         {
-            this.moveRangeDefense(this.monstersTab[i]);
+            if (this.monstersTab[i].health > 0) {
+                if (this.monstersTab[i].type == "cac")
+                    this.moveRangeDefense(this.monstersTab[i]);
+                else
+                    this.rangeAttack(this.monstersTab[i]);
+            }
         }
 
-		 var maxCharacterVelocity = 600;
+        var maxCharacterVelocity = 600;
         this.hero.sprite.body.maxVelocity.set(maxCharacterVelocity,maxCharacterVelocity);
         for (var i in this.monstersTab)
         {
@@ -418,41 +439,68 @@ gameLevel1.prototype = {
 		// if(game.state.callbackContext.hero.sword != null)
 		// game.debug.body(game.state.callbackContext.hero.sword);
     },
-	
-	// Movemevement for the PANGOLIN
-	moveRangeDefense: function (monster) {
-		monster.sprite.body.velocity.x = 0;
-		if( (Math.abs(monster.sprite.body.y - this.hero.sprite.body.y) < 10 && Math.abs(monster.sprite.body.x - this.hero.sprite.body.x) < monster.view )|| monster.chase >0){
-			if((Math.abs(monster.sprite.body.y - this.hero.sprite.body.y) < 10 && Math.abs(monster.sprite.body.x - this.hero.sprite.body.x) < monster.view ) ){
-				monster.chase = 50;
-			}else{
-				monster.chase--;
-			}
-			if(monster.sprite.body.x - this.hero.sprite.body.x < 0){
-				monster.sprite.body.velocity.x = 130;
-			}else{
-				monster.sprite.body.velocity.x = -130;
-			}
-			
-			if(monster.sprite.body.onFloor()){
-				monster.sprite.body.velocity.y = -200;
-			}
-			
-		}
-		else 
-		{
-			monster.sprite.body.velocity.x = monster.direction * 150;
-			monster.move++;
-			if(monster.move > monster.maxMove){
-				monster.move = 0;
-				monster.direction *= -1;
-			}
-		}
-		
-		
-	},
-	
-	// Movemevement for the RHINO
+
+    // Movemevement for the PANGOLIN
+    moveRangeDefense: function (monster) {
+        monster.sprite.body.velocity.x = 0;
+        if( (Math.abs(monster.sprite.body.y - this.hero.sprite.body.y) < 10 && Math.abs(monster.sprite.body.x - this.hero.sprite.body.x) < monster.view )|| monster.chase >0){
+            if((Math.abs(monster.sprite.body.y - this.hero.sprite.body.y) < 10 && Math.abs(monster.sprite.body.x - this.hero.sprite.body.x) < monster.view ) ){
+                monster.chase = 50;
+            }else{
+                monster.chase--;
+            }
+            if(monster.sprite.body.x - this.hero.sprite.body.x < 0){
+                monster.sprite.body.velocity.x = 130;
+            }else{
+                monster.sprite.body.velocity.x = -130;
+            }
+
+            if(monster.sprite.body.onFloor()){
+                monster.sprite.body.velocity.y = -200;
+            }
+
+        }
+        else
+        {
+            monster.sprite.body.velocity.x = monster.direction * 150;
+            monster.move++;
+            if(monster.move > monster.maxMove){
+                monster.move = 0;
+                monster.direction *= -1;
+            }
+        }
+    },
+
+    killHold: function (mudball) {
+      if (game.time.now - mudball.mbThrown > 1000)
+          this.mbs.remove(mudball);
+    },
+
+
+
+    // Attack for the suricate
+    rangeAttack: function (monster) {
+        monster.sprite.body.velocity.x = 0;
+        if( (Math.abs(monster.sprite.body.y - this.hero.sprite.body.y) < 10 && Math.abs(monster.sprite.body.x - this.hero.sprite.body.x) < monster.view )|| monster.chase >0){
+            if((Math.abs(monster.sprite.body.y - this.hero.sprite.body.y) < 10 && Math.abs(monster.sprite.body.x - this.hero.sprite.body.x) < monster.view ) ){
+                monster.chase = 50;
+            }else{
+                monster.chase--;
+            }
+            if(monster.sprite.body.x - this.hero.sprite.body.x < 0){
+                monster.direction = 1;
+            }else{
+                monster.direction = -1;
+            }
+            if ((game.time.now - monster.mbThrown) > 1000 )
+            {
+                monster.mbThrown = game.time.now;
+                this.mudball(monster);
+            }
+        }
+    },
+
+    // Movemevement for the RHINO
 	moveCharger: function (monster) {
 		monster.sprite.body.velocity.x = 0;
 		if( (Math.abs(monster.sprite.body.y - this.hero.sprite.body.y) < 10 && Math.abs(monster.sprite.body.x - this.hero.sprite.body.x) < monster.view )|| monster.chase >0){
@@ -505,6 +553,26 @@ gameLevel1.prototype = {
 		}
 	},
 
+    //How to throw a snowball
+    mudball: function (monster){
+
+            var tmp = this.mbs.create(monster.sprite.body.x, monster.sprite.body.y, 'mudball');
+
+            game.physics.enable(tmp, Phaser.Physics.ARCADE);
+            tmp.body.collideWorldBounds = false;
+            tmp.body.drag.y = 500;
+
+            if(monster.direction == 1){
+                tmp.body.velocity.x = 500;
+                tmp.body.velocity.y = -200;
+            }
+            else{
+                tmp.body.velocity.x = -500;
+                tmp.body.velocity.y = -200;
+            }
+            tmp.mbThrown = game.time.now;
+    },
+
 	
 	collideHeroMonster: function (heroSprite,monsterSprite) {
         i = game.state.callbackContext.monsters.children.indexOf(monsterSprite);
@@ -513,7 +581,12 @@ gameLevel1.prototype = {
 		var y= heroSprite.body.y - monsterSprite.body.y;
 		heroSprite.body.velocity.y += y*3 ;
 		monsterSprite.body.velocity.y -= y*2;
-		
+
+        game.state.callbackContext.hero.life -= 1;
+        if (game.state.callbackContext.hero.life == 0)
+        {
+            game.state.callbackContext.hero.sprite.kill();
+        }
 		heroSprite.body.velocity.x += x*5 ;
 		monsterSprite.body.velocity.x -= x*5;
 		return true;
@@ -535,24 +608,30 @@ gameLevel1.prototype = {
 
 		return true;
 	},
-	
-	snowballDamage : function (snowBallSprite, monsterSprite) {
+
+    snowballDamage : function (snowBallSprite, monsterSprite) {
         var i = game.state.callbackContext.monsters.children.indexOf(monsterSprite);
         game.state.callbackContext.monstersTab[i].health = game.state.callbackContext.monstersTab[i].health - 50;
-        game.state.callbackContext.sb = null;
+        game.state.callbackContext.sb.kill();
         if (game.state.callbackContext.monstersTab[i].health == 0) {
             game.state.callbackContext.monsters.remove(monsterSprite);
             monsterSprite.visible = false;
         }
     },
-	
+
+    mudballDamage : function (mudBallSprite, heroSprite) {
+        heroSprite.kill();
+        game.state.callbackContext.hero.life -= 1;
+        game.state.callbackContext.monsters.remove(mudBallSprite);
+        if (game.state.callbackContext.hero.life == 0)
+        {
+            game.state.callbackContext.hero.sprite.kill();
+        }
+    },
 	
 	swordDamage : function (swordSprite, monsterSprite) {
-        console.log("SWORD");
         var i = game.state.callbackContext.monsters.children.indexOf(monsterSprite);
         game.state.callbackContext.monstersTab[i].health = game.state.callbackContext.monstersTab[i].health - 50;
-        console.log(game.state.callbackContext.monstersTab[i].health);
-        game.state.callbackContext.sb = null;
         if (game.state.callbackContext.monstersTab[i].health == 0) {
             game.state.callbackContext.monsters.remove(monsterSprite);
             monsterSprite.visible = false;
