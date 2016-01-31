@@ -3,6 +3,7 @@ var gameLevel1 = function(){
 	this.hero = null;
 	this.sb = null;
 	this.sbThrown=0;
+	this.swordTimer=0;
 	this.monstersTab = null;
 };
 
@@ -32,9 +33,9 @@ Character.prototype.makeSword = function() {
     {
 		this.sword = game.add.sprite(this.sprite.x + 50,this.sprite.y + 10, null);
     }
-	
+
 		game.physics.enable(this.sword, Phaser.Physics.ARCADE);
-		this.sword.body.setSize(35, 40, 0, 0);   
+		this.sword.body.setSize(40, 40, 0, 0);   
 }
 
 Character.prototype.destroySword = function() {
@@ -159,9 +160,9 @@ function setMonster(monster, x, y) {
     monster.sprite.body.drag.x = x;
     monster.sprite.body.drag.y = y;
     monster.sprite.body.collideWorldBounds = true;
-    monster.sprite.body.bounce.setTo(0.5,0.2);
+   // monster.sprite.body.bounce.setTo(0.5,0.2);
     monster.sprite.body.setSize(44, 40, 0, 0);
-    monster.sprite.body.mass = 5;
+    monster.sprite.body.mass = 50;
     monster.sprite.body.immovable = true;
 }
 
@@ -261,10 +262,16 @@ gameLevel1.prototype = {
 		
 		var  sprite2 = this.monsters.create(2875, 100, 'monster');
         var monster = new Monster(0, 150, -1, 100, 0, sprite2);
+		monster.sprite.body.drag.x = 250;
+		monster.sprite.body.drag.y = 250;
+
 		this.monstersTab.push(monster);
 		game.physics.enable(monster.sprite, Phaser.Physics.ARCADE);
 		sprite2 = this.monsters.create(350, 100, 'monster');
         monster = new Monster(0, 150, -1, 100, 0, sprite2);
+		monster.sprite.body.drag.x = 250;
+		monster.sprite.body.drag.y = 250;
+
 		this.monstersTab.push(monster);
 		game.physics.enable(monster.sprite, Phaser.Physics.ARCADE);
 		
@@ -323,9 +330,11 @@ gameLevel1.prototype = {
 				this.hero.sprite.animations.play("swordRight",40,false)
             }
 			
-			
-			game.physics.arcade.collide(this.hero.sword, this.monsters, this.swordDamage);
-			this.hero.destroySword();
+			if(game.time.now - this.swordTimer > 150){
+				this.sbThrown = game.time.now;
+				game.physics.arcade.collide(this.hero.sword, this.monsters, this.swordDamage);
+			}
+			//this.hero.destroySword();
 			moving = true;
 		}
 		
@@ -511,11 +520,24 @@ gameLevel1.prototype = {
         //game.state.callbackContext.monstersTab[i]; donne le monstre touché
 		var x= heroSprite.body.x - monsterSprite.body.x;
 		var y= heroSprite.body.y - monsterSprite.body.y;
-		heroSprite.body.velocity.y += y*3 ;
-		monsterSprite.body.velocity.y -= y*2;
+		if(x < 0){
+			heroSprite.body.velocity.y += y*3 ;
+		monsterSprite.body.velocity.y -= y*3;
 		
-		heroSprite.body.velocity.x += x*5 ;
-		monsterSprite.body.velocity.x -= x*5;
+		heroSprite.body.velocity.x += x*25 ;
+		monsterSprite.body.velocity.x -= x*25;
+			
+			
+		}
+		else
+		{
+			heroSprite.body.velocity.y += y*3 ;
+			monsterSprite.body.velocity.y -= y*3;
+			
+			heroSprite.body.velocity.x += x*5 ;
+			monsterSprite.body.velocity.x -= x*25;
+		}	
+			
 		return true;
 	},
 	
@@ -548,15 +570,14 @@ gameLevel1.prototype = {
 	
 	
 	swordDamage : function (swordSprite, monsterSprite) {
-        console.log("SWORD");
         var i = game.state.callbackContext.monsters.children.indexOf(monsterSprite);
         game.state.callbackContext.monstersTab[i].health = game.state.callbackContext.monstersTab[i].health - 50;
-        console.log(game.state.callbackContext.monstersTab[i].health);
         game.state.callbackContext.sb = null;
         if (game.state.callbackContext.monstersTab[i].health == 0) {
             game.state.callbackContext.monsters.remove(monsterSprite);
             monsterSprite.visible = false;
         }
+		game.state.callbackContext.collideHeroMonster(game.state.callbackContext.hero.sprite,monsterSprite);
     }
 	
 };
