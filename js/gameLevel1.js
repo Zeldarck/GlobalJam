@@ -364,6 +364,7 @@ gameLevel1.prototype = {
             }
             else
             {
+				this.hero.sprite.animations.play("swordRight",40,false)
             }
 			
 			if(game.time.now - this.swordTimer > 250){
@@ -644,8 +645,7 @@ gameLevel1.prototype = {
 		
 			heroSprite.body.velocity.x += x*15 ;
 			monsterSprite.body.velocity.x -= x*15;
-			
-			
+
 		}
 		else
 		{
