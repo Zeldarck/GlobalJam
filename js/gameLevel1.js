@@ -214,6 +214,7 @@ gameLevel1.prototype = {
         game.load.image('monster', 'assets/mechant.png');
         game.load.image('pnj', 'assets/Sara.png');
         game.load.spritesheet('rhino', 'assets/sprites_sheet_rino.png',100,54);
+        game.load.spritesheet('pango', 'assets/sprites_sheet_pandolin.png',50,24);
 
 
         //Tilemap
@@ -301,14 +302,22 @@ gameLevel1.prototype = {
 
 
 		//CREATION PANGOLIN
-        var  sprite2 = this.monsters.create(350, 350, 'monster');
-        var monster = new Monster(0, 150, -1, 100, 0, sprite2, 0 , 0, this.moveRangeDefense);
+        var  sprite2 = this.monsters.create(350, 350, 'pango');
+        var monster = new Monster(0, 150, -1, 150, 0, sprite2, 0 , 0, this.moveRangeDefense);
+		monster.sprite.animations.add("pangoRight",[4,5]);
+		monster.sprite.animations.add("pangoLeft",[0,1]);
+		monster.sprite.animations.add("pangoRollRight",[2,3]);
+		monster.sprite.animations.add("pangoRollLeft",[6,7]);
         this.monstersTab.push(monster);
         game.physics.enable(monster.sprite, Phaser.Physics.ARCADE);
 
 		
-        sprite2 = this.monsters.create(300, 350, 'monster');
-        monster = new Monster(0, 150, -1, 100, 0, sprite2, 0 , 0, this.moveRangeDefense);
+        var  sprite2 = this.monsters.create(300, 350, 'pango');
+        var monster = new Monster(0, 150, -1, 150, 0, sprite2, 0 , 0, this.moveRangeDefense);
+		monster.sprite.animations.add("pangoRight",[4,5]);
+		monster.sprite.animations.add("pangoLeft",[0,1]);
+		monster.sprite.animations.add("pangoRollRight",[2,3]);
+		monster.sprite.animations.add("pangoRollLeft",[6,7]);		
 		this.monstersTab.push(monster);
 		game.physics.enable(monster.sprite, Phaser.Physics.ARCADE);
 
@@ -324,8 +333,6 @@ gameLevel1.prototype = {
 		//CREATION RHINO
 		sprite2 = this.monsters.create(350, 100, 'rhino');
         monster = new Monster(0, 150, -1, 250, 0, sprite2,0,0,this.moveCharger);
-		monster.sprite.body.drag.x = 250;
-		monster.sprite.body.drag.y = 250;
 		monster.sprite.animations.add("rhinoRight",[0,1]);
 		monster.sprite.animations.add("rhinoLeft",[2,3]);
 		this.monstersTab.push(monster);
@@ -337,8 +344,8 @@ gameLevel1.prototype = {
         this.hero.sprite.bringToTop();
 
 
-		setMonster(this.monstersTab[0], 250, 250,44,40,0,0);
-		setMonster(this.monstersTab[1], 250, 250,44,40,0,0);
+		setMonster(this.monstersTab[0], 250, 250,50,24,0,0);
+		setMonster(this.monstersTab[1], 250, 250,50,24,0,0);
 		setMonster(this.monstersTab[2], 250, 250,44,40,0,0);
 		setMonster(this.monstersTab[3], 250, 250,100,54,0,0);
 
@@ -520,8 +527,10 @@ gameLevel1.prototype = {
 				monster.chase--;
 			}
 			if(monster.sprite.body.x - level.hero.sprite.body.x < 0){
+				monster.sprite.animations.play("pangoRollLeft",6,true);
 				monster.sprite.body.velocity.x = 130;
 			}else{
+				monster.sprite.animations.play("pangoRollRight",6,true);
 				monster.sprite.body.velocity.x = -130;
 			}
 			
@@ -532,6 +541,11 @@ gameLevel1.prototype = {
 		}
 		else 
 		{
+			if(monster.direction < 0){
+				monster.sprite.animations.play("pangoLeft",6,true);
+			}else{
+				monster.sprite.animations.play("pangoRight",6,true);
+			}
 			monster.sprite.body.velocity.x = monster.direction * 150;
 			monster.move++;
 			if(monster.move > monster.maxMove){
@@ -589,10 +603,10 @@ gameLevel1.prototype = {
 			if(monster.sprite.body.x - level.hero.sprite.body.x < 0){
 				
 				if(monster.prev && test){
-					monster.sprite.animations.play("rhinoRight",6,true)
+					monster.sprite.animations.play("rhinoRight",6,true);
 					facteur = -1;
 				}else{
-					monster.sprite.animations.play("rhinoLeft",6,true)
+					monster.sprite.animations.play("rhinoLeft",6,true);
 					monster.prev = false;
 				}
 				
@@ -600,10 +614,10 @@ gameLevel1.prototype = {
 			}else{
 				
 				if(!monster.prev && test){
-					monster.sprite.animations.play("rhinoLeft",6,true)
+					monster.sprite.animations.play("rhinoLeft",6,true);
 					facteur = -1;
 				}else{
-					monster.sprite.animations.play("rhinoRight",6,true)
+					monster.sprite.animations.play("rhinoRight",6,true);
 					monster.prev = true;
 				}
 				
