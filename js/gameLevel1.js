@@ -451,7 +451,7 @@ gameLevel1.prototype = {
 		game.physics.arcade.overlap(this.esquimo.sprite, this.hero.sprite, this.exchange);
 		game.physics.arcade.overlap(this.pingouin.sprite, this.hero.sprite, this.exchange);
 		game.physics.arcade.overlap(this.snowman.sprite, this.hero.sprite, this.exchange);
-		console.log(game.time.now - this.textTime);
+
 			if(this.text != null && (game.time.now - this.textTime > 100)){
 				this.text.destroy();
 				this.text = null;
