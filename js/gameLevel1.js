@@ -403,7 +403,7 @@ gameLevel1.prototype = {
 
 
 		//create boss
-		var sprite2 = this.monsters.create(500, 50, 'pango');
+		var sprite2 = this.monsters.create(6000, 50, 'pango');
 		this.boss = new Boss(0, 400, -1, 250, 0, sprite2, 70 , 20, this.bossAttack, 30);
 		this.boss.sprite.animations.add("pangoRight",[4,5]);
 		this.boss.sprite.animations.add("pangoLeft",[0,1]);
