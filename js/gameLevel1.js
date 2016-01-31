@@ -295,13 +295,13 @@ gameLevel1.prototype = {
 		
         // Init hero sprite
         game.physics.enable(this.hero.sprite, Phaser.Physics.ARCADE);
-
         // Init hero
-        this.hero.sprite.body.collideWorldBounds = false;
+        this.hero.sprite.body.collideWorldBounds = true;
         this.hero.sprite.body.setSize(10, 35, 35, 20);
 
         //Init pnj
         game.physics.enable(this.pnj.sprite, Phaser.Physics.ARCADE);
+
         //setPnj(this.pnj, 350, 250,54,55,0,0);
 
         // The sprite will collide with the borders
@@ -314,12 +314,15 @@ gameLevel1.prototype = {
         //var backgroundLayer = map.createLayer('background');
         this.wallLayer = map.createLayer('wallLayer');
         this.decorationLayer = map.createLayer('decorationLayer');
+		this.deathLayer = map.createLayer('deathLayer');
         //The world will have the map size
         this.wallLayer.resizeWorld();
         //The camera will follow the player, as the world is bigger than the screen
         game.camera.follow(this.hero.sprite);
         // Every tiles in the walls layer will be able to colide in this layer
         map.setCollisionByExclusion([],true,'wallLayer');
+		map.setCollisionByExclusion([],true,'deathLayer');
+
         //map.setCollisionByExclusion([],true,'sprites_plateforme');
 		
 		
@@ -431,6 +434,15 @@ gameLevel1.prototype = {
 		game.physics.arcade.collide(this.mbs, this.hero.sprite, this.mudballDamage);
 		game.physics.arcade.collide(this.fbs, this.hero.sprite, this.fireballDamage);
 		game.physics.arcade.collide(this.hero.sprite, this.wallLayer);
+		game.physics.arcade.collide(this.hero.sprite, this.deathLayer,function(){
+			if (game.state.callbackContext.hero.sprite.y>1100)
+			{
+				game.state.callbackContext.hero.sprite.kill();
+				game.state.callbackContext.finishGame(false);
+			}
+		});
+		
+
 
 		game.physics.arcade.overlap(this.hero.sprite, this.monsters,this.overlapHeroMonster);
  	  
