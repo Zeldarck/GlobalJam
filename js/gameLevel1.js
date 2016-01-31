@@ -257,6 +257,7 @@ gameLevel1.prototype = {
         this.nKey=game.input.keyboard.addKey(Phaser.Keyboard.N);
 		//A super Q key to test methods !
 		this.qKey=game.input.keyboard.addKey(Phaser.Keyboard.Q);
+		this.tKey=game.input.keyboard.addKey(Phaser.Keyboard.T);
 
         // Physics engine initialisation (optional for arcade engine, need for other ones)
         game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -419,7 +420,11 @@ gameLevel1.prototype = {
 			this.hero.destroySword();
 			moving = true;
 		}
-		
+
+		if (this.tKey.isDown)
+		{
+			console.log(this.hero.sprite.x, this.hero.sprite.y);
+		}
 		
 		
 		if (this.cursorKeys.left.isDown)
