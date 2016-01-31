@@ -18,6 +18,8 @@ function Character(life,sprite) {
     this.ski = true;
     this.mask = true;
     this.jump = true;
+	this.actionAllow =  true;
+	this.maskPut =  false;
     this.sprite.life = 10;
     this.sword = null;
     this.frameRight = 48;
@@ -251,7 +253,8 @@ gameLevel1.prototype = {
         
         // Observers
         this.cursorKeys = game.input.keyboard.createCursorKeys();
-        this.spacebarKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+        this.cKey = game.input.keyboard.addKey(Phaser.Keyboard.C);
+		this.xKey = game.input.keyboard.addKey(Phaser.Keyboard.X);
         this.wKey=game.input.keyboard.addKey(Phaser.Keyboard.W);
         this.yKey=game.input.keyboard.addKey(Phaser.Keyboard.Y);
         this.nKey=game.input.keyboard.addKey(Phaser.Keyboard.N);
@@ -361,8 +364,6 @@ gameLevel1.prototype = {
             this.monstersTab[i].sprite.bringToTop();
         }
 
-
-        this.startDate = new Date();
 		
 		//Physic héros
 		game.physics.arcade.gravity.y = 800;
@@ -400,25 +401,42 @@ gameLevel1.prototype = {
 
         this.mbs.forEach(this.killHold, this);
 		
-		if(this.spacebarKey.isDown)
+		
+		this.hero.actionAllow = true;
+		
+		if(this.cKey.isDown)
 		{
-			this.hero.makeSword();
-			
-			 if (this.hero.facing == 'left')
-            {
-				this.hero.sprite.animations.play("swordLeft",40,false)
-            }
-            else
-            {
-				this.hero.sprite.animations.play("swordRight",40,false)
-            }
-			
-			if(game.time.now - this.swordTimer > 250){
-				this.swordTimer = game.time.now;
-				game.physics.arcade.overlap(this.hero.sword, this.monsters, this.swordDamage);
+			if(this.hero.mask){
+				this.hero.actionAllow = false;
+				this.hero.maskPut = true;
+				
+			}else{
+				this.hero.maskPut = false;
 			}
-			this.hero.destroySword();
-			moving = true;
+		}
+		
+		
+		if(this.xKey.isDown)
+		{
+			if(this.hero.actionAllow && this.hero.ski){
+				this.hero.makeSword();				
+				 if (this.hero.facing == 'left')
+				{
+					this.hero.sprite.animations.play("swordLeft",40,false)
+				}
+				else
+				{
+					this.hero.sprite.animations.play("swordRight",40,false)
+				}
+				
+				if(game.time.now - this.swordTimer > 250){
+					this.swordTimer = game.time.now;
+					game.physics.arcade.overlap(this.hero.sword, this.monsters, this.swordDamage);
+				}
+				this.hero.destroySword();
+				moving = true;
+				this.hero.actionAllow = false;
+			}
 		}
 
 		if (this.tKey.isDown)
@@ -470,8 +488,12 @@ gameLevel1.prototype = {
 		//Snowball
 		if(this.wKey.isDown && (game.time.now-this.sbThrown)>1000)
 		{
-			this.snowball();
+			if(this.hero.actionAllow && this.hero.gloves){
+				this.snowball();
+				this.hero.actionAllow = false;
+			}
 		}
+		
 		if ((game.time.now-this.sbThrown) > 1000 )
         {
             this.sb = null;
