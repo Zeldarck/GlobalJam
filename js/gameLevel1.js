@@ -7,6 +7,7 @@ var gameLevel1 = function(){
 	this.monstersTab = null;
     this.mbs = null;
     this.pnj = null;
+	this.music = null;
 };
 
 //***Heros***
@@ -20,7 +21,6 @@ function Character(life,sprite) {
     this.jump = true;
 	this.actionAllow =  true;
 	this.maskPut =  false;
-    this.sprite.life = 10;
     this.sword = null;
     this.frameRight = 48;
     this.frameLeft = 54;
@@ -47,7 +47,7 @@ Character.prototype.makeSword = function() {
     }
 
 		game.physics.enable(this.sword, Phaser.Physics.ARCADE);
-		this.sword.body.setSize(55, 40, 0, 0);   
+		this.sword.body.setSize(50, 40, 0, 0);   
 }
 
 Character.prototype.destroySword = function() {
@@ -175,20 +175,21 @@ function Pnj(sprite)
 //}
 //    Monstre      \\
 
-function Monster(Move, MaxMove, Direction, View, Chase, sprite, rangeArmor, cacArmor, moveFunction){
+function Monster(Move, MaxMove, Direction, View, Chase, sprite, rangeArmor, cacArmor, moveFunction, attack){
     this.sprite = sprite;
     this.move = Move;
     this.maxMove = MaxMove;
     this.direction = Direction;
     this.view = View;
     this.chase = Chase;
-    this.health = 100;
+    this.life = 100;
     this.mbThrown = 0;
 	this.rangeArmor = rangeArmor;
 	this.cacArmor = cacArmor;
 	this.moveFunction = moveFunction;
 	this.inertiex = 0;
 	this.inertiey = 0;
+	this.attack = attack;
 }
 
 function setMonster(monster, dragX, dragY, sizeX, sizeY, offsetX, offsetY) {
@@ -225,7 +226,14 @@ gameLevel1.prototype = {
         game.load.spritesheet('pango', 'assets/sprites_sheet_pandolin.png',50,24);
         game.load.spritesheet('suri', 'assets/sprites_sheet_suricate2.png',24,40);
 
-        //Tilemap
+		//audio
+		game.load.audio('music', 'assets/Kalimba.mp3');
+		game.load.audio('throw', 'assets/lancer_1.wav');
+		game.load.audio('throwe', 'assets/lancer_2.wav');
+		game.load.audio('sword', 'assets/impact_1.wav');
+		game.load.audio('walk', 'assets/pas_1.wav');
+
+		//Tilemap
         //Created with Tiled software, with needed format: Orthogonal / CSV / .json files
         game.load.tilemap('map', 'assets/map.json', null, Phaser.Tilemap.TILED_JSON);
         game.load.image('sprites_plateforme', 'assets/sprites_plateforme.png');
@@ -248,13 +256,24 @@ gameLevel1.prototype = {
         this.pnj = new Pnj(game.add.sprite(1600, 150, 'pnj'));
 
 		//create hero
-		this.hero = new Character(10,sprite); 
+		this.hero = new Character(100,sprite); 
         // Add animations
         this.hero.sprite.animations.add("left",[54,55,56,57,58,59]);
         this.hero.sprite.animations.add("right",[48,49,50,51,52,53]);
 		this.hero.sprite.animations.add("swordRight",[96,97,98,99,100,100,99,98,97,96]);
 		this.hero.sprite.animations.add("swordLeft",[102,103,104,105,105,104,103,102]);
 
+		//song
+		this.music = game.add.audio('music');
+		this.throw = game.add.audio('throw');
+		this.throwe = game.add.audio('throwe');
+		this.swordsong = game.add.audio('sword');
+		this.walk = game.add.audio('walk');
+		this.walk.allowMultiple = true;
+		this.swordsong.allowMultiple = true;
+
+		this.music.play();
+		this.music.loopFull(0.6);
         
         // Observers
         this.cursorKeys = game.input.keyboard.createCursorKeys();
@@ -331,7 +350,7 @@ gameLevel1.prototype = {
 		//CREATION PANGOLIN
 		for (var c in pongos) {
 			var  sprite2 = this.monsters.create(pongos[c][0], pongos[c][1], 'pango');
-			var monster = new Monster(0, pongos[c][3], -1, pongos[c][2], 0, sprite2, 0 , 0, this.moveRangeDefense);
+			var monster = new Monster(0, pongos[c][3], -1, pongos[c][2], 0, sprite2, 70 , 20, this.moveRangeDefense, 30);
 			monster.sprite.animations.add("pangoRight",[4,5]);
 			monster.sprite.animations.add("pangoLeft",[0,1]);
 			monster.sprite.animations.add("pangoRollRight",[2,3]);
@@ -346,7 +365,7 @@ gameLevel1.prototype = {
 		//CREATION SURICATES
 		for (var c in suris) {
 			sprite2 = this.monsters.create(suris[c][0], suris[c][1], 'suri');
-			monster = new Monster(0, suris[c][3], -1, suris[c][2], 0, sprite2, 0, 0, this.rangeAttack);
+			monster = new Monster(0, suris[c][3], -1, suris[c][2], 0, sprite2, 30, 30, this.rangeAttack , 10);
 			monster.sprite.animations.add("suriRight", [0, 1, 2, 1, 0]);
 			monster.sprite.animations.add("suriLeft", [5, 4, 3, 4, 5]);
 			this.monstersTab.push(monster);
@@ -357,7 +376,7 @@ gameLevel1.prototype = {
 		//CREATION RHINO
 		for (var c in rhinos) {
 			sprite2 = this.monsters.create(rhinos[c][0], rhinos[c][1], 'rhino');
-			monster = new Monster(0, rhinos[c][3], -1, rhinos[c][2], 0, sprite2,0,0,this.moveCharger);
+			monster = new Monster(0, rhinos[c][3], -1, rhinos[c][2], 0, sprite2,30,30,this.moveCharger, 40);
 			monster.sprite.body.drag.x = 250;
 			monster.sprite.body.drag.y = 250;
 			monster.sprite.animations.add("rhinoRight",[0,1]);
@@ -431,7 +450,9 @@ gameLevel1.prototype = {
 		if(this.xKey.isDown)
 		{
 			if(this.hero.actionAllow && this.hero.ski){
-				this.hero.makeSword();				
+				if (this.swordsong.isPlaying == false)
+					this.swordsong.play();
+				this.hero.makeSword();
 				 if (this.hero.facing == 'left')
 				{
 					this.hero.sprite.animations.play("swordLeft",40,false)
@@ -455,7 +476,7 @@ gameLevel1.prototype = {
 		{
 			console.log(this.hero.sprite.x, this.hero.sprite.y);
 		}
-		
+
 		var direction = 1;
 		if (this.cursorKeys.left.isDown)
 		{
@@ -464,8 +485,9 @@ gameLevel1.prototype = {
 				this.hero.sprite.animations.play("left",walkAnimationSpeed,true);
 				moving = true;
 			};
+			if (moving == true && this.walk.isPlaying == false)
+				this.walk.play();
 			 this.hero.facing = 'left';
-
 		}
 		else if (this.cursorKeys.right.isDown)
 		{
@@ -474,10 +496,11 @@ gameLevel1.prototype = {
 				this.hero.sprite.animations.play("right",walkAnimationSpeed,true);
 				moving = true;
 			};		
-			 this.hero.facing = 'right';			
-
+			 this.hero.facing = 'right';
+			if (moving == true && this.walk.isPlaying == false)
+				this.walk.play();
 		}
-		
+
 		 if (this.hero.facing == 'left')
 			{
 				direction = 1;
@@ -557,7 +580,7 @@ gameLevel1.prototype = {
             // this.moveCharger(this.monstersTab[3]);
 
 			
-			// if (this.monstersTab[2].health > 0) {
+			// if (this.monstersTab[2].life > 0) {
                // this.rangeAttack(this.monstersTab[2]);
             // }
 			
@@ -709,6 +732,7 @@ gameLevel1.prototype = {
 
 	//How to throw a snowball
 	snowball: function(){
+		this.throw.play();
 		if(this.hero.gloves){
 			this.sb = game.add.sprite(this.hero.sprite.body.x, this.hero.sprite.body.y, 'snowball');
 
@@ -729,6 +753,7 @@ gameLevel1.prototype = {
 
     //How to throw a snowball
     mudball: function (monster,level){
+		this.throwe.play();
             var tmp = level.mbs.create(monster.sprite.body.x, monster.sprite.body.y, 'mudball');
 
             game.physics.enable(tmp, Phaser.Physics.ARCADE);
@@ -767,11 +792,12 @@ gameLevel1.prototype = {
         var monster = game.state.callbackContext.monstersTab[i];// donne le monstre touché
 		var x= heroSprite.body.x - monsterSprite.body.x;
 		var y= heroSprite.body.y - monsterSprite.body.y;
-        game.state.callbackContext.hero.life -= 1;
-        // if (game.state.callbackContext.hero.life == 0)
-        // {
-            // game.state.callbackContext.hero.sprite.kill();
-        // }
+        game.state.callbackContext.hero.life -=  ((Math.random() * monster.attack) + 5);;
+        if (game.state.callbackContext.hero.life == 0)
+        {
+            game.state.callbackContext.hero.sprite.kill();
+			game.state.callbackContext.finishGame(false);
+        }
 		if(x < 0){
 			game.state.callbackContext.hero.inertiey = 600;
 			monster.inertiey = 600;
@@ -810,9 +836,9 @@ gameLevel1.prototype = {
 
     snowballDamage : function (snowBallSprite, monsterSprite) {
         var i = game.state.callbackContext.monsters.children.indexOf(monsterSprite);
-        game.state.callbackContext.monstersTab[i].health = game.state.callbackContext.monstersTab[i].health - 50;
+        game.state.callbackContext.monstersTab[i].life -= (1-game.state.callbackContext.monstersTab[i].rangeArmor/100) * ((Math.random() * 80) + 50);
         game.state.callbackContext.sb.kill();
-        if (game.state.callbackContext.monstersTab[i].health <= 0) {
+        if (game.state.callbackContext.monstersTab[i].life <= 0) {
             game.state.callbackContext.monsters.remove(monsterSprite);
             monsterSprite.kill();
 			game.state.callbackContext.monstersTab.splice(i,1);
@@ -821,12 +847,17 @@ gameLevel1.prototype = {
 
     mudballDamage : function (mudBallSprite, heroSprite) {
         heroSprite.kill();
-        game.state.callbackContext.hero.life -= 1;
+		var damage = 35;
+		if(game.state.callbackContext.hero.maskPut){
+			damage = 5;
+		}
+        game.state.callbackContext.hero.life -= (Math.random() * damage) + 5;
         game.state.callbackContext.monsters.remove(mudBallSprite);
-        // if (game.state.callbackContext.hero.life == 0)
-        // {
-            // game.state.callbackContext.hero.sprite.kill();
-        // }
+        if (game.state.callbackContext.hero.life <= 0)
+        {
+            game.state.callbackContext.hero.sprite.kill();
+			game.state.callbackContext.finishGame(false);
+        }
     },
 	
 	
@@ -844,17 +875,34 @@ gameLevel1.prototype = {
 	
 	swordDamage : function (swordSprite, monsterSprite) {
         var i = game.state.callbackContext.monsters.children.indexOf(monsterSprite);
-        game.state.callbackContext.monstersTab[i].health = game.state.callbackContext.monstersTab[i].health - 10;
+        game.state.callbackContext.monstersTab[i].life -= (1-game.state.callbackContext.monstersTab[i].cacArmor/100) * ((Math.random() * 80) + 50);
         game.state.callbackContext.sb = null;
-  
-  if (game.state.callbackContext.monstersTab[i].health <= 0) {
+
+        if (game.state.callbackContext.monstersTab[i].life <= 0) {
+
             game.state.callbackContext.monsters.remove(monsterSprite);
-            // monsterSprite.visible = false;
 			monsterSprite.kill();
 			game.state.callbackContext.monstersTab.splice(i,1);
         }else{
 			game.state.callbackContext.pushBack(game.state.callbackContext.hero.sprite,monsterSprite);
 		}
-    }
+    },
+	
+	finishGame : function (win) {
+		var text;
+		if(win){
+			text = game.add.text(400,300,"You Win");
+		}else{
+			text = game.add.text(400,300,"You loose");
+		}
+        text.fixedToCamera = true;
+        game.paused = true;
+        window.setTimeout(function(){
+            game.state.restart(true);
+            game.paused = false;
+        }, 2000);
+		
+		
+	}
 	
 };
