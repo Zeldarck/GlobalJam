@@ -414,7 +414,7 @@ gameLevel1.prototype = {
 
 		//create boss
 		var sprite2 = this.monsters.create(27875, 50, 'pango');
-		this.boss = new Boss(0, 400, -1, 250, 0, sprite2, 70 , 20, this.bossAttack, 30);
+		this.boss = new Boss(0, 400, -1, 250, 0, sprite2, 70 , 50, this.bossAttack, 30);
 		this.boss.sprite.animations.add("pangoRight",[4,5]);
 		this.boss.sprite.animations.add("pangoLeft",[0,1]);
 		this.boss.sprite.animations.add("pangoRollRight",[2,3]);
@@ -1032,10 +1032,9 @@ gameLevel1.prototype = {
 	mudballDamage : function (mudBallSprite, heroSprite) {
 		heroSprite.kill();
 		var damage = 35;
-		if(game.state.callbackContext.hero.maskPut){
-			damage = 5;
+		if(!game.state.callbackContext.hero.maskPut){
+			game.state.callbackContext.hero.life -= (Math.random() * damage) + 5;
 		}
-		game.state.callbackContext.hero.life -= (Math.random() * damage) + 5;
 		game.state.callbackContext.monsters.remove(mudBallSprite);
 		if (game.state.callbackContext.hero.life <= 0)
 		{
@@ -1045,8 +1044,7 @@ gameLevel1.prototype = {
 	},
 
 	fireballDamage : function (mudBallSprite, heroSprite) {
-		heroSprite.kill();
-		var damage = 35;
+		var damage = 70;
 		if(game.state.callbackContext.hero.maskPut){
 			damage = 10;
 		}
@@ -1117,10 +1115,10 @@ gameLevel1.prototype = {
 				monster.sprite.body.drag.x = 250;
 				monster.sprite.body.drag.y = 250;
 				setMonster(monster, 250, 250, 50, 24, 0,0);
-				if(this.monstersTab[0].length > 5){
-					 this.monsters.remove(this.monstersTab[0].sprite);
-					this.monstersTab[0].sprite.kill();
-					this.monstersTab.splice(0,1);
+				if(this.monstersTab[0].length > 6){
+					 this.monsters.remove(this.monstersTab[1].sprite);
+					this.monstersTab[1].sprite.kill();
+					this.monstersTab.splice(1,1);
 				}
 				
 			}else{
@@ -1143,10 +1141,10 @@ gameLevel1.prototype = {
 				this.monstersTab.push(monster);
 				game.physics.enable(monster.sprite, Phaser.Physics.ARCADE);
 				setMonster(monster, 250, 250, 100,54,0,0);
-				if(this.monstersTab[0].length > 5){
-					 this.monsters.remove(this.monstersTab[0].sprite);
-					this.monstersTab[0].sprite.kill();
-					this.monstersTab.splice(0,1);
+				if(this.monstersTab[0].length > 6){
+					 this.monsters.remove(this.monstersTab[1].sprite);
+					this.monstersTab[1].sprite.kill();
+					this.monstersTab.splice(1,1);
 				}
 			}else{
 				break;
@@ -1166,10 +1164,10 @@ gameLevel1.prototype = {
 					this.monstersTab.push(monster);
 					game.physics.enable(monster.sprite, Phaser.Physics.ARCADE);
 					setMonster(monster, 250, 250, 24, 40, 0, 0);
-				if(this.monstersTab[0].length > 5){
-					 this.monsters.remove(this.monstersTab[0].sprite);
-					this.monstersTab[0].sprite.kill();
-					this.monstersTab.splice(0,1);
+				if(this.monstersTab[0].length > 6){
+					 this.monsters.remove(this.monstersTab[1].sprite);
+					this.monstersTab[1].sprite.kill();
+					this.monstersTab.splice(1,1);
 				}
 			}else{
 				break;
