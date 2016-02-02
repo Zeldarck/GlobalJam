@@ -272,6 +272,7 @@ gameLevel1.prototype = {
         game.load.spritesheet('rhino', 'assets/sprites_sheet_rino.png',100,54);
         game.load.spritesheet('pango', 'assets/sprites_sheet_pandolin.png',50,24);
         game.load.spritesheet('suri', 'assets/sprites_sheet_suricate2.png',24,40);
+        game.load.spritesheet('elsa', 'assets/sprites_sheet_elsa.png',458,220);
 
 		//audio
 		/*game.load.audio('music', 'assets/Kalimba.mp3');*/
@@ -288,6 +289,7 @@ gameLevel1.prototype = {
     },
     // Called after preload - create sprites,... using assets here
     create: function () {
+    	//game.world.scale.set(1.5);//use to zoom in the world
         // Create a sprite
         this.backgroundSprite = game.add.sprite(0, 0, 'background');
 		game.stage.backgroundColor = '#787878';
@@ -424,17 +426,14 @@ gameLevel1.prototype = {
 
 
 		//create boss
-		var sprite2 = this.monsters.create(27875, 50, 'pango');
+		var sprite2 = this.monsters.create(27875, 50, 'elsa');
 		this.boss = new Boss(0, 400, -1, 250, 0, sprite2, 70 , 50, this.bossAttack, 30);
-		this.boss.sprite.animations.add("pangoRight",[4,5]);
-		this.boss.sprite.animations.add("pangoLeft",[0,1]);
-		this.boss.sprite.animations.add("pangoRollRight",[2,3]);
-		this.boss.sprite.animations.add("pangoRollLeft",[6,7]);
+		this.boss.sprite.animations.add("elsaRight",[1,2,3]);
 		this.monstersTab.push(this.boss);
 		game.physics.enable(this.boss.sprite, Phaser.Physics.ARCADE);
 		this.boss.sprite.body.drag.x = 250;
 		this.boss.sprite.body.drag.y = 250;
-		setMonster(this.boss, 250, 250, 50, 24, 0,0);
+		setMonster(this.boss, 250, 250, 458, 220, 0,0);
 		console.log(this.boss);
 
 		//CREATION PANGOLIN
@@ -499,11 +498,13 @@ gameLevel1.prototype = {
     },
     // Called for each refresh
     update: function (){
+    	
 		this.createRhino();
 		this.createPango();
 		this.createSuri();
 		var moving = false;
 		var walkAnimationSpeed = 6;
+	
 		
 		this.snowman.sprite.animations.play("static",4,true);
 		this.esquimo.sprite.animations.play("static",4,true);
