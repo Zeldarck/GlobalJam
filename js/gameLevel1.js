@@ -356,7 +356,12 @@ gameLevel1.prototype = {
         // Init hero
         this.hero.sprite.body.collideWorldBounds = true;
         this.hero.sprite.body.setSize(10, 35, 35, 20);
-
+		
+		// Init his lifebar
+		life = game.add.text(10,10,"HP :"+this.hero.life);
+		life.fixedToCamera = true;
+		
+		
         //Init pnj
         game.physics.enable(this.snowman.sprite, Phaser.Physics.ARCADE);
 		game.physics.enable(this.esquimo.sprite, Phaser.Physics.ARCADE);
@@ -499,6 +504,7 @@ gameLevel1.prototype = {
     },
     // Called for each refresh
     update: function (){
+		life.setText("HP :"+this.hero.life);
 		this.createRhino();
 		this.createPango();
 		this.createSuri();
@@ -1008,7 +1014,7 @@ gameLevel1.prototype = {
 			
 			game.state.callbackContext.hero.inertiex =  800;
 			monster.inertiex =  800;
-		}	
+		}
 		return true;
 	},
 	
