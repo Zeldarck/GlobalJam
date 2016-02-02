@@ -110,7 +110,9 @@ Character.prototype.looseMask = function(){
 			this.frameRight=0;
 			this.frameLeft=6;
 			this.sprite.animations.add("right",[0,1,2,3,4,5]);
-			this.sprite.animations.add("left",[6,7,8,9,10,11]);			
+			this.sprite.animations.add("left",[6,7,8,9,10,11]);		
+            this.sprite.animations.add("swordRight",[96,97,98,99,100,100,99,98,97,96]);
+            this.sprite.animations.add("swordLeft",[102,103,104,105,106,106,105,104,103,102]);	
 		}		
 	}
 }
@@ -143,7 +145,9 @@ Character.prototype.looseSki = function(){
 			this.frameRight=0;
 			this.frameLeft=6;
 			this.sprite.animations.add("right",[0,1,2,3,4,5]);
-			this.sprite.animations.add("left",[6,7,8,9,10,11]);			
+			this.sprite.animations.add("left",[6,7,8,9,10,11]);	
+            this.hero.sprite.animations.add("swordRight",[96,97,98,99,100,100,99,98,97,96]);
+            this.hero.sprite.animations.add("swordLeft",[102,103,104,105,106,106,105,104,103,102]);		
 		}		
 	}
 }
@@ -156,7 +160,9 @@ Character.prototype.looseGloves = function(){
 			this.frameRight=84;
 			this.frameLeft=90;
 			this.sprite.animations.add("right",[84,85,86,87,88,89]);
-			this.sprite.animations.add("left",[90,91,92,93,94,95]);			
+			this.sprite.animations.add("left",[90,91,92,93,94,95]);	
+            this.sprite.animations.add("swordLeft",[114,115,116,117,118,118,117,116,115,114]);
+            this.sprite.animations.add("swordRight",[108,109,110,111,112,112,111,110,109,108]);	
 		}else{
 			//Ski
 			this.frameRight=36;
@@ -176,7 +182,9 @@ Character.prototype.looseGloves = function(){
 			this.frameRight=0;
 			this.frameLeft=6;
 			this.sprite.animations.add("right",[0,1,2,3,4,5]);
-			this.sprite.animations.add("left",[6,7,8,9,10,11]);			
+			this.sprite.animations.add("left",[6,7,8,9,10,11]);	
+            this.sprite.animations.add("swordRight",[96,97,98,99,100,100,99,98,97,96]);
+            this.sprite.animations.add("swordLeft",[102,103,104,105,106,106,105,104,103,102]);		
 		}		
 	}
 }
@@ -245,7 +253,7 @@ gameLevel1.prototype = {
     // Assets loading - do not use asssets here
     preload: function () {
         // Load this images, available with the associated keys later
-        game.load.image('background', 'assets/background.jpg');
+        game.load.image('background', 'assets/background.png');
         game.load.image('character', 'assets/snowboy_sky_masque.png');
         game.load.spritesheet('characterFrames', 'assets/sprites_sheet-snowboy.png', 90, 54);
         game.load.spritesheet('pandolin', 'assets/sprites_sheet_pandolin.png', 24, 50);
@@ -266,7 +274,7 @@ gameLevel1.prototype = {
         game.load.spritesheet('suri', 'assets/sprites_sheet_suricate2.png',24,40);
 
 		//audio
-		game.load.audio('music', 'assets/Kalimba.mp3');
+		/*game.load.audio('music', 'assets/Kalimba.mp3');*/
 		game.load.audio('throw', 'assets/lancer_1.wav');
 		game.load.audio('throwe', 'assets/lancer_2.wav');
 		game.load.audio('sword', 'assets/impact_1.wav');
@@ -281,7 +289,7 @@ gameLevel1.prototype = {
     // Called after preload - create sprites,... using assets here
     create: function () {
         // Create a sprite
-        //this.backgroundSprite = game.add.sprite(0, 0, 'background');
+        this.backgroundSprite = game.add.sprite(0, 0, 'background');
 		game.stage.backgroundColor = '#787878';
 
         var sprite = game.add.sprite(20, 280, 'characterFrames');
@@ -307,8 +315,9 @@ gameLevel1.prototype = {
         // Add animations
         this.hero.sprite.animations.add("left",[54,55,56,57,58,59]);
         this.hero.sprite.animations.add("right",[48,49,50,51,52,53]);
-		this.hero.sprite.animations.add("swordRight",[96,97,98,99,100,100,99,98,97,96]);
-		this.hero.sprite.animations.add("swordLeft",[102,103,104,105,105,104,103,102]);
+        this.hero.sprite.animations.add("swordLeft",[138,139,140,141,142,142,141,140,139,138]);
+        this.hero.sprite.animations.add("swordRight",[132,133,134,135,136,136,135,134,133,132]);
+        
 
 		//song
 		this.music = game.add.audio('music');
@@ -363,7 +372,7 @@ gameLevel1.prototype = {
         // The tileset name must match the one defined in Tiled
         map.addTilesetImage('sprites_plateforme');
         // The layer name must match the one defined in Tiled
-        //var backgroundLayer = map.createLayer('background');
+        /*var backgroundLayer = map.createLayer('background');*/
         this.wallLayer = map.createLayer('wallLayer');
         this.decorationLayer = map.createLayer('decorationLayer');
 		this.deathLayer = map.createLayer('deathLayer');
@@ -374,6 +383,8 @@ gameLevel1.prototype = {
         // Every tiles in the walls layer will be able to colide in this layer
         map.setCollisionByExclusion([],true,'wallLayer');
 		map.setCollisionByExclusion([],true,'deathLayer');
+        map.setCollisionByExclusion([],false,'decorationLayer');
+
 
         //map.setCollisionByExclusion([],true,'sprites_plateforme');
 		
@@ -566,7 +577,7 @@ gameLevel1.prototype = {
 				if (this.swordsong.isPlaying == false)
 					this.swordsong.play();
 				this.hero.makeSword();
-				 if (this.hero.facing == 'left')
+				 if (this.hero.facing == 'left') 
 				{
 					this.hero.sprite.animations.play("swordLeft",40,false)
 				}
