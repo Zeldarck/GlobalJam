@@ -299,7 +299,10 @@ gameLevel1.prototype = {
         // var sprite = game.add.sprite(15380, 720, 'characterFrames'); //new Pnj('I want a mask',game.add.sprite(15380, 720, 'esquimo'),1);
 
 
-		
+		this.textTime = 0;
+		this.indexRhino = 0;
+		this.indexPango = 0;
+		this.indexSuri =0;
 
 
 
