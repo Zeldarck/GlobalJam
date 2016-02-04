@@ -282,8 +282,8 @@ gameLevel1.prototype = {
     	//game.world.scale.set(1.5);//use to zoom in the world
         // Create a sprite
         this.backgroundSprite = game.add.sprite(0, 0, 'background');
-        this.backgroundSprite.fixedToCamera = true;
-		/*game.stage.backgroundColor = '#787878';*/
+		game.stage.backgroundColor = '#787878';
+		this.backgroundSprite.fixedToCamera = true;
 
         var sprite = game.add.sprite(20, 280, 'characterFrames');
         // var sprite = game.add.sprite(15380, 720, 'characterFrames'); //new Pnj('I want a mask',game.add.sprite(15380, 720, 'esquimo'),1);
