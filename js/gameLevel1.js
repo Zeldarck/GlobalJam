@@ -190,16 +190,6 @@ Character.prototype.looseGloves = function(){
 }
 
 
-//function setPnj(pnj, dragX, dragY, sizeX, sizeY, offsetX, offsetY)
-//{
-//    pnj.sprite.body.drag.x = dragX;
-//    pnj.sprite.body.drag.y = dragY;
-//    pnj.sprite.body.collideWorldBounds = true;
-//    pnj.sprite.body.setSize(sizeX, sizeY, offsetX, offsetY);
-//    pnj.sprite.body.mass = 50;
-//    pnj.sprite.body.immovable = true;
-//}
-
 function Boss(Move, MaxMove, Direction, View, Chase, sprite, rangeArmor, cacArmor, moveFunction, attack){
 	this.sprite = sprite;
 	this.move = Move;
@@ -361,9 +351,9 @@ gameLevel1.prototype = {
         this.hero.sprite.body.setSize(10, 35, 35, 20);
 		
 		// Init his lifebar
-		life = game.add.text(10,10,"HP :"+this.hero.life);
+		life = game.add.text(10,10,"HP: "+this.hero.life);
 		life.fixedToCamera = true;
-		
+		life.bringToTop();
 		
         //Init pnj
         game.physics.enable(this.snowman.sprite, Phaser.Physics.ARCADE);
@@ -433,7 +423,7 @@ gameLevel1.prototype = {
 
 		//create boss
 		var sprite2 = this.monsters.create(27875, 50, 'elsa');
-		this.boss = new Boss(0, 400, -1, 250, 0, sprite2, 70 , 50, this.bossAttack, 30);
+		this.boss = new Boss(0, 400, -1, 450, 0, sprite2, 70 , 50, this.bossAttack, 30);
 		this.boss.sprite.animations.add("elsaRight",[1,2,3]);
 		this.monstersTab.push(this.boss);
 		game.physics.enable(this.boss.sprite, Phaser.Physics.ARCADE);
@@ -441,55 +431,11 @@ gameLevel1.prototype = {
 		this.boss.sprite.body.drag.y = 250;
 		setMonster(this.boss, 250, 250, 458, 220, 0,0);
 		console.log(this.boss);
-
-		//CREATION PANGOLIN
-		// for (var c in pongos) {
-			// var  sprite2 = this.monsters.create(pongos[c][0], pongos[c][1], 'pango');
-			// var monster = new Monster(0, pongos[c][3], -1, pongos[c][2], 0, sprite2, 70 , 20, this.moveRangeDefense, 30);
-			// monster.sprite.animations.add("pangoRight",[4,5]);
-			// monster.sprite.animations.add("pangoLeft",[0,1]);
-			// monster.sprite.animations.add("pangoRollRight",[2,3]);
-			// monster.sprite.animations.add("pangoRollLeft",[6,7]);
-			// this.monstersTab.push(monster);
-			// game.physics.enable(monster.sprite, Phaser.Physics.ARCADE);
-			// monster.sprite.body.drag.x = 250;
-			// monster.sprite.body.drag.y = 250;
-			// setMonster(monster, 250, 250, 50, 24, 0,0);
-		// }
-
-		//CREATION SURICATES
-		// for (var c in suris) {
-			// sprite2 = this.monsters.create(suris[c][0], suris[c][1], 'suri');
-			// monster = new Monster(0, suris[c][3], -1, suris[c][2], 0, sprite2, 30, 30, this.rangeAttack , 10);
-			// monster.sprite.animations.add("suriRight", [0, 1, 2, 1, 0]);
-			// monster.sprite.animations.add("suriLeft", [5, 4, 3, 4, 5]);
-			// this.monstersTab.push(monster);
-			// game.physics.enable(monster.sprite, Phaser.Physics.ARCADE);
-			// setMonster(monster, 250, 250, 24, 40, 0, 0);
-		// }
-		
-		//CREATION RHINO
-		// for (var c in rhinos) {
-			// sprite2 = this.monsters.create(rhinos[c][0], rhinos[c][1], 'rhino');
-			// monster = new Monster(0, rhinos[c][3], -1, rhinos[c][2], 0, sprite2,30,30,this.moveCharger, 40);
-			// monster.sprite.body.drag.x = 250;
-			// monster.sprite.body.drag.y = 250;
-			// monster.sprite.animations.add("rhinoRight",[0,1]);
-			// monster.sprite.animations.add("rhinoLeft",[2,3]);
-			// this.monstersTab.push(monster);
-			// game.physics.enable(monster.sprite, Phaser.Physics.ARCADE);
-			// setMonster(monster, 250, 250, 100,54,0,0);
-		// }
-
+	
         // Sprites are z-ordered by creation. As we added tiles later,
         //  we move back other sprites to top
         this.hero.sprite.bringToTop();
-
-		 for (var i in this.monstersTab)
-        {
-            this.monstersTab[i].sprite.bringToTop();
-        }
-
+		life.bringToTop();
 		
 		//Physic héros
 		game.physics.arcade.gravity.y = 800;
@@ -504,6 +450,7 @@ gameLevel1.prototype = {
     },
     // Called for each refresh
     update: function (){
+<<<<<<< HEAD
 /*<<<<<<< HEAD*/
 
 		life.setText("HP :"+this.hero.life);
@@ -511,6 +458,9 @@ gameLevel1.prototype = {
 /*=======*/
 		life.setText("HP :"+this.hero.life);
 /*>>>>>>> origin/master*/
+=======
+		life.setText("HP: "+this.hero.life);
+>>>>>>> 5323cb6f22f03c2bd268ce57abd5b282f0de0dd3
 		this.createRhino();
 		this.createPango();
 		this.createSuri();
@@ -1107,6 +1057,7 @@ gameLevel1.prototype = {
     },
 	
 	finishGame : function (win) {
+		life.setText("HP: "+ Math.max(0,game.state.callbackContext.hero.life));
 		var text;
 		if(win){
 			text = game.add.text(400,300,"You Win");
