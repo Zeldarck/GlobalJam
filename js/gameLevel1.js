@@ -450,17 +450,11 @@ gameLevel1.prototype = {
     },
     // Called for each refresh
     update: function (){
-<<<<<<< HEAD
-/*<<<<<<< HEAD*/
+
 
 		life.setText("HP :"+this.hero.life);
 
-/*=======*/
-		life.setText("HP :"+this.hero.life);
-/*>>>>>>> origin/master*/
-=======
-		life.setText("HP: "+this.hero.life);
->>>>>>> 5323cb6f22f03c2bd268ce57abd5b282f0de0dd3
+
 		this.createRhino();
 		this.createPango();
 		this.createSuri();
