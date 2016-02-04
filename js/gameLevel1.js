@@ -504,9 +504,13 @@ gameLevel1.prototype = {
     },
     // Called for each refresh
     update: function (){
+<<<<<<< HEAD
 
 		life.setText("HP :"+this.hero.life);
 
+=======
+		life.setText("HP :"+this.hero.life);
+>>>>>>> origin/master
 		this.createRhino();
 		this.createPango();
 		this.createSuri();
@@ -996,7 +1000,7 @@ gameLevel1.prototype = {
         var monster = game.state.callbackContext.monstersTab[i];// donne le monstre touché
 		var x= heroSprite.body.x - monsterSprite.body.x;
 		var y= heroSprite.body.y - monsterSprite.body.y;
-        game.state.callbackContext.hero.life -=  ((Math.random() * monster.attack) + 5);;
+        game.state.callbackContext.hero.life -=   monster.attack;
         if (game.state.callbackContext.hero.life <= 0)
         {
             game.state.callbackContext.hero.sprite.kill();
@@ -1050,10 +1054,9 @@ gameLevel1.prototype = {
     },
 
 	mudballDamage : function (mudBallSprite, heroSprite) {
-		heroSprite.kill();
-		var damage = 35;
+		var damage = 30;
 		if(!game.state.callbackContext.hero.maskPut){
-			game.state.callbackContext.hero.life -= (Math.random() * damage) + 5;
+			game.state.callbackContext.hero.life -=  damage;
 		}
 		game.state.callbackContext.monsters.remove(mudBallSprite);
 		if (game.state.callbackContext.hero.life <= 0)
@@ -1064,7 +1067,7 @@ gameLevel1.prototype = {
 	},
 
 	fireballDamage : function (mudBallSprite, heroSprite) {
-		var damage = 70;
+		var damage = 150;
 		if(game.state.callbackContext.hero.maskPut){
 			damage = 10;
 		}
