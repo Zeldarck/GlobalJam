@@ -12,6 +12,17 @@
     height: 250px;
 	display:inline-block;
 }
+
+#instruction{
+	font-weight : bold;
+	margin : 20px;
+}
+
+#foot{
+	font-weight : bold;
+	margin : 40px;
+}
+
 body{
-	background-color: #0071E6;
+	background-color: #005090 ;/*0071E6; Le fond agressais trop les yeux à mon goût*/
 }
