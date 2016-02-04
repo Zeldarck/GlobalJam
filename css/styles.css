@@ -1,0 +1,28 @@
+#gameDiv{
+	margin: 50px auto;
+    width: 1000px;
+	border: 5px solid black;
+}
+.center{
+		margin :auto;
+		text-align:center;
+}
+#title{
+	width: 424px;
+    height: 250px;
+	display:inline-block;
+}
+
+#instruction{
+	font-weight : bold;
+	margin : 20px;
+}
+
+#foot{
+	font-weight : bold;
+	margin : 40px;
+}
+
+body{
+	background-color: #005090 ;/*0071E6; Le fond agressais trop les yeux à mon goût*/
+}

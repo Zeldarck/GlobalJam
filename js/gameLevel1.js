@@ -110,7 +110,9 @@ Character.prototype.looseMask = function(){
 			this.frameRight=0;
 			this.frameLeft=6;
 			this.sprite.animations.add("right",[0,1,2,3,4,5]);
-			this.sprite.animations.add("left",[6,7,8,9,10,11]);			
+			this.sprite.animations.add("left",[6,7,8,9,10,11]);		
+            this.sprite.animations.add("swordRight",[96,97,98,99,100,100,99,98,97,96]);
+            this.sprite.animations.add("swordLeft",[102,103,104,105,106,106,105,104,103,102]);	
 		}		
 	}
 }
@@ -143,7 +145,9 @@ Character.prototype.looseSki = function(){
 			this.frameRight=0;
 			this.frameLeft=6;
 			this.sprite.animations.add("right",[0,1,2,3,4,5]);
-			this.sprite.animations.add("left",[6,7,8,9,10,11]);			
+			this.sprite.animations.add("left",[6,7,8,9,10,11]);	
+            this.hero.sprite.animations.add("swordRight",[96,97,98,99,100,100,99,98,97,96]);
+            this.hero.sprite.animations.add("swordLeft",[102,103,104,105,106,106,105,104,103,102]);		
 		}		
 	}
 }
@@ -156,7 +160,9 @@ Character.prototype.looseGloves = function(){
 			this.frameRight=84;
 			this.frameLeft=90;
 			this.sprite.animations.add("right",[84,85,86,87,88,89]);
-			this.sprite.animations.add("left",[90,91,92,93,94,95]);			
+			this.sprite.animations.add("left",[90,91,92,93,94,95]);	
+            this.sprite.animations.add("swordLeft",[114,115,116,117,118,118,117,116,115,114]);
+            this.sprite.animations.add("swordRight",[108,109,110,111,112,112,111,110,109,108]);	
 		}else{
 			//Ski
 			this.frameRight=36;
@@ -176,7 +182,9 @@ Character.prototype.looseGloves = function(){
 			this.frameRight=0;
 			this.frameLeft=6;
 			this.sprite.animations.add("right",[0,1,2,3,4,5]);
-			this.sprite.animations.add("left",[6,7,8,9,10,11]);			
+			this.sprite.animations.add("left",[6,7,8,9,10,11]);	
+            this.sprite.animations.add("swordRight",[96,97,98,99,100,100,99,98,97,96]);
+            this.sprite.animations.add("swordLeft",[102,103,104,105,106,106,105,104,103,102]);		
 		}		
 	}
 }
@@ -245,7 +253,7 @@ gameLevel1.prototype = {
     // Assets loading - do not use asssets here
     preload: function () {
         // Load this images, available with the associated keys later
-        game.load.image('background', 'assets/background.jpg');
+        game.load.image('background', 'assets/background.png');
         game.load.image('character', 'assets/snowboy_sky_masque.png');
         game.load.spritesheet('characterFrames', 'assets/sprites_sheet-snowboy.png', 90, 54);
         game.load.spritesheet('pandolin', 'assets/sprites_sheet_pandolin.png', 24, 50);
@@ -264,9 +272,10 @@ gameLevel1.prototype = {
         game.load.spritesheet('rhino', 'assets/sprites_sheet_rino.png',100,54);
         game.load.spritesheet('pango', 'assets/sprites_sheet_pandolin.png',50,24);
         game.load.spritesheet('suri', 'assets/sprites_sheet_suricate2.png',24,40);
+        game.load.spritesheet('elsa', 'assets/sprites_sheet_elsa.png',458,220);
 
 		//audio
-		game.load.audio('music', 'assets/Kalimba.mp3');
+		/*game.load.audio('music', 'assets/Kalimba.mp3');*/
 		game.load.audio('throw', 'assets/lancer_1.wav');
 		game.load.audio('throwe', 'assets/lancer_2.wav');
 		game.load.audio('sword', 'assets/impact_1.wav');
@@ -280,9 +289,11 @@ gameLevel1.prototype = {
     },
     // Called after preload - create sprites,... using assets here
     create: function () {
+    	//game.world.scale.set(1.5);//use to zoom in the world
         // Create a sprite
-        //this.backgroundSprite = game.add.sprite(0, 0, 'background');
-		game.stage.backgroundColor = '#787878';
+        this.backgroundSprite = game.add.sprite(0, 0, 'background');
+        this.backgroundSprite.fixedToCamera = true;
+		/*game.stage.backgroundColor = '#787878';*/
 
         var sprite = game.add.sprite(20, 280, 'characterFrames');
         // var sprite = game.add.sprite(15380, 720, 'characterFrames'); //new Pnj('I want a mask',game.add.sprite(15380, 720, 'esquimo'),1);
@@ -307,8 +318,9 @@ gameLevel1.prototype = {
         // Add animations
         this.hero.sprite.animations.add("left",[54,55,56,57,58,59]);
         this.hero.sprite.animations.add("right",[48,49,50,51,52,53]);
-		this.hero.sprite.animations.add("swordRight",[96,97,98,99,100,100,99,98,97,96]);
-		this.hero.sprite.animations.add("swordLeft",[102,103,104,105,105,104,103,102]);
+        this.hero.sprite.animations.add("swordLeft",[138,139,140,141,142,142,141,140,139,138]);
+        this.hero.sprite.animations.add("swordRight",[132,133,134,135,136,136,135,134,133,132]);
+        
 
 		//song
 		this.music = game.add.audio('music');
@@ -347,7 +359,12 @@ gameLevel1.prototype = {
         // Init hero
         this.hero.sprite.body.collideWorldBounds = true;
         this.hero.sprite.body.setSize(10, 35, 35, 20);
-
+		
+		// Init his lifebar
+		life = game.add.text(10,10,"HP :"+this.hero.life);
+		life.fixedToCamera = true;
+		
+		
         //Init pnj
         game.physics.enable(this.snowman.sprite, Phaser.Physics.ARCADE);
 		game.physics.enable(this.esquimo.sprite, Phaser.Physics.ARCADE);
@@ -363,7 +380,7 @@ gameLevel1.prototype = {
         // The tileset name must match the one defined in Tiled
         map.addTilesetImage('sprites_plateforme');
         // The layer name must match the one defined in Tiled
-        //var backgroundLayer = map.createLayer('background');
+        /*var backgroundLayer = map.createLayer('background');*/
         this.wallLayer = map.createLayer('wallLayer');
         this.decorationLayer = map.createLayer('decorationLayer');
 		this.deathLayer = map.createLayer('deathLayer');
@@ -374,6 +391,8 @@ gameLevel1.prototype = {
         // Every tiles in the walls layer will be able to colide in this layer
         map.setCollisionByExclusion([],true,'wallLayer');
 		map.setCollisionByExclusion([],true,'deathLayer');
+        map.setCollisionByExclusion([],false,'decorationLayer');
+
 
         //map.setCollisionByExclusion([],true,'sprites_plateforme');
 		
@@ -413,17 +432,14 @@ gameLevel1.prototype = {
 
 
 		//create boss
-		var sprite2 = this.monsters.create(27875, 50, 'pango');
+		var sprite2 = this.monsters.create(27875, 50, 'elsa');
 		this.boss = new Boss(0, 400, -1, 250, 0, sprite2, 70 , 50, this.bossAttack, 30);
-		this.boss.sprite.animations.add("pangoRight",[4,5]);
-		this.boss.sprite.animations.add("pangoLeft",[0,1]);
-		this.boss.sprite.animations.add("pangoRollRight",[2,3]);
-		this.boss.sprite.animations.add("pangoRollLeft",[6,7]);
+		this.boss.sprite.animations.add("elsaRight",[1,2,3]);
 		this.monstersTab.push(this.boss);
 		game.physics.enable(this.boss.sprite, Phaser.Physics.ARCADE);
 		this.boss.sprite.body.drag.x = 250;
 		this.boss.sprite.body.drag.y = 250;
-		setMonster(this.boss, 250, 250, 50, 24, 0,0);
+		setMonster(this.boss, 250, 250, 458, 220, 0,0);
 		console.log(this.boss);
 
 		//CREATION PANGOLIN
@@ -488,11 +504,13 @@ gameLevel1.prototype = {
     },
     // Called for each refresh
     update: function (){
+		life.setText("HP :"+this.hero.life);
 		this.createRhino();
 		this.createPango();
 		this.createSuri();
 		var moving = false;
 		var walkAnimationSpeed = 6;
+	
 		
 		this.snowman.sprite.animations.play("static",4,true);
 		this.esquimo.sprite.animations.play("static",4,true);
@@ -566,7 +584,7 @@ gameLevel1.prototype = {
 				if (this.swordsong.isPlaying == false)
 					this.swordsong.play();
 				this.hero.makeSword();
-				 if (this.hero.facing == 'left')
+				 if (this.hero.facing == 'left') 
 				{
 					this.hero.sprite.animations.play("swordLeft",40,false)
 				}
@@ -976,7 +994,7 @@ gameLevel1.prototype = {
         var monster = game.state.callbackContext.monstersTab[i];// donne le monstre touché
 		var x= heroSprite.body.x - monsterSprite.body.x;
 		var y= heroSprite.body.y - monsterSprite.body.y;
-        game.state.callbackContext.hero.life -=  ((Math.random() * monster.attack) + 5);;
+        game.state.callbackContext.hero.life -=   monster.attack;
         if (game.state.callbackContext.hero.life <= 0)
         {
             game.state.callbackContext.hero.sprite.kill();
@@ -997,7 +1015,7 @@ gameLevel1.prototype = {
 			
 			game.state.callbackContext.hero.inertiex =  800;
 			monster.inertiex =  800;
-		}	
+		}
 		return true;
 	},
 	
@@ -1030,10 +1048,9 @@ gameLevel1.prototype = {
     },
 
 	mudballDamage : function (mudBallSprite, heroSprite) {
-		heroSprite.kill();
-		var damage = 35;
+		var damage = 30;
 		if(!game.state.callbackContext.hero.maskPut){
-			game.state.callbackContext.hero.life -= (Math.random() * damage) + 5;
+			game.state.callbackContext.hero.life -=  damage;
 		}
 		game.state.callbackContext.monsters.remove(mudBallSprite);
 		if (game.state.callbackContext.hero.life <= 0)
@@ -1044,7 +1061,7 @@ gameLevel1.prototype = {
 	},
 
 	fireballDamage : function (mudBallSprite, heroSprite) {
-		var damage = 70;
+		var damage = 150;
 		if(game.state.callbackContext.hero.maskPut){
 			damage = 10;
 		}
