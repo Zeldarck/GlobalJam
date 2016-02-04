@@ -504,11 +504,7 @@ gameLevel1.prototype = {
     },
     // Called for each refresh
     update: function (){
-<<<<<<< HEAD
-    	
-=======
 		life.setText("HP :"+this.hero.life);
->>>>>>> origin/master
 		this.createRhino();
 		this.createPango();
 		this.createSuri();
