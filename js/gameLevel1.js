@@ -293,6 +293,7 @@ gameLevel1.prototype = {
         // Create a sprite
         this.backgroundSprite = game.add.sprite(0, 0, 'background');
 		game.stage.backgroundColor = '#787878';
+		this.backgroundSprite.fixedToCamera = true;
 
         var sprite = game.add.sprite(20, 280, 'characterFrames');
         // var sprite = game.add.sprite(15380, 720, 'characterFrames'); //new Pnj('I want a mask',game.add.sprite(15380, 720, 'esquimo'),1);
@@ -503,11 +504,9 @@ gameLevel1.prototype = {
     },
     // Called for each refresh
     update: function (){
-<<<<<<< HEAD
-    	
-=======
+
 		life.setText("HP :"+this.hero.life);
->>>>>>> origin/master
+
 		this.createRhino();
 		this.createPango();
 		this.createSuri();
