@@ -504,13 +504,13 @@ gameLevel1.prototype = {
     },
     // Called for each refresh
     update: function (){
-<<<<<<< HEAD
+/*<<<<<<< HEAD*/
 
 		life.setText("HP :"+this.hero.life);
 
-=======
+/*=======*/
 		life.setText("HP :"+this.hero.life);
->>>>>>> origin/master
+/*>>>>>>> origin/master*/
 		this.createRhino();
 		this.createPango();
 		this.createSuri();
