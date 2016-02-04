@@ -1,13 +1,16 @@
 #gameDiv{
-	margin: 100px auto;
+	margin: 50px auto;
     width: 1000px;
+	border: 5px solid black;
 }
-.titre{
-	background-image: url(../assets/titre.png);
-	width: 848px;
-    height: 500px;
-    margin: 100px auto;
-	
+.center{
+		margin :auto;
+		text-align:center;
+}
+#title{
+	width: 424px;
+    height: 250px;
+	display:inline-block;
 }
 body{
 	background-color: #0071E6;
